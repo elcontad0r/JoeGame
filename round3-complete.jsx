@@ -101,7 +101,7 @@ const Round3Game = ({ onBack }) => {
     const parts = [];
     
     if (promptContext) parts.push(`CONTEXT: ${promptContext}`);
-    if (promptFormat) parts.push(`FORMAT: ${promptFormat}`);
+    if (promptFormat) parts.push(`CONTENT STRUCTURE: ${promptFormat}`);
     if (promptAudience) parts.push(`AUDIENCE: ${promptAudience}`);
     if (promptConstraints) parts.push(`CONSTRAINTS: ${promptConstraints}`);
     if (promptGoal) parts.push(`GOAL: ${promptGoal}`);
@@ -112,27 +112,14 @@ const Round3Game = ({ onBack }) => {
 
 ${parts.join('\n\n')}
 
-CRITICAL - OUTPUT FORMAT:
-Your response will be displayed in HTML. You MUST use these tags:
-- <h2>Section Title</h2> for major sections
-- <h3>Subsection</h3> for subsections  
-- <p>Regular paragraph text goes here.</p> for ALL body text
-- <ul><li>Bullet point one</li><li>Bullet point two</li></ul> for bullet lists
-- <strong>bold text</strong> for emphasis
-- Leave blank lines between major sections
+OUTPUT ENCODING (separate from content structure above):
+Encode your response using HTML tags so it displays properly:
+- Wrap each paragraph in <p></p> tags
+- Use <h2> for major sections, <h3> for subsections
+- Use <ul><li></li></ul> for any bullet points
+- Use <strong> for emphasis
 
-Example format:
-<h2>Executive Summary</h2>
-<p>First paragraph of summary text here.</p>
-<p>Second paragraph continues here.</p>
-
-<h3>Key Points</h3>
-<ul>
-<li>First bullet point with full sentence</li>
-<li>Second bullet point here</li>
-</ul>
-
-Do NOT use markdown (no #, -, **, or ---). Output pure HTML tags only.`;
+Follow the CONTENT STRUCTURE they specified above, but mark it up with these HTML tags.`;
   };
 
   const allFieldsFilled = promptContext && promptFormat && promptAudience && promptConstraints && promptGoal;
@@ -272,16 +259,11 @@ Show real consequences:
 
 Point to specific elements in the content that caused the outcome. What was missing? What was there? What made the difference?
 
-CRITICAL - OUTPUT FORMAT:
-Your response will be displayed in HTML. You MUST format like this example:
-
-<p><strong>THE FIRST GATE:</strong> Partner skims it at 11:47 PM. She sees the numbers and forwards it with "looks good."</p>
-
-<p><strong>WHERE IT GOES:</strong> Chief of Staff reads it at 6 AM. He immediately calls: "Did you actually read this? It's defending their monopoly but we need antitrust arguments. The Senator is going to look like a corporate shill."</p>
-
-<p><strong>THE CONSEQUENCES:</strong> Senator walks into committee with wrong talking points. Ranking member eviscerates her position. The clip goes viral as "Senator Can't Defend Her Own Bill."</p>
-
-Use <p> tags for EVERY paragraph. Use <strong> for emphasis. Do NOT use markdown (no ##, **, or -).`;
+OUTPUT ENCODING:
+Encode your response using HTML tags:
+- Wrap each paragraph in <p></p> tags
+- Use <strong> for emphasis
+This is about how to mark up your text, not what to write.`;
 
 
       const simResponse = await fetch('/api/generate-content', {
