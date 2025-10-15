@@ -112,7 +112,13 @@ const Round3Game = ({ onBack }) => {
 
 ${parts.join('\n\n')}
 
-IMPORTANT: Format your output using HTML tags for structure: <h2> and <h3> for headers, <strong> for bold text, <p> for paragraphs, <ul> and <li> for bullet points. Do not use markdown syntax (no #, ##, ---, or - for bullets).`;
+CRITICAL FORMATTING: You must use proper HTML tags:
+- Wrap ALL text in <p> tags for paragraphs
+- Use <h2> for major sections, <h3> for subsections
+- Use <strong> for bold/emphasis
+- Use <ul> and <li> for bullet lists (NOT dashes or asterisks)
+- Put blank lines between elements using proper closing/opening tags
+- Do NOT use any markdown syntax (no #, ##, ---, -, or ** anywhere)`;
   };
 
   const allFieldsFilled = promptContext && promptFormat && promptAudience && promptConstraints && promptGoal;
@@ -252,7 +258,11 @@ Show real consequences:
 
 Point to specific elements in the content that caused the outcome. What was missing? What was there? What made the difference?
 
-IMPORTANT: Format your output using HTML tags: <strong> for bold, <p> for paragraphs. Do not use markdown syntax (no ##, ---, or **).`;
+CRITICAL FORMATTING: Use proper HTML tags:
+- Wrap ALL text in <p> tags for paragraphs  
+- Use <strong> for bold/emphasis
+- Do NOT use any markdown syntax (no ##, ---, or **)
+- Ensure proper paragraph spacing with closing/opening <p> tags`;
 
       const simResponse = await fetch('/api/generate-content', {
         method: 'POST',
@@ -571,7 +581,7 @@ IMPORTANT: Format your output using HTML tags: <strong> for bold, <p> for paragr
               🎬 How It Played Out
             </h3>
             <div className="bg-white rounded-lg p-5 text-gray-900 leading-relaxed text-sm prose prose-sm max-w-none">
-              <div dangerouslySetInnerHTML={{ __html: generatedOutput }} />
+              <div dangerouslySetInnerHTML={{ __html: simulation }} />
             </div>
           </div>
         )}
