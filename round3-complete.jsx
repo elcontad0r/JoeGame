@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { AlertCircle, Sparkles, Zap, Trophy, TrendingUp, CheckCircle, Lightbulb, ArrowRight, RefreshCw } from 'lucide-react';
+import { AlertCircle, Sparkles, Zap, Trophy, TrendingUp, CheckCircle, Lightbulb, ArrowRight, RefreshCw, Edit2, ChevronUp } from 'lucide-react';
 
 const Round3Game = ({ onBack }) => {
   const [stage, setStage] = useState('loading');
@@ -9,9 +9,17 @@ const Round3Game = ({ onBack }) => {
   const [promptAudience, setPromptAudience] = useState('');
   const [promptConstraints, setPromptConstraints] = useState('');
   const [promptGoal, setPromptGoal] = useState('');
+  const [collapsed, setCollapsed] = useState({
+    context: false,
+    format: false,
+    audience: false,
+    constraints: false,
+    goal: false
+  });
   const [userPrompt, setUserPrompt] = useState('');
   const [showHints, setShowHints] = useState(false);
   const [generatedOutput, setGeneratedOutput] = useState('');
+  const [simulation, setSimulation] = useState(null);
   const [evaluation, setEvaluation] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [leaderboard, setLeaderboard] = useState([]);
@@ -32,6 +40,8 @@ const Round3Game = ({ onBack }) => {
 
 ${parts.join('\n\n')}`;
   };
+
+  const allFieldsFilled = promptContext && promptFormat && promptAudience && promptConstraints && promptGoal;
 
   useEffect(() => {
     generateScenario();
@@ -79,14 +89,7 @@ ${parts.join('\n\n')}`;
       setStage('scenario');
     } catch (error) {
       console.error('Error generating scenario:', error);
-      // Fallback scenario
-      setScenario({
-        title: "Breaking: Consumer Group Launches Campaign",
-        urgency: "Response needed in 90 minutes",
-        situation: "National consumer advocacy group just released report calling your telecom client 'predatory' for data pricing. Trending on social media. Client needs statement for 3pm press call.",
-        requirement: "Draft public statement",
-        sector: "telecommunications"
-      });
+      alert('Failed to generate scenario. Please check API connection.');
       setStage('scenario');
     }
   };
@@ -115,8 +118,10 @@ ${parts.join('\n\n')}`;
   ];
 
   const handleGenerate = async () => {
-    if (userPrompt.length < 20) return;
+    if (!allFieldsFilled) return;
     
+    const fullPrompt = buildFullPrompt();
+    setUserPrompt(fullPrompt);
     setIsGenerating(true);
     setStage('generating');
 
@@ -125,7 +130,7 @@ ${parts.join('\n\n')}`;
       const outputResponse = await fetch('/api/generate-content', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: userPrompt })
+        body: JSON.stringify({ prompt: fullPrompt })
       });
 
       if (!outputResponse.ok) {
@@ -135,13 +140,54 @@ ${parts.join('\n\n')}`;
       const outputData = await outputResponse.json();
       setGeneratedOutput(outputData.output);
 
+      // Simulate scenario outcome
+      const simPrompt = `You are simulating what happens when the following content is used in this scenario:
+
+SCENARIO: ${scenario.situation}
+AUDIENCE: ${promptAudience || scenario.requirement}
+CONTENT DELIVERED:
+${outputData.output}
+
+Simulate what happens when this content is used. Write 2-3 paragraphs showing:
+1. How the audience receives/reads it (their initial reaction)
+2. What happens during the interaction/meeting
+3. The outcome
+
+Include at least one direct quote from a key stakeholder reacting to the content. Make it specific to what worked or didn't work. Show different outcomes based on quality:
+- If content is vague: audience is confused, asks for clarification, meeting stalls
+- If content is too complex: audience is overwhelmed, misses key points
+- If content is off-tone: audience is put off, trust is damaged
+- If content is strong: audience is clear, meeting is productive, goals achieved
+
+Be realistic and specific. Make it dramatic enough to be memorable.`;
+
+      const simResponse = await fetch('/api/generate-content', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: simPrompt })
+      });
+
+      if (!simResponse.ok) {
+        throw new Error('Failed to generate simulation');
+      }
+
+      const simData = await simResponse.json();
+      setSimulation(simData.output);
+
       // Evaluate prompt
       const evalResponse = await fetch('/api/evaluate-prompt', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          userPrompt,
-          scenario
+          userPrompt: fullPrompt,
+          scenario,
+          promptComponents: {
+            context: promptContext,
+            format: promptFormat,
+            audience: promptAudience,
+            constraints: promptConstraints,
+            goal: promptGoal
+          }
         })
       });
 
@@ -160,15 +206,80 @@ ${parts.join('\n\n')}`;
     } catch (error) {
       console.error('Error:', error);
       setIsGenerating(false);
-      // Fallback evaluation
-      setEvaluation({
-        score: 50,
-        strengths: ["Attempted the task"],
-        improvements: ["Add more specific context", "Define the desired format", "Specify your audience"],
-        verdict: "Good attempt but needs more detail for production-quality output."
-      });
-      setStage('results');
+      alert('Generation failed. Please try again.');
+      setStage('write-prompt');
     }
+  };
+
+  const toggleCollapse = (field) => {
+    setCollapsed({ ...collapsed, [field]: !collapsed[field] });
+  };
+
+  const ingredientColors = {
+    context: { bg: 'bg-orange-50', border: 'border-orange-300', text: 'text-orange-900', label: 'bg-orange-200 text-orange-900' },
+    format: { bg: 'bg-yellow-50', border: 'border-yellow-300', text: 'text-yellow-900', label: 'bg-yellow-200 text-yellow-900' },
+    audience: { bg: 'bg-green-50', border: 'border-green-300', text: 'text-green-900', label: 'bg-green-200 text-green-900' },
+    constraints: { bg: 'bg-blue-50', border: 'border-blue-300', text: 'text-blue-900', label: 'bg-blue-200 text-blue-900' },
+    goal: { bg: 'bg-purple-50', border: 'border-purple-300', text: 'text-purple-900', label: 'bg-purple-200 text-purple-900' }
+  };
+
+  const IngredientField = ({ field, number, title, placeholder, value, onChange, hint }) => {
+    const isCollapsed = collapsed[field];
+    const colors = ingredientColors[field];
+    const hasContent = value.trim().length > 0;
+
+    if (isCollapsed && hasContent) {
+      return (
+        <div className={`${colors.bg} border-2 ${colors.border} rounded-lg p-4 mb-4`}>
+          <div className="flex items-start justify-between">
+            <div className="flex-1">
+              <div className={`inline-block ${colors.label} px-2 py-0.5 rounded text-xs font-bold mb-2`}>
+                {number}. {title}
+              </div>
+              <p className={`text-sm ${colors.text} font-medium line-clamp-2`}>
+                {value}
+              </p>
+            </div>
+            <button
+              onClick={() => toggleCollapse(field)}
+              className={`${colors.text} hover:opacity-70 p-2 ml-2`}
+              title="Edit"
+            >
+              <Edit2 size={18} />
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="bg-white rounded-lg border-2 border-gray-200 p-4 mb-4">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <span className="bg-purple-100 text-purple-800 w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold">
+              {number}
+            </span>
+            <label className="font-semibold text-gray-900">{title}</label>
+          </div>
+          {hasContent && (
+            <button
+              onClick={() => toggleCollapse(field)}
+              className="text-gray-400 hover:text-gray-600 p-1"
+              title="Collapse"
+            >
+              <ChevronUp size={18} />
+            </button>
+          )}
+        </div>
+        <p className="text-xs text-gray-600 mb-2">{hint}</p>
+        <textarea
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          className="w-full h-24 p-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-sm"
+        />
+      </div>
+    );
   };
 
   const renderLoading = () => (
@@ -229,8 +340,6 @@ ${parts.join('\n\n')}`;
   const renderWritePrompt = () => {
     if (!scenario) return null;
 
-    const fullPrompt = buildFullPrompt();
-
     return (
       <div className="max-w-4xl mx-auto p-6">
         {/* Reminder banner */}
@@ -277,106 +386,68 @@ ${parts.join('\n\n')}`;
           </div>
         )}
 
-        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+        {/* Ingredient Fields */}
+        <div className="mb-6">
           <h3 className="font-bold text-lg mb-4">Build your prompt - fill in each component:</h3>
           
-          {/* Context field */}
-          <div className="mb-6">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="bg-purple-100 text-purple-800 w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold">1</span>
-              <label className="font-semibold text-gray-900">Context</label>
-            </div>
-            <p className="text-xs text-gray-600 mb-2">What specific details does Claude need? Company info, numbers, operational constraints...</p>
-            <textarea
-              value={promptContext}
-              onChange={(e) => setPromptContext(e.target.value)}
-              placeholder="e.g., 'Company: MidAtlantic Manufacturing, 12 facilities (PA/OH/WV), 2,400 employees, $38-42M investment needed...'"
-              className="w-full h-24 p-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-sm"
-            />
-          </div>
+          <IngredientField
+            field="context"
+            number={1}
+            title="Context"
+            hint="What specific details does Claude need? Company info, numbers, operational constraints..."
+            placeholder="e.g., 'Company: MidAtlantic Manufacturing, 12 facilities (PA/OH/WV), 2,400 employees, $38-42M investment needed...'"
+            value={promptContext}
+            onChange={setPromptContext}
+          />
 
-          {/* Format field */}
-          <div className="mb-6">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="bg-purple-100 text-purple-800 w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold">2</span>
-              <label className="font-semibold text-gray-900">Format</label>
-            </div>
-            <p className="text-xs text-gray-600 mb-2">What structure and style should the output have?</p>
-            <textarea
-              value={promptFormat}
-              onChange={(e) => setPromptFormat(e.target.value)}
-              placeholder="e.g., 'Press statement format with clear sections, bullet points for key facts, under 300 words'"
-              className="w-full h-24 p-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-sm"
-            />
-          </div>
+          <IngredientField
+            field="format"
+            number={2}
+            title="Format"
+            hint="What structure and style should the output have?"
+            placeholder="e.g., 'Press statement format with clear sections, bullet points for key facts, under 300 words'"
+            value={promptFormat}
+            onChange={setPromptFormat}
+          />
 
-          {/* Audience field */}
-          <div className="mb-6">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="bg-purple-100 text-purple-800 w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold">3</span>
-              <label className="font-semibold text-gray-900">Audience</label>
-            </div>
-            <p className="text-xs text-gray-600 mb-2">Who will read this and what do they need?</p>
-            <textarea
-              value={promptAudience}
-              onChange={(e) => setPromptAudience(e.target.value)}
-              placeholder="e.g., 'Media/journalists covering business and policy, need credible facts and company perspective'"
-              className="w-full h-24 p-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-sm"
-            />
-          </div>
+          <IngredientField
+            field="audience"
+            number={3}
+            title="Audience"
+            hint="Who will read this and what do they need?"
+            placeholder="e.g., 'Media/journalists covering business and policy, need credible facts and company perspective'"
+            value={promptAudience}
+            onChange={setPromptAudience}
+          />
 
-          {/* Constraints field */}
-          <div className="mb-6">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="bg-purple-100 text-purple-800 w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold">4</span>
-              <label className="font-semibold text-gray-900">Constraints</label>
-            </div>
-            <p className="text-xs text-gray-600 mb-2">Time limits, length requirements, approval process...</p>
-            <textarea
-              value={promptConstraints}
-              onChange={(e) => setPromptConstraints(e.target.value)}
-              placeholder="e.g., 'CEO needs to read in 2 minutes before press call, must avoid technical jargon'"
-              className="w-full h-24 p-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-sm"
-            />
-          </div>
+          <IngredientField
+            field="constraints"
+            number={4}
+            title="Constraints"
+            hint="Time limits, length requirements, approval process..."
+            placeholder="e.g., 'CEO needs to read in 2 minutes before press call, must avoid technical jargon'"
+            value={promptConstraints}
+            onChange={setPromptConstraints}
+          />
 
-          {/* Goal field */}
-          <div className="mb-6">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="bg-purple-100 text-purple-800 w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold">5</span>
-              <label className="font-semibold text-gray-900">Goal</label>
-            </div>
-            <p className="text-xs text-gray-600 mb-2">What outcome do you want? What should readers believe or do?</p>
-            <textarea
-              value={promptGoal}
-              onChange={(e) => setPromptGoal(e.target.value)}
-              placeholder="e.g., 'Position company as responsible corporate citizen seeking reasonable implementation timeline, not exemption'"
-              className="w-full h-24 p-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-sm"
-            />
-          </div>
+          <IngredientField
+            field="goal"
+            number={5}
+            title="Goal"
+            hint="What outcome do you want? What should readers believe or do?"
+            placeholder="e.g., 'Position company as responsible corporate citizen seeking reasonable implementation timeline, not exemption'"
+            value={promptGoal}
+            onChange={setPromptGoal}
+          />
         </div>
-
-        {/* Full prompt preview */}
-        {fullPrompt && (
-          <div className="bg-gray-50 rounded-lg p-6 mb-6 border-2 border-gray-300">
-            <h3 className="font-semibold mb-3 text-gray-900">Your Complete Prompt:</h3>
-            <div className="bg-white p-4 rounded border border-gray-300 font-mono text-xs leading-relaxed max-h-64 overflow-y-auto whitespace-pre-wrap">
-              {fullPrompt}
-            </div>
-            <p className="text-xs text-gray-600 mt-2">{fullPrompt.length} characters</p>
-          </div>
-        )}
 
         {/* Generate button */}
         <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg shadow-lg p-6">
           <button
-            onClick={() => {
-              setUserPrompt(fullPrompt);
-              handleGenerate();
-            }}
-            disabled={!fullPrompt || fullPrompt.length < 50 || isGenerating}
+            onClick={handleGenerate}
+            disabled={!allFieldsFilled || isGenerating}
             className={`w-full px-8 py-4 rounded-lg font-bold text-lg transition-colors flex items-center justify-center gap-2 ${
-              fullPrompt && fullPrompt.length >= 50 && !isGenerating
+              allFieldsFilled && !isGenerating
                 ? 'bg-green-600 text-white hover:bg-green-700'
                 : 'bg-gray-300 text-gray-500 cursor-not-allowed'
             }`}
@@ -389,12 +460,12 @@ ${parts.join('\n\n')}`;
             ) : (
               <>
                 <Zap size={20} />
-                Generate & Score My Prompt
+                Generate & See What Happens
               </>
             )}
           </button>
-          {(!fullPrompt || fullPrompt.length < 50) && (
-            <p className="text-sm text-gray-600 text-center mt-3">Fill in the components above to build your prompt</p>
+          {!allFieldsFilled && (
+            <p className="text-sm text-gray-600 text-center mt-3">Fill in all 5 components to generate</p>
           )}
         </div>
       </div>
@@ -409,7 +480,7 @@ ${parts.join('\n\n')}`;
         </div>
         <h2 className="text-2xl font-bold mb-3">Claude is working…</h2>
         <p className="text-gray-600 mb-2">Generating your {scenario?.requirement}</p>
-        <p className="text-sm text-gray-500">Then evaluating your prompt quality</p>
+        <p className="text-sm text-gray-500">Then simulating the scenario outcome</p>
       </div>
     </div>
   );
@@ -446,6 +517,29 @@ ${parts.join('\n\n')}`;
           <p className="text-sm font-semibold text-gray-900">{scenario.title}</p>
         </div>
 
+        {/* Generated Output */}
+        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+          <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
+            <Sparkles size={20} className="text-orange-600" />
+            What Claude Generated:
+          </h3>
+          <div className="bg-gray-50 p-4 rounded border border-gray-200 text-sm leading-relaxed max-h-64 overflow-y-auto whitespace-pre-wrap">
+            {generatedOutput}
+          </div>
+        </div>
+
+        {/* Simulation - THE PAYOFF */}
+        {simulation && (
+          <div className="bg-gradient-to-br from-orange-50 to-red-50 border-2 border-orange-300 rounded-lg p-6 mb-6">
+            <h3 className="font-bold text-xl mb-4 text-orange-900 flex items-center gap-2">
+              🎬 How It Played Out
+            </h3>
+            <div className="bg-white rounded-lg p-5 text-gray-900 leading-relaxed whitespace-pre-wrap text-sm">
+              {simulation}
+            </div>
+          </div>
+        )}
+
         {/* Score Card */}
         <div className={`rounded-lg p-6 mb-6 border-2 ${getScoreBgColor(evaluation.score)}`}>
           <div className="flex items-center justify-between mb-4">
@@ -459,64 +553,95 @@ ${parts.join('\n\n')}`;
               {evaluation.score}
             </div>
           </div>
-          <p className="text-gray-700 italic">{evaluation.verdict}</p>
         </div>
 
-        {/* Your Prompt */}
-        <div className="bg-gray-50 rounded-lg p-6 mb-6 border border-gray-200">
-          <h3 className="font-semibold text-lg mb-3">Your Prompt:</h3>
-          <div className="bg-white p-4 rounded text-sm font-mono leading-relaxed whitespace-pre-wrap border border-gray-300 max-h-48 overflow-y-auto">
-            {userPrompt}
-          </div>
-        </div>
+        {/* Ingredient Breakdown */}
+        {evaluation.ingredients && (
+          <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <h3 className="font-semibold text-lg mb-4">How Each Component Scored:</h3>
+            <div className="space-y-3">
+              {evaluation.ingredients.context && (
+                <div className={`${ingredientColors.context.bg} border-2 ${ingredientColors.context.border} rounded-lg p-4`}>
+                  <div className="flex items-center justify-between mb-2">
+                    <div className={`${ingredientColors.context.label} px-3 py-1 rounded text-sm font-bold`}>
+                      Context
+                    </div>
+                    <div className={`text-2xl font-bold ${getScoreColor(evaluation.ingredients.context.score)}`}>
+                      {evaluation.ingredients.context.score}/20
+                    </div>
+                  </div>
+                  <p className={`text-sm ${ingredientColors.context.text}`}>
+                    {evaluation.ingredients.context.feedback}
+                  </p>
+                </div>
+              )}
 
-        {/* Generated Output */}
-        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-          <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
-            <Sparkles size={20} className="text-orange-600" />
-            What Claude Generated:
-          </h3>
-          <div className="bg-gray-50 p-4 rounded border border-gray-200 text-sm leading-relaxed max-h-96 overflow-y-auto whitespace-pre-wrap">
-            {generatedOutput}
-          </div>
-        </div>
+              {evaluation.ingredients.format && (
+                <div className={`${ingredientColors.format.bg} border-2 ${ingredientColors.format.border} rounded-lg p-4`}>
+                  <div className="flex items-center justify-between mb-2">
+                    <div className={`${ingredientColors.format.label} px-3 py-1 rounded text-sm font-bold`}>
+                      Format
+                    </div>
+                    <div className={`text-2xl font-bold ${getScoreColor(evaluation.ingredients.format.score)}`}>
+                      {evaluation.ingredients.format.score}/20
+                    </div>
+                  </div>
+                  <p className={`text-sm ${ingredientColors.format.text}`}>
+                    {evaluation.ingredients.format.feedback}
+                  </p>
+                </div>
+              )}
 
-        {/* Feedback */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          {evaluation.strengths && evaluation.strengths.length > 0 && (
-            <div className="bg-green-50 rounded-lg p-6 border border-green-200">
-              <h3 className="font-bold text-green-800 mb-3 flex items-center gap-2">
-                <CheckCircle size={20} />
-                What Worked:
-              </h3>
-              <ul className="space-y-2">
-                {evaluation.strengths.map((strength, idx) => (
-                  <li key={idx} className="text-sm text-green-900 flex items-start gap-2">
-                    <span className="text-green-600 flex-shrink-0">✓</span>
-                    <span>{strength}</span>
-                  </li>
-                ))}
-              </ul>
+              {evaluation.ingredients.audience && (
+                <div className={`${ingredientColors.audience.bg} border-2 ${ingredientColors.audience.border} rounded-lg p-4`}>
+                  <div className="flex items-center justify-between mb-2">
+                    <div className={`${ingredientColors.audience.label} px-3 py-1 rounded text-sm font-bold`}>
+                      Audience
+                    </div>
+                    <div className={`text-2xl font-bold ${getScoreColor(evaluation.ingredients.audience.score)}`}>
+                      {evaluation.ingredients.audience.score}/20
+                    </div>
+                  </div>
+                  <p className={`text-sm ${ingredientColors.audience.text}`}>
+                    {evaluation.ingredients.audience.feedback}
+                  </p>
+                </div>
+              )}
+
+              {evaluation.ingredients.constraints && (
+                <div className={`${ingredientColors.constraints.bg} border-2 ${ingredientColors.constraints.border} rounded-lg p-4`}>
+                  <div className="flex items-center justify-between mb-2">
+                    <div className={`${ingredientColors.constraints.label} px-3 py-1 rounded text-sm font-bold`}>
+                      Constraints
+                    </div>
+                    <div className={`text-2xl font-bold ${getScoreColor(evaluation.ingredients.constraints.score)}`}>
+                      {evaluation.ingredients.constraints.score}/20
+                    </div>
+                  </div>
+                  <p className={`text-sm ${ingredientColors.constraints.text}`}>
+                    {evaluation.ingredients.constraints.feedback}
+                  </p>
+                </div>
+              )}
+
+              {evaluation.ingredients.goal && (
+                <div className={`${ingredientColors.goal.bg} border-2 ${ingredientColors.goal.border} rounded-lg p-4`}>
+                  <div className="flex items-center justify-between mb-2">
+                    <div className={`${ingredientColors.goal.label} px-3 py-1 rounded text-sm font-bold`}>
+                      Goal
+                    </div>
+                    <div className={`text-2xl font-bold ${getScoreColor(evaluation.ingredients.goal.score)}`}>
+                      {evaluation.ingredients.goal.score}/20
+                    </div>
+                  </div>
+                  <p className={`text-sm ${ingredientColors.goal.text}`}>
+                    {evaluation.ingredients.goal.feedback}
+                  </p>
+                </div>
+              )}
             </div>
-          )}
-
-          {evaluation.improvements && evaluation.improvements.length > 0 && (
-            <div className="bg-blue-50 rounded-lg p-6 border border-blue-200">
-              <h3 className="font-bold text-blue-800 mb-3 flex items-center gap-2">
-                <TrendingUp size={20} />
-                To Improve:
-              </h3>
-              <ul className="space-y-2">
-                {evaluation.improvements.map((improvement, idx) => (
-                  <li key={idx} className="text-sm text-blue-900 flex items-start gap-2">
-                    <span className="text-blue-600 flex-shrink-0">→</span>
-                    <span>{improvement}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Final CTA */}
         <div className="bg-gradient-to-r from-purple-50 to-orange-50 rounded-lg shadow-lg p-8 text-center">
@@ -536,8 +661,16 @@ ${parts.join('\n\n')}`;
                 setPromptAudience('');
                 setPromptConstraints('');
                 setPromptGoal('');
+                setCollapsed({
+                  context: false,
+                  format: false,
+                  audience: false,
+                  constraints: false,
+                  goal: false
+                });
                 setUserPrompt('');
                 setGeneratedOutput('');
+                setSimulation(null);
                 setEvaluation(null);
               }}
               className="bg-gray-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-gray-700 transition-colors"
@@ -551,8 +684,16 @@ ${parts.join('\n\n')}`;
                 setPromptAudience('');
                 setPromptConstraints('');
                 setPromptGoal('');
+                setCollapsed({
+                  context: false,
+                  format: false,
+                  audience: false,
+                  constraints: false,
+                  goal: false
+                });
                 setUserPrompt('');
                 setGeneratedOutput('');
+                setSimulation(null);
                 setEvaluation(null);
                 generateScenario();
               }}
@@ -636,8 +777,16 @@ ${parts.join('\n\n')}`;
             setPromptAudience('');
             setPromptConstraints('');
             setPromptGoal('');
+            setCollapsed({
+              context: false,
+              format: false,
+              audience: false,
+              constraints: false,
+              goal: false
+            });
             setUserPrompt('');
             setGeneratedOutput('');
+            setSimulation(null);
             setEvaluation(null);
             generateScenario();
           }}
@@ -653,8 +802,11 @@ ${parts.join('\n\n')}`;
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-4 sm:py-8">
       <div className="max-w-6xl mx-auto mb-6 px-4">
         <div className="text-center">
-          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">AI Prompting Game: Round 3</h1>
-          <p className="text-gray-600">Freestyle - Write Your Own</p>
+          <div className="inline-block bg-orange-100 text-orange-800 px-4 py-1 rounded-full text-sm font-semibold mb-4">
+            Round 3 of 3
+          </div>
+          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">Freestyle Challenge</h1>
+          <p className="text-gray-600">Write your own prompt & see how it plays out</p>
         </div>
       </div>
 
