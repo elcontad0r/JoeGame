@@ -212,26 +212,43 @@ ${parts.join('\n\n')}`;
       const outputData = await outputResponse.json();
       setGeneratedOutput(outputData.output);
 
-      // Simulate scenario outcome
-      const simPrompt = `You are simulating what happens when the following content is used in this scenario:
+      // Simulate scenario outcome - REALISTIC CONSEQUENCES
+      const simPrompt = `You're simulating what happens when this content gets used in the actual scenario. The danger isn't always that someone catches it internally - it's when it gets past that first check and hits the real world.
 
 SCENARIO: ${scenario.situation}
-AUDIENCE: ${promptAudience || scenario.requirement}
-CONTENT DELIVERED:
+TASK: ${scenario.requirement}
+
+THE CONTENT GENERATED:
 ${outputData.output}
 
-Simulate what happens when this content is used. Write 2-3 paragraphs showing:
-1. How the audience receives/reads it (their initial reaction)
-2. What happens during the interaction/meeting
-3. The outcome
+Show what happens:
 
-Include at least one direct quote from a key stakeholder reacting to the content. Make it specific to what worked or didn't work. Show different outcomes based on quality:
-- If content is vague: audience is confused, asks for clarification, meeting stalls
-- If content is too complex: audience is overwhelmed, misses key points
-- If content is off-tone: audience is put off, trust is damaged
-- If content is strong: audience is clear, meeting is productive, goals achieved
+1. THE FIRST GATE
+Partner/exec is slammed, skims it quickly. Does it LOOK right at a glance? If it seems fine, they send it up. If it's obviously wrong, they kick it back. What happens here?
 
-Be realistic and specific. Make it dramatic enough to be memorable.`;
+2. WHERE IT GOES
+This gets sent to [the Senator's office / filed in the docket / sent to press / shared with the client / presented to the board]. Now someone with actual stakes - or someone actively hostile - is reading it carefully. What do they notice?
+
+3. THE CONSEQUENCES
+Be specific about what breaks:
+- Does it get used in a hearing and expose gaps in the argument?
+- Does a journalist quote it back and ask why it's so vague?
+- Does opposing counsel enter it into record and use it against you?
+- Does the CEO get asked about it on a call and not have real answers?
+- Does committee staff call it out as generic AI slop?
+- Does it create a viral moment that becomes a liability?
+- Does it work well enough that you actually win something?
+
+Write 2-3 paragraphs showing the chain of events. Include at least one direct quote from the moment it goes wrong (or right).
+
+Tone guide: Veep meets West Wing meets In The Loop. Smart people under pressure who notice specifics. If the content is solid, they use it and you might win. If it's generic/vague, someone with an incentive to embarrass you WILL notice and exploit it. If it's wrong-tone, you look like you don't understand the room you're in.
+
+Show real consequences:
+- Good: "The Senator used your talking points verbatim and they landed. Committee counsel tried to trip her up and she had the specifics to push back. You're in the next meeting."
+- Okay: "Chief of staff called you. 'This is... fine. But I had to rewrite half of it because you gave me corporate speak when I needed legislation language. Next time give me something I can actually use.'"
+- Bad: "Your CEO got called to testify. Ranking member read your brief out loud, asked why it sounded like a chatbot wrote it, and requested internal communications. Legal wants to talk to you. The stock dropped 4%. There's a meme."
+
+Point to specific elements in the content that caused the outcome. What was missing? What was there? What made the difference?`;
 
       const simResponse = await fetch('/api/generate-content', {
         method: 'POST',
