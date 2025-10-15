@@ -112,13 +112,27 @@ const Round3Game = ({ onBack }) => {
 
 ${parts.join('\n\n')}
 
-CRITICAL FORMATTING: You must use proper HTML tags:
-- Wrap ALL text in <p> tags for paragraphs
-- Use <h2> for major sections, <h3> for subsections
-- Use <strong> for bold/emphasis
-- Use <ul> and <li> for bullet lists (NOT dashes or asterisks)
-- Put blank lines between elements using proper closing/opening tags
-- Do NOT use any markdown syntax (no #, ##, ---, -, or ** anywhere)`;
+CRITICAL - OUTPUT FORMAT:
+Your response will be displayed in HTML. You MUST use these tags:
+- <h2>Section Title</h2> for major sections
+- <h3>Subsection</h3> for subsections  
+- <p>Regular paragraph text goes here.</p> for ALL body text
+- <ul><li>Bullet point one</li><li>Bullet point two</li></ul> for bullet lists
+- <strong>bold text</strong> for emphasis
+- Leave blank lines between major sections
+
+Example format:
+<h2>Executive Summary</h2>
+<p>First paragraph of summary text here.</p>
+<p>Second paragraph continues here.</p>
+
+<h3>Key Points</h3>
+<ul>
+<li>First bullet point with full sentence</li>
+<li>Second bullet point here</li>
+</ul>
+
+Do NOT use markdown (no #, -, **, or ---). Output pure HTML tags only.`;
   };
 
   const allFieldsFilled = promptContext && promptFormat && promptAudience && promptConstraints && promptGoal;
@@ -258,11 +272,17 @@ Show real consequences:
 
 Point to specific elements in the content that caused the outcome. What was missing? What was there? What made the difference?
 
-CRITICAL FORMATTING: Use proper HTML tags:
-- Wrap ALL text in <p> tags for paragraphs  
-- Use <strong> for bold/emphasis
-- Do NOT use any markdown syntax (no ##, ---, or **)
-- Ensure proper paragraph spacing with closing/opening <p> tags`;
+CRITICAL - OUTPUT FORMAT:
+Your response will be displayed in HTML. You MUST format like this example:
+
+<p><strong>THE FIRST GATE:</strong> Partner skims it at 11:47 PM. She sees the numbers and forwards it with "looks good."</p>
+
+<p><strong>WHERE IT GOES:</strong> Chief of Staff reads it at 6 AM. He immediately calls: "Did you actually read this? It's defending their monopoly but we need antitrust arguments. The Senator is going to look like a corporate shill."</p>
+
+<p><strong>THE CONSEQUENCES:</strong> Senator walks into committee with wrong talking points. Ranking member eviscerates her position. The clip goes viral as "Senator Can't Defend Her Own Bill."</p>
+
+Use <p> tags for EVERY paragraph. Use <strong> for emphasis. Do NOT use markdown (no ##, **, or -).`;
+
 
       const simResponse = await fetch('/api/generate-content', {
         method: 'POST',
