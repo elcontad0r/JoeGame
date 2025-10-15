@@ -61,6 +61,11 @@ const IngredientField = ({ field, number, title, placeholder, value, onChange, h
       <textarea
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        onBlur={() => {
+          if (hasContent) {
+            onToggleCollapse(field);
+          }
+        }}
         placeholder={placeholder}
         className="w-full h-24 p-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-sm"
       />
