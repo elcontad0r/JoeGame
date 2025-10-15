@@ -538,8 +538,8 @@ Be realistic and specific. Make it dramatic enough to be memorable.`;
             <Sparkles size={20} className="text-orange-600" />
             What Claude Generated:
           </h3>
-          <div className="bg-gray-50 p-4 rounded border border-gray-200 text-sm leading-relaxed max-h-64 overflow-y-auto whitespace-pre-wrap">
-            {generatedOutput}
+          <div className="bg-gray-50 p-4 rounded border border-gray-200 text-sm leading-relaxed max-h-64 overflow-y-auto prose prose-sm max-w-none">
+            <div dangerouslySetInnerHTML={{ __html: generatedOutput.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n\n/g, '</p><p>').replace(/^/, '<p>').replace(/$/, '</p>').replace(/\n/g, '<br />') }} />
           </div>
         </div>
 
@@ -549,11 +549,18 @@ Be realistic and specific. Make it dramatic enough to be memorable.`;
             <h3 className="font-bold text-xl mb-4 text-orange-900 flex items-center gap-2">
               🎬 How It Played Out
             </h3>
-            <div className="bg-white rounded-lg p-5 text-gray-900 leading-relaxed whitespace-pre-wrap text-sm">
-              {simulation}
+            <div className="bg-white rounded-lg p-5 text-gray-900 leading-relaxed text-sm prose prose-sm max-w-none">
+              <div dangerouslySetInnerHTML={{ __html: simulation.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n\n/g, '</p><p>').replace(/^/, '<p>').replace(/$/, '</p>').replace(/\n/g, '<br />') }} />
             </div>
           </div>
         )}
+
+        {/* Connecting text */}
+        <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6 rounded-r-lg">
+          <p className="text-blue-900 font-semibold">
+            Here's why it went that way:
+          </p>
+        </div>
 
         {/* Score Card */}
         <div className={`rounded-lg p-6 mb-6 border-2 ${getScoreBgColor(evaluation.score)}`}>
@@ -573,7 +580,7 @@ Be realistic and specific. Make it dramatic enough to be memorable.`;
         {/* Ingredient Breakdown */}
         {evaluation.ingredients && (
           <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-            <h3 className="font-semibold text-lg mb-4">How Each Component Scored:</h3>
+            <h3 className="font-semibold text-lg mb-4">What Made Your Prompt Strong (or Weak):</h3>
             <div className="space-y-3">
               {evaluation.ingredients.context && (
                 <div className={`${ingredientColors.context.bg} border-2 ${ingredientColors.context.border} rounded-lg p-4`}>
