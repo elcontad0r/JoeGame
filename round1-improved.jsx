@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { AlertCircle, ArrowRight, ArrowDown, Clock, CheckCircle, Zap } from 'lucide-react';
 
-const Round1GameV2 = () => {
+const Round1GameV2 = ({ onComplete, onBack }) => {
   const [stage, setStage] = useState('scenario');
 
   const formatOutput = (text) => {
@@ -72,7 +72,7 @@ Write a 1-page executive brief that:
 4. Your recommendation with reasoning
 
 Format for scanning: section headers, bullets, keep dense.`,
-      highlight: ["MidAtlantic Manufacturing's CEO", "12 coating facilities", "8 facilities emit >25 tons/year", "Jan 2027", "$38-42M", "meeting with board in 2 hours"],
+      highlight: [],
       outputBefore: `The EPA has recently updated its air quality standards, introducing stricter limits on volatile organic compounds (VOCs) for manufacturing facilities. Companies will need to evaluate their current emissions levels and determine appropriate compliance pathways.
 
 Key considerations include:
@@ -153,7 +153,7 @@ Give me 3-4 strategic options beyond just "comply" or "sue." For each:
 - Risk level (Low/Med/High)
 
 End with which you'd recommend and one-sentence why.`,
-      highlight: ["Our constraints:", "$50M (already allocated)", "Can't shut down more than 2 facilities", "Trade association", "attainment areas"],
+      highlight: [],
       outputBefore: `There are several potential approaches to address the new EPA regulations:
 
 1. Full Compliance
@@ -232,7 +232,7 @@ Format:
 - "TYPICAL FACILITY COST" (one line)
 
 Partner needs to sound informed in 90 seconds. Skip anything that won't come up in the call.`,
-      highlight: ["Brief your partner", "smart but haven't followed EPA", "sound informed in 90 seconds", "Skip anything that won't come up"],
+      highlight: [],
       outputBefore: `EPA Air Quality Standards Update
 
 The Environmental Protection Agency (EPA) has issued a final rule revising the National Ambient Air Quality Standards (NAAQS) for volatile organic compounds. This rulemaking follows the Clean Air Act requirement for periodic review of air quality standards.
@@ -458,12 +458,14 @@ MidAtlantic's challenge is timeline, not cost—they need to retrofit 8 faciliti
         <p className="text-sm text-gray-500 mb-8">
           Next: Build a prompt yourself with live feedback
         </p>
-        <button
-          onClick={() => alert('Moving to Round 2...')}
-          className="bg-purple-600 text-white px-10 py-4 rounded-lg font-bold text-lg hover:bg-purple-700 transition-colors inline-flex items-center gap-2"
-        >
-          Start Round 2 <ArrowRight size={20} />
-        </button>
+        <div className="flex gap-4 justify-center">
+          <button
+            onClick={onComplete}
+            className="bg-purple-600 text-white px-10 py-4 rounded-lg font-bold text-lg hover:bg-purple-700 transition-colors inline-flex items-center gap-2"
+          >
+            Start Round 2 <ArrowRight size={20} />
+          </button>
+        </div>
       </div>
     </div>
   );
