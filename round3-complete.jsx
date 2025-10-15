@@ -98,20 +98,22 @@ const Round3Game = ({ onBack }) => {
 
   // Build full prompt from components
   const buildFullPrompt = () => {
-    const parts = [];
-    
-    if (promptContext) parts.push(`CONTEXT: ${promptContext}`);
-    if (promptFormat) parts.push(`FORMAT: ${promptFormat}`);
-    if (promptAudience) parts.push(`AUDIENCE: ${promptAudience}`);
-    if (promptConstraints) parts.push(`CONSTRAINTS: ${promptConstraints}`);
-    if (promptGoal) parts.push(`GOAL: ${promptGoal}`);
-    
-    if (parts.length === 0) return '';
-    
-    return `Create ${scenario?.requirement || 'content'} for this situation: ${scenario?.situation || ''}
+  const parts = [];
+  
+  if (promptContext) parts.push(`CONTEXT: ${promptContext}`);
+  if (promptFormat) parts.push(`FORMAT: ${promptFormat}`);
+  if (promptAudience) parts.push(`AUDIENCE: ${promptAudience}`);
+  if (promptConstraints) parts.push(`CONSTRAINTS: ${promptConstraints}`);
+  if (promptGoal) parts.push(`GOAL: ${promptGoal}`);
+  
+  if (parts.length === 0) return '';
+  
+  return `Create ${scenario?.requirement || 'content'} for this situation: ${scenario?.situation || ''}
 
-${parts.join('\n\n')}`;
-  };
+${parts.join('\n\n')}
+
+OUTPUT FORMAT: Use clean HTML formatting - <h2> for main sections, <h3> for subsections, <strong> for emphasis, <ul>/<li> for lists. Do NOT use markdown (no #, ##, ---, or - bullets). Write as if formatting for direct display on a webpage.`;
+};
 
   const allFieldsFilled = promptContext && promptFormat && promptAudience && promptConstraints && promptGoal;
 
