@@ -102,7 +102,7 @@ const Round3Game = ({ onBack }) => {
     const parts = [];
     
     if (promptContext) parts.push(`CONTEXT: ${promptContext}`);
-    if (promptFormat) parts.push(`CONTENT STRUCTURE: ${promptFormat}`);
+    if (promptFormat) parts.push(`FORMAT: ${promptFormat}`);
     if (promptAudience) parts.push(`AUDIENCE: ${promptAudience}`);
     if (promptConstraints) parts.push(`CONSTRAINTS: ${promptConstraints}`);
     if (promptGoal) parts.push(`GOAL: ${promptGoal}`);
@@ -111,54 +111,65 @@ const Round3Game = ({ onBack }) => {
     
     return `Create ${scenario?.requirement || 'content'} for this situation: ${scenario?.situation || ''}
 
-${parts.join('\n\n')}
-
-OUTPUT ENCODING (separate from content structure above):
-Encode your response using HTML tags so it displays properly:
-- Wrap each paragraph in <p></p> tags
-- Use <h2> for major sections, <h3> for subsections
-- Use <ul><li></li></ul> for any bullet points
-- Use <strong> for emphasis
-
-Follow the CONTENT STRUCTURE they specified above, but mark it up with these HTML tags.`;
+${parts.join('\n\n')}`;
   };
 
   const allFieldsFilled = promptContext && promptFormat && promptAudience && promptConstraints && promptGoal;
 
   // Smart formatter to convert plain text to HTML
   const formatPlainTextToHTML = (text) => {
-    const lines = text.split('\n').filter(line => line.trim());
+    if (!text) return '';
+    
+    const lines = text.split('\n');
     let html = '';
     let inList = false;
+    let lastWasEmpty = false;
     
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i].trim();
       
+      // Skip completely empty lines but track them
+      if (!line) {
+        lastWasEmpty = true;
+        if (inList) {
+          html += '</ul>\n';
+          inList = false;
+        }
+        continue;
+      }
+      
       // Close list if we were in one and this isn't a list item
-      if (inList && !line.match(/^[-•·]\s/)) {
+      if (inList && !line.match(/^[-•·*]\s/)) {
         html += '</ul>\n';
         inList = false;
       }
       
-      // Detect list items (lines starting with -, •, or ·)
-      if (line.match(/^[-•·]\s/)) {
+      // Detect list items (lines starting with -, •, ·, or *)
+      if (line.match(/^[-•·*]\s/)) {
         if (!inList) {
           html += '<ul>\n';
           inList = true;
         }
-        html += `<li>${line.replace(/^[-•·]\s/, '')}</li>\n`;
+        html += `<li>${line.replace(/^[-•·*]\s/, '')}</li>\n`;
+        lastWasEmpty = false;
       }
-      // Detect section headers (short lines, often all caps or ending with colon)
-      else if (line.length < 60 && (line.match(/^[A-Z][A-Za-z\s]+:$/) || line === line.toUpperCase())) {
-        html += `<h3>${line}</h3>\n`;
+      // Detect section headers (all caps with 2+ words, or short line ending with colon)
+      else if ((line === line.toUpperCase() && line.split(/\s+/).length >= 2) || 
+               (line.length < 50 && line.match(/^[A-Z][^:]*:$/))) {
+        html += `<h3 class="font-bold mt-4 mb-2">${line}</h3>\n`;
+        lastWasEmpty = false;
       }
-      // Bold labels (CAPS WORD: text)
-      else if (line.match(/^[A-Z\s]{2,}:/)) {
-        html += `<p><strong>${line}</strong></p>\n`;
+      // Detect bold labels at start of line (WORD: or WORDS:)
+      else if (line.match(/^[A-Z][A-Z\s]+:/)) {
+        const parts = line.split(':');
+        html += `<p class="mt-2"><strong>${parts[0]}:</strong>${parts.slice(1).join(':')}</p>\n`;
+        lastWasEmpty = false;
       }
       // Regular paragraph
       else {
-        html += `<p>${line}</p>\n`;
+        const className = lastWasEmpty ? ' class="mt-3"' : '';
+        html += `<p${className}>${line}</p>\n`;
+        lastWasEmpty = false;
       }
     }
     
@@ -301,14 +312,7 @@ Show real consequences:
 - Okay: "Chief of staff called you. 'This is... fine. But I had to rewrite half of it because you gave me corporate speak when I needed legislation language. Next time give me something I can actually use.'"
 - Bad: "Your CEO got called to testify. Ranking member read your brief out loud, asked why it sounded like a chatbot wrote it, and requested internal communications. Legal wants to talk to you. The stock dropped 4%. There's a meme."
 
-Point to specific elements in the content that caused the outcome. What was missing? What was there? What made the difference?
-
-OUTPUT ENCODING:
-Encode your response using HTML tags:
-- Wrap each paragraph in <p></p> tags
-- Use <strong> for emphasis
-This is about how to mark up your text, not what to write.`;
-
+Point to specific elements in the content that caused the outcome. What was missing? What was there? What made the difference?`;
 
       const simResponse = await fetch('/api/generate-content', {
         method: 'POST',
@@ -628,7 +632,14 @@ This is about how to mark up your text, not what to write.`;
             <Sparkles size={20} className="text-orange-600" />
             What Claude Generated:
           </h3>
-          <div className="bg-gray-50 p-4 rounded border border-gray-200 text-sm leading-relaxed max-h-64 overflow-y-auto prose prose-sm max-w-none">
+          <div className="bg-gray-50 p-4 rounded border border-gray-200 text-sm leading-relaxed max-h-64 overflow-y-auto formatted-content">
+            <style>{`
+              .formatted-content p { margin-bottom: 0.75rem; }
+              .formatted-content p:last-child { margin-bottom: 0; }
+              .formatted-content h3 { font-weight: bold; margin-top: 1rem; margin-bottom: 0.5rem; font-size: 1rem; }
+              .formatted-content ul { margin: 0.5rem 0 0.75rem 1.5rem; list-style-type: disc; }
+              .formatted-content li { margin-bottom: 0.25rem; }
+            `}</style>
             <div dangerouslySetInnerHTML={{ __html: generatedOutput }} />
           </div>
         </div>
@@ -639,7 +650,13 @@ This is about how to mark up your text, not what to write.`;
             <h3 className="font-bold text-xl mb-4 text-orange-900 flex items-center gap-2">
               🎬 How It Played Out
             </h3>
-            <div className="bg-white rounded-lg p-5 text-gray-900 leading-relaxed text-sm prose prose-sm max-w-none">
+            <div className="bg-white rounded-lg p-5 text-gray-900 leading-relaxed text-sm">
+              <style>{`
+                .bg-white p { margin-bottom: 0.75rem; }
+                .bg-white h3 { font-weight: bold; margin-top: 1rem; margin-bottom: 0.5rem; }
+                .bg-white ul { margin: 0.5rem 0 0.75rem 1.5rem; list-style-type: disc; }
+                .bg-white li { margin-bottom: 0.25rem; }
+              `}</style>
               <div dangerouslySetInnerHTML={{ __html: simulation }} />
             </div>
           </div>
