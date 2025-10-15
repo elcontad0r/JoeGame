@@ -144,7 +144,7 @@ const Round2GameV2 = () => {
     }
   };
 
-  // Generate output by calling Claude API
+  // Generate output by calling Claude API via Vercel serverless function
   const generateWithClaude = async () => {
     setIsGenerating(true);
     setHasGenerated(true);
@@ -152,27 +152,23 @@ const Round2GameV2 = () => {
     const prompt = buildPrompt();
     
     try {
-      const response = await fetch("https://api.anthropic.com/v1/messages", {
+      const response = await fetch("/api/generate-content", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
-          max_tokens: 2000,
-          messages: [
-            { role: "user", content: prompt }
-          ]
+          prompt: prompt
         })
       });
 
       if (!response.ok) {
-        throw new Error(`API request failed: ${response.status}`);
+        const errorData = await response.json();
+        throw new Error(errorData.error || `API request failed: ${response.status}`);
       }
 
       const data = await response.json();
-      const claudeResponse = data.content[0].text;
-      setOutput(claudeResponse);
+      setOutput(data.output);
     } catch (error) {
       console.error("Error calling Claude:", error);
       setOutput("Error generating output. Please try again.");
@@ -391,10 +387,12 @@ const Round2GameV2 = () => {
                 </div>
               ) : (
                 <>
-                  <div className="bg-gray-50 border-2 border-gray-300 rounded-lg p-6 max-h-[600px] overflow-y-auto">
-                    <pre className="font-mono text-sm leading-relaxed whitespace-pre-wrap text-gray-800">
-                      {output}
-                    </pre>
+                  <div className="bg-white border border-gray-200 rounded-lg p-8 max-h-[600px] overflow-y-auto">
+                    <div className="prose prose-sm max-w-none">
+                      <div className="text-gray-900 leading-relaxed whitespace-pre-wrap">
+                        {output}
+                      </div>
+                    </div>
                   </div>
 
                   <div className="bg-yellow-50 border-2 border-yellow-200 rounded-lg p-4 mt-4">
