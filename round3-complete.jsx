@@ -560,7 +560,7 @@ IMPORTANT: Format your output using HTML tags: <strong> for bold, <p> for paragr
             What Claude Generated:
           </h3>
           <div className="bg-gray-50 p-4 rounded border border-gray-200 text-sm leading-relaxed max-h-64 overflow-y-auto prose prose-sm max-w-none">
-            <div dangerouslySetInnerHTML={{ __html: generatedOutput.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n\n/g, '</p><p>').replace(/^/, '<p>').replace(/$/, '</p>').replace(/\n/g, '<br />') }} />
+            <div dangerouslySetInnerHTML={{ __html: generatedOutput }} />
           </div>
         </div>
 
@@ -571,7 +571,7 @@ IMPORTANT: Format your output using HTML tags: <strong> for bold, <p> for paragr
               🎬 How It Played Out
             </h3>
             <div className="bg-white rounded-lg p-5 text-gray-900 leading-relaxed text-sm prose prose-sm max-w-none">
-              <div dangerouslySetInnerHTML={{ __html: simulation.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n\n/g, '</p><p>').replace(/^/, '<p>').replace(/$/, '</p>').replace(/\n/g, '<br />') }} />
+              <div dangerouslySetInnerHTML={{ __html: generatedOutput }} />
             </div>
           </div>
         )}
