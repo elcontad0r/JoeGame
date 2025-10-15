@@ -13,13 +13,16 @@ const App = () => {
         {/* Header */}
         <div className="text-center mb-12">
           <div className="inline-block bg-gradient-to-r from-purple-600 to-orange-600 text-white px-6 py-2 rounded-full text-sm font-semibold mb-4">
-            AI Onboarding Initiative
+            🏆 Compete for a Mystery Prize
           </div>
           <h1 className="text-5xl font-bold text-gray-900 mb-4">
-            The Prompt Game
+            The Prompt Challenge
           </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Learn to get 10x better results from AI in 15 minutes
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-3">
+            See what Joe did wrong. Learn the principles. Beat your colleagues.
+          </p>
+          <p className="text-sm text-gray-500 max-w-xl mx-auto">
+            Top scorers compete for a firm-wide prize. 15 minutes to complete.
           </p>
         </div>
 
@@ -33,10 +36,10 @@ const App = () => {
             <div className="bg-blue-100 w-16 h-16 rounded-lg flex items-center justify-center mb-4 group-hover:bg-blue-200 transition-colors">
               <Target className="text-blue-600" size={32} />
             </div>
-            <div className="text-sm font-semibold text-blue-600 mb-2">ROUND 1</div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-3">See the Difference</h3>
+            <div className="text-sm font-semibold text-blue-600 mb-2">STEP 1: OBSERVE</div>
+            <h3 className="text-2xl font-bold text-gray-900 mb-3">See What Joe Did Wrong</h3>
             <p className="text-gray-600 text-sm mb-4">
-              Compare bad vs. good prompts side-by-side. Understand what makes output actually useful.
+              Joe's a partner at your firm. He got mediocre AI output. See exactly where his prompts failed and what makes the difference.
             </p>
             <div className="text-sm font-semibold text-blue-600 group-hover:text-blue-700">
               5 minutes →
@@ -51,10 +54,10 @@ const App = () => {
             <div className="bg-purple-100 w-16 h-16 rounded-lg flex items-center justify-center mb-4 group-hover:bg-purple-200 transition-colors">
               <Sparkles className="text-purple-600" size={32} />
             </div>
-            <div className="text-sm font-semibold text-purple-600 mb-2">ROUND 2</div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-3">Build Your Prompt</h3>
+            <div className="text-sm font-semibold text-purple-600 mb-2">STEP 2: LEARN</div>
+            <h3 className="text-2xl font-bold text-gray-900 mb-3">Master the Framework</h3>
             <p className="text-gray-600 text-sm mb-4">
-              Choose the right components with guidance. See your score before generating.
+              Build a prompt with guided choices. Learn the five components that turn vague asks into high-quality output.
             </p>
             <div className="text-sm font-semibold text-purple-600 group-hover:text-purple-700">
               5 minutes →
@@ -64,15 +67,18 @@ const App = () => {
           {/* Round 3 */}
           <button
             onClick={() => setCurrentRound('round3')}
-            className="bg-white rounded-xl shadow-lg p-8 hover:shadow-2xl transition-all transform hover:-translate-y-1 text-left group"
+            className="bg-white rounded-xl shadow-lg p-8 hover:shadow-2xl transition-all transform hover:-translate-y-1 text-left group relative overflow-hidden"
           >
+            <div className="absolute top-0 right-0 bg-orange-500 text-white px-3 py-1 text-xs font-bold rounded-bl-lg">
+              COMPETE
+            </div>
             <div className="bg-orange-100 w-16 h-16 rounded-lg flex items-center justify-center mb-4 group-hover:bg-orange-200 transition-colors">
               <Zap className="text-orange-600" size={32} />
             </div>
-            <div className="text-sm font-semibold text-orange-600 mb-2">ROUND 3</div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-3">Freestyle Challenge</h3>
+            <div className="text-sm font-semibold text-orange-600 mb-2">STEP 3: COMPETE</div>
+            <h3 className="text-2xl font-bold text-gray-900 mb-3">The Challenge</h3>
             <p className="text-gray-600 text-sm mb-4">
-              Random crisis scenario. Write your own prompt from scratch. Compete for the leaderboard.
+              Real crisis scenario. Write your prompt from scratch. Get scored. Make the leaderboard. Win the prize.
             </p>
             <div className="text-sm font-semibold text-orange-600 group-hover:text-orange-700">
               5+ minutes →
@@ -80,16 +86,27 @@ const App = () => {
           </button>
         </div>
 
-        {/* Why This Matters */}
+        {/* Competition Stakes */}
         <div className="bg-gradient-to-r from-purple-600 to-orange-600 rounded-xl p-8 text-white">
           <div className="max-w-3xl mx-auto text-center">
             <Trophy className="mx-auto mb-4" size={40} />
-            <h2 className="text-2xl font-bold mb-4">Why This Matters</h2>
-            <p className="text-purple-100 mb-4">
-              Your clients need fast, high-quality work. AI can deliver that—but only if you know how to drive it.
-            </p>
-            <p className="text-purple-100">
-              The difference between "meh" and "exactly what I needed" is in how you frame the ask.
+            <h2 className="text-2xl font-bold mb-4">How to Win</h2>
+            <div className="grid md:grid-cols-3 gap-6 text-left mb-6">
+              <div>
+                <div className="font-bold mb-2">1. Complete All Three Steps</div>
+                <div className="text-purple-100 text-sm">Takes 15 minutes total. Each step builds on the last.</div>
+              </div>
+              <div>
+                <div className="font-bold mb-2">2. Score High on The Challenge</div>
+                <div className="text-purple-100 text-sm">Your Round 3 score determines leaderboard position. Aim for 85+.</div>
+              </div>
+              <div>
+                <div className="font-bold mb-2">3. Check the Leaderboard</div>
+                <div className="text-purple-100 text-sm">Top performers compete for the mystery prize. Rankings update live.</div>
+              </div>
+            </div>
+            <p className="text-purple-100 text-sm">
+              Best prompt engineers in your firm will be announced. May the best prompter win.
             </p>
           </div>
         </div>
