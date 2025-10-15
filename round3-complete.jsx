@@ -98,22 +98,22 @@ const Round3Game = ({ onBack }) => {
 
   // Build full prompt from components
   const buildFullPrompt = () => {
-  const parts = [];
-  
-  if (promptContext) parts.push(`CONTEXT: ${promptContext}`);
-  if (promptFormat) parts.push(`FORMAT: ${promptFormat}`);
-  if (promptAudience) parts.push(`AUDIENCE: ${promptAudience}`);
-  if (promptConstraints) parts.push(`CONSTRAINTS: ${promptConstraints}`);
-  if (promptGoal) parts.push(`GOAL: ${promptGoal}`);
-  
-  if (parts.length === 0) return '';
-  
-  return `Create ${scenario?.requirement || 'content'} for this situation: ${scenario?.situation || ''}
+    const parts = [];
+    
+    if (promptContext) parts.push(`CONTEXT: ${promptContext}`);
+    if (promptFormat) parts.push(`FORMAT: ${promptFormat}`);
+    if (promptAudience) parts.push(`AUDIENCE: ${promptAudience}`);
+    if (promptConstraints) parts.push(`CONSTRAINTS: ${promptConstraints}`);
+    if (promptGoal) parts.push(`GOAL: ${promptGoal}`);
+    
+    if (parts.length === 0) return '';
+    
+    return `Create ${scenario?.requirement || 'content'} for this situation: ${scenario?.situation || ''}
 
 ${parts.join('\n\n')}
 
-OUTPUT FORMAT: Use clean HTML formatting - <h2> for main sections, <h3> for subsections, <strong> for emphasis, <ul>/<li> for lists. Do NOT use markdown (no #, ##, ---, or - bullets). Write as if formatting for direct display on a webpage.`;
-};
+IMPORTANT: Format your output using HTML tags for structure: <h2> and <h3> for headers, <strong> for bold text, <p> for paragraphs, <ul> and <li> for bullet points. Do not use markdown syntax (no #, ##, ---, or - for bullets).`;
+  };
 
   const allFieldsFilled = promptContext && promptFormat && promptAudience && promptConstraints && promptGoal;
 
@@ -250,7 +250,9 @@ Show real consequences:
 - Okay: "Chief of staff called you. 'This is... fine. But I had to rewrite half of it because you gave me corporate speak when I needed legislation language. Next time give me something I can actually use.'"
 - Bad: "Your CEO got called to testify. Ranking member read your brief out loud, asked why it sounded like a chatbot wrote it, and requested internal communications. Legal wants to talk to you. The stock dropped 4%. There's a meme."
 
-Point to specific elements in the content that caused the outcome. What was missing? What was there? What made the difference?`;
+Point to specific elements in the content that caused the outcome. What was missing? What was there? What made the difference?
+
+IMPORTANT: Format your output using HTML tags: <strong> for bold, <p> for paragraphs. Do not use markdown syntax (no ##, ---, or **).`;
 
       const simResponse = await fetch('/api/generate-content', {
         method: 'POST',
