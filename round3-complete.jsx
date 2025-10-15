@@ -94,6 +94,7 @@ const Round3Game = ({ onBack }) => {
   const [simulation, setSimulation] = useState(null);
   const [evaluation, setEvaluation] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [generationStep, setGenerationStep] = useState('');
   const [leaderboard, setLeaderboard] = useState([]);
 
   // Build full prompt from components
@@ -123,6 +124,47 @@ Follow the CONTENT STRUCTURE they specified above, but mark it up with these HTM
   };
 
   const allFieldsFilled = promptContext && promptFormat && promptAudience && promptConstraints && promptGoal;
+
+  // Smart formatter to convert plain text to HTML
+  const formatPlainTextToHTML = (text) => {
+    const lines = text.split('\n').filter(line => line.trim());
+    let html = '';
+    let inList = false;
+    
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+      
+      // Close list if we were in one and this isn't a list item
+      if (inList && !line.match(/^[-•·]\s/)) {
+        html += '</ul>\n';
+        inList = false;
+      }
+      
+      // Detect list items (lines starting with -, •, or ·)
+      if (line.match(/^[-•·]\s/)) {
+        if (!inList) {
+          html += '<ul>\n';
+          inList = true;
+        }
+        html += `<li>${line.replace(/^[-•·]\s/, '')}</li>\n`;
+      }
+      // Detect section headers (short lines, often all caps or ending with colon)
+      else if (line.length < 60 && (line.match(/^[A-Z][A-Za-z\s]+:$/) || line === line.toUpperCase())) {
+        html += `<h3>${line}</h3>\n`;
+      }
+      // Bold labels (CAPS WORD: text)
+      else if (line.match(/^[A-Z\s]{2,}:/)) {
+        html += `<p><strong>${line}</strong></p>\n`;
+      }
+      // Regular paragraph
+      else {
+        html += `<p>${line}</p>\n`;
+      }
+    }
+    
+    if (inList) html += '</ul>\n';
+    return html;
+  };
 
   useEffect(() => {
     generateScenario();
@@ -204,6 +246,7 @@ Follow the CONTENT STRUCTURE they specified above, but mark it up with these HTM
     const fullPrompt = buildFullPrompt();
     setUserPrompt(fullPrompt);
     setIsGenerating(true);
+    setGenerationStep('Generating content...');
     setStage('generating');
 
     try {
@@ -219,9 +262,10 @@ Follow the CONTENT STRUCTURE they specified above, but mark it up with these HTM
       }
 
       const outputData = await outputResponse.json();
-      setGeneratedOutput(outputData.output);
+      setGeneratedOutput(formatPlainTextToHTML(outputData.output));
 
-      // Simulate scenario outcome - REALISTIC CONSEQUENCES
+      // Simulate scenario outcome
+      setGenerationStep('Simulating what happens...');
       const simPrompt = `You're simulating what happens when this content gets used in the actual scenario. The danger isn't always that someone catches it internally - it's when it gets past that first check and hits the real world.
 
 SCENARIO: ${scenario.situation}
@@ -277,9 +321,10 @@ This is about how to mark up your text, not what to write.`;
       }
 
       const simData = await simResponse.json();
-      setSimulation(simData.output);
+      setSimulation(formatPlainTextToHTML(simData.output));
 
       // Evaluate prompt
+      setGenerationStep('Evaluating your prompt...');
       const evalResponse = await fetch('/api/evaluate-prompt', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -527,8 +572,20 @@ This is about how to mark up your text, not what to write.`;
           <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-orange-600"></div>
         </div>
         <h2 className="text-2xl font-bold mb-3">Claude is working…</h2>
-        <p className="text-gray-600 mb-2">Generating your {scenario?.requirement}</p>
-        <p className="text-sm text-gray-500">Then simulating the scenario outcome</p>
+        <div className="space-y-3 mt-6">
+          <div className={`flex items-center justify-center gap-3 ${generationStep.includes('Generating content') ? 'text-orange-600 font-semibold' : generationStep ? 'text-green-600' : 'text-gray-400'}`}>
+            <span className="text-xl">{generationStep.includes('Generating content') ? '⏳' : generationStep ? '✓' : '○'}</span>
+            <span>Generating content</span>
+          </div>
+          <div className={`flex items-center justify-center gap-3 ${generationStep.includes('Simulating') ? 'text-orange-600 font-semibold' : generationStep.includes('Evaluating') ? 'text-green-600' : 'text-gray-400'}`}>
+            <span className="text-xl">{generationStep.includes('Simulating') ? '⏳' : generationStep.includes('Evaluating') ? '✓' : '○'}</span>
+            <span>Simulating scenario</span>
+          </div>
+          <div className={`flex items-center justify-center gap-3 ${generationStep.includes('Evaluating') ? 'text-orange-600 font-semibold' : 'text-gray-400'}`}>
+            <span className="text-xl">{generationStep.includes('Evaluating') ? '⏳' : '○'}</span>
+            <span>Evaluating prompt</span>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -727,6 +784,7 @@ This is about how to mark up your text, not what to write.`;
                 setGeneratedOutput('');
                 setSimulation(null);
                 setEvaluation(null);
+                setGenerationStep('');
               }}
               className="bg-gray-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-gray-700 transition-colors"
             >
@@ -750,6 +808,7 @@ This is about how to mark up your text, not what to write.`;
                 setGeneratedOutput('');
                 setSimulation(null);
                 setEvaluation(null);
+                setGenerationStep('');
                 generateScenario();
               }}
               className="bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-purple-700 transition-colors flex items-center gap-2"
@@ -843,6 +902,7 @@ This is about how to mark up your text, not what to write.`;
             setGeneratedOutput('');
             setSimulation(null);
             setEvaluation(null);
+            setGenerationStep('');
             generateScenario();
           }}
           className="bg-purple-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-purple-700 transition-colors"
