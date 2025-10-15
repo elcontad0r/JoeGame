@@ -4,9 +4,9 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { userPrompt, scenario } = req.body;
+  const { userPrompt, scenario, promptComponents } = req.body;
 
-  if (!userPrompt || !scenario) {
+  if (!userPrompt || !scenario || !promptComponents) {
     return res.status(400).json({ error: 'Missing required fields' });
   }
 
@@ -20,33 +20,66 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: "claude-sonnet-4-20250514",
-        max_tokens: 800,
+        max_tokens: 1200,
         messages: [{
           role: "user",
-          content: `You are evaluating a prompt written by a public affairs professional for this crisis scenario:
+          content: `You're evaluating how well this prompt gave Claude what it needed to handle the scenario.
 
 SCENARIO: ${scenario.situation}
-REQUIREMENT: ${scenario.requirement}
+TASK: ${scenario.requirement}
 
-USER'S PROMPT:
-${userPrompt}
+THE PROMPT COMPONENTS:
+Context: "${promptComponents.context}"
+Format: "${promptComponents.format}"
+Audience: "${promptComponents.audience}"
+Constraints: "${promptComponents.constraints}"
+Goal: "${promptComponents.goal}"
 
-Evaluate this prompt on a 0-100 scale based on:
-1. Context Specificity (0-25): Did they include relevant company details, numbers, operational constraints, or specific facts?
-2. Format Clarity (0-20): Did they specify output structure, length, tone, sections?
-3. Audience Targeting (0-20): Did they consider who reads this and what they need?
-4. Strategic Framing (0-20): Does the prompt ask for actionable options vs just description?
-5. Practical Constraints (0-15): Did they mention time limits, approval needs, use case clarity?
+For each component, score 0-20 based on: Did this give Claude enough to work with?
 
-Be strict but fair. A prompt with "write a statement about X" should score around 30-40. A prompt with specific context, format, audience, and strategic goals should score 80-95.
+CONTEXT (0-20):
+- Can Claude write something specific, or only generic statements?
+- Are there concrete details (numbers, names, deadlines, stakes)?
+- Would someone unfamiliar with the situation understand what's going on?
+Score + 1-2 sentence feedback on what was there or missing.
+
+FORMAT (0-20):
+- Is there clear direction on structure, length, style?
+- Could Claude make decisions about organization?
+- Would the output fit how it'll actually be used?
+Score + 1-2 sentence feedback.
+
+AUDIENCE (0-20):
+- Is it clear who's reading this and what they care about?
+- Can Claude choose appropriate tone and depth?
+- Does it account for their existing knowledge/perspective?
+Score + 1-2 sentence feedback.
+
+CONSTRAINTS (0-20):
+- Are there practical limits mentioned (time, length, process)?
+- Can Claude make tradeoffs appropriately?
+- Does it reflect real-world pressures?
+Score + 1-2 sentence feedback.
+
+GOAL (0-20):
+- Is there a specific outcome defined?
+- Can Claude structure content to achieve it?
+- Is it clear what success looks like?
+Score + 1-2 sentence feedback.
 
 Return ONLY valid JSON in this exact format with no markdown or code blocks:
 {
-  "score": [number 0-100],
-  "strengths": ["specific strength 1", "specific strength 2"],
-  "improvements": ["specific improvement 1", "specific improvement 2"],
-  "verdict": "[one sentence assessment]"
-}`
+  "score": [total out of 100],
+  "ingredients": {
+    "context": {"score": [0-20], "feedback": "1-2 sentences"},
+    "format": {"score": [0-20], "feedback": "1-2 sentences"},
+    "audience": {"score": [0-20], "feedback": "1-2 sentences"},
+    "constraints": {"score": [0-20], "feedback": "1-2 sentences"},
+    "goal": {"score": [0-20], "feedback": "1-2 sentences"}
+  }
+}
+
+Be honest but not punitive. Focus on utility: did this give Claude enough information to do the job well?`
         }]
       })
     });
