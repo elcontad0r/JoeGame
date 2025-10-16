@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
-import { AlertCircle, ArrowRight, ArrowLeft, Clock, CheckCircle, Zap, ChevronDown, ChevronUp } from 'lucide-react';
+import { AlertCircle, ArrowRight, ArrowLeft, Clock, CheckCircle, Zap } from 'lucide-react';
 
-const Round1GameV3 = ({ onComplete, onBack }) => {
+const Round1GameV3 = ({ onComplete }) => {
   const [stage, setStage] = useState('scenario');
   const [currentLesson, setCurrentLesson] = useState(0);
-  const [showJoePrompt, setShowJoePrompt] = useState(true);
-  const [showBetterPrompt, setShowBetterPrompt] = useState(true);
 
   const scenario = {
     title: "Emergency: New EPA Rule Dropped",
@@ -19,8 +17,8 @@ const Round1GameV3 = ({ onComplete, onBack }) => {
       title: "Give AI Your Context",
       subtitle: "Generic prompts get generic garbage",
       joePrompt: "Write a brief about the new EPA air quality rule and how it affects manufacturing companies.",
-      joeProblem: "Could be about anyone, anywhere. Zero specifics.",
-      addition: "Add client details + real constraints",
+      joeProblem: "No client details, no constraints, no specifics",
+      addition: "Add real context",
       betterPrompt: `You're advising MidAtlantic Manufacturing's CEO who just learned about new EPA air quality standards.
 
 Context:
@@ -113,8 +111,8 @@ Manufacturers should consider engaging with environmental consultants to develop
       title: "Tell AI Your Constraints",
       subtitle: "Tradeoffs matter more than options",
       joePrompt: "What options do we have for responding to this EPA rule?",
-      joeProblem: "Generic list with no thought about tradeoffs or real-world friction",
-      addition: "Add actual operating constraints",
+      joeProblem: "Gets a generic list with no real-world thinking",
+      addition: "Add operating constraints",
       betterPrompt: `Analyze MidAtlantic's response options to the EPA VOC rule. Consider:
 
 Our constraints:
@@ -191,7 +189,7 @@ Cost: $35-38M | Timeline: 28 months | Risk: MEDIUM`
       title: "Define the Role & Audience",
       subtitle: "Same facts, different framing for different people",
       joePrompt: "Explain the EPA rule details.",
-      joeProblem: "Gets a textbook explanation nobody can use in a meeting",
+      joeProblem: "Gets textbook explanation, not a usable brief",
       addition: "Specify who needs this and how they'll use it",
       betterPrompt: `Brief your partner before the MidAtlantic CEO call. They're smart but haven't followed EPA stuff.
 
@@ -257,30 +255,27 @@ The rule was published in the Federal Register and will become effective followi
 
   const lesson = lessons[currentLesson];
 
-  // Render structured output
   const renderStructuredOutput = (output) => {
     if (output.content) {
-      // Simple text content
       return (
-        <div className="prose prose-sm max-w-none text-gray-700 whitespace-pre-line">
+        <div className="text-sm text-gray-700 whitespace-pre-line leading-relaxed">
           {output.content}
         </div>
       );
     }
 
     if (output.sections) {
-      // Structured sections
       return (
         <div className="space-y-4">
           {output.sections.map((section, idx) => (
             <div key={idx}>
               {section.header && (
-                <h4 className="font-bold text-gray-900 mb-2">
+                <h4 className="font-bold text-gray-900 mb-1 text-sm">
                   {section.header}
                 </h4>
               )}
               {section.subheader && (
-                <p className="text-xs text-gray-600 mb-3">{section.subheader}</p>
+                <p className="text-xs text-gray-600 mb-2">{section.subheader}</p>
               )}
               {section.content && (
                 <div className="text-gray-700 whitespace-pre-line text-sm leading-relaxed">
@@ -288,13 +283,13 @@ The rule was published in the Federal Register and will become effective followi
                 </div>
               )}
               {section.subsections && (
-                <div className="space-y-3 ml-4">
+                <div className="space-y-2 ml-3">
                   {section.subsections.map((sub, subIdx) => (
                     <div key={subIdx}>
-                      <p className="font-bold text-gray-900 mb-1">{sub.title}</p>
-                      <div className="space-y-1">
+                      <p className="font-bold text-gray-900 text-xs mb-1">{sub.title}</p>
+                      <div className="space-y-0.5">
                         {sub.bullets.map((bullet, bIdx) => (
-                          <p key={bIdx} className="text-sm text-gray-700">{bullet}</p>
+                          <p key={bIdx} className="text-xs text-gray-700 leading-relaxed">{bullet}</p>
                         ))}
                       </div>
                     </div>
@@ -315,37 +310,36 @@ The rule was published in the Federal Register and will become effective followi
       <div className="bg-red-50 border-l-4 border-red-500 p-6 mb-6 rounded-r-lg">
         <div className="flex items-start">
           <AlertCircle className="text-red-500 mr-3 mt-1 flex-shrink-0" size={24} />
-          <div className="flex-1 min-w-0">
+          <div>
             <h2 className="text-2xl font-bold text-red-900 mb-2">{scenario.title}</h2>
-            <p className="text-red-800 text-lg font-semibold mb-3">{scenario.urgency}</p>
-            <p className="text-red-900 leading-relaxed">{scenario.situation}</p>
+            <p className="text-red-800 font-semibold mb-2">{scenario.urgency}</p>
+            <p className="text-red-900">{scenario.situation}</p>
           </div>
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-        <div className="flex items-center gap-2 text-gray-600 mb-4">
+      <div className="bg-white rounded-lg shadow-lg p-6">
+        <div className="flex items-center gap-2 text-gray-600 mb-3">
           <Clock size={18} />
           <span className="text-sm font-medium">~4 minutes</span>
         </div>
-        <h3 className="text-xl font-semibold mb-3">Joe (senior partner) tried using Claude...</h3>
-        <p className="text-gray-700 mb-2">He got generic nonsense. You'll see exactly where it broke.</p>
-        <p className="text-sm text-gray-600 mb-4">3 quick examples showing the difference between "meh" and "actually helpful"</p>
+        <h3 className="text-xl font-semibold mb-2">Joe (senior partner) tried using Claude...</h3>
+        <p className="text-gray-700 mb-4">He got generic nonsense. You'll see exactly where it broke and how to fix it.</p>
         <button
           onClick={() => setStage('lessons')}
-          className="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center gap-2 w-full sm:w-auto justify-center"
+          className="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center gap-2"
         >
-          Show Me What Broke <ArrowRight size={20} />
+          Show Me <ArrowRight size={20} />
         </button>
       </div>
     </div>
   );
 
   const renderLessons = () => (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6">
-      {/* Progress indicator */}
-      <div className="mb-8">
-        <div className="flex items-center justify-center gap-2 mb-3">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6">
+      {/* Progress */}
+      <div className="mb-6">
+        <div className="flex items-center justify-center gap-2 mb-2">
           {lessons.map((_, idx) => (
             <div
               key={idx}
@@ -362,107 +356,83 @@ The rule was published in the Federal Register and will become effective followi
         </p>
       </div>
 
-      <div className="bg-white rounded-lg shadow-xl p-6 sm:p-8 mb-6">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="bg-blue-600 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg flex-shrink-0">
-              {currentLesson + 1}
+      {/* Header */}
+      <div className="bg-white rounded-lg shadow-sm p-4 mb-6 text-center">
+        <h3 className="text-2xl font-bold text-gray-900 mb-1">{lesson.title}</h3>
+        <p className="text-sm text-gray-600">{lesson.subtitle}</p>
+      </div>
+
+      {/* Comparison */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        {/* Bad Version */}
+        <div className="bg-white rounded-lg shadow-lg border-2 border-red-200 p-5">
+          <div className="flex items-center gap-2 mb-3">
+            <AlertCircle className="text-red-600" size={20} />
+            <h4 className="font-bold text-red-900">Joe's Prompt</h4>
+          </div>
+          
+          <div className="bg-gray-50 border-2 border-red-200 rounded-lg p-3 mb-4">
+            <div className="font-mono text-sm text-gray-800">
+              "{lesson.joePrompt}"
             </div>
-            <div className="flex-1 min-w-0">
-              <h3 className="text-2xl font-bold text-gray-900">{lesson.title}</h3>
-              <p className="text-sm text-gray-600">{lesson.subtitle}</p>
+          </div>
+
+          <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-3">
+            <p className="text-xs font-semibold text-red-700 mb-2">What Claude produced:</p>
+            <div className="bg-white p-3 rounded border border-red-100 max-h-80 overflow-y-auto">
+              {renderStructuredOutput(lesson.outputBefore)}
             </div>
+          </div>
+
+          <div className="bg-red-100 rounded-lg p-3">
+            <p className="text-sm text-red-900">
+              <span className="font-bold">Problem:</span> {lesson.joeProblem}
+            </p>
           </div>
         </div>
 
-        {/* Joe's attempt - collapsible */}
-        <div className="mb-8">
-          <button
-            onClick={() => setShowJoePrompt(!showJoePrompt)}
-            className="w-full bg-red-50 border-2 border-red-500 rounded-lg p-4 text-left hover:bg-red-100 transition-colors"
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <AlertCircle size={20} className="text-red-600 flex-shrink-0" />
-                <span className="font-bold text-red-900">Joe's Vague Prompt</span>
-              </div>
-              {showJoePrompt ? <ChevronUp size={20} className="text-red-600 flex-shrink-0" /> : <ChevronDown size={20} className="text-red-600 flex-shrink-0" />}
-            </div>
-          </button>
-          
-          {showJoePrompt && (
-            <div className="mt-3 space-y-4">
-              <div className="font-mono text-sm bg-gray-50 p-4 rounded border-2 border-red-200 text-gray-800">
-                "{lesson.joePrompt}"
-              </div>
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                <p className="text-xs text-red-700 font-semibold mb-3">What Claude produced:</p>
-                <div className="bg-white p-4 rounded border border-red-100 max-h-64 overflow-y-auto">
-                  {renderStructuredOutput(lesson.outputBefore)}
-                </div>
-              </div>
-              <div className="bg-red-100 border border-red-300 rounded-lg p-3">
-                <p className="text-sm text-red-900">
-                  <span className="font-bold">Why this sucks:</span> {lesson.joeProblem}
-                </p>
-              </div>
-            </div>
-          )}
-        </div>
+        {/* Good Version */}
+        <div className="bg-white rounded-lg shadow-lg border-2 border-green-200 p-5">
+          <div className="flex items-center gap-2 mb-3">
+            <CheckCircle className="text-green-600" size={20} />
+            <h4 className="font-bold text-green-900">Better Prompt</h4>
+          </div>
 
-        {/* The fix */}
-        <div className="flex items-center justify-center my-8">
-          <div className="bg-gradient-to-r from-blue-600 to-green-600 text-white px-6 sm:px-8 py-4 rounded-full font-bold shadow-lg flex items-center gap-2 text-sm sm:text-base">
-            <Zap size={20} className="flex-shrink-0" />
-            <span>{lesson.addition}</span>
+          <div className="bg-gray-50 border-2 border-green-300 rounded-lg p-3 mb-4 max-h-64 overflow-y-auto">
+            <div className="font-mono text-xs leading-relaxed whitespace-pre-wrap text-gray-800">
+              {lesson.betterPrompt}
+            </div>
+          </div>
+
+          <div className="bg-green-50 border border-green-300 rounded-lg p-3 mb-3">
+            <p className="text-xs font-semibold text-green-700 mb-2">What Claude produced:</p>
+            <div className="bg-white p-3 rounded border border-green-100 max-h-80 overflow-y-auto">
+              {renderStructuredOutput(lesson.outputAfter)}
+            </div>
+          </div>
+
+          <div className="bg-green-100 rounded-lg p-3">
+            <p className="text-sm text-green-900 font-bold">
+              ✓ Actually useful: specific, strategic, actionable
+            </p>
           </div>
         </div>
+      </div>
 
-        {/* Better version - collapsible */}
-        <div>
-          <button
-            onClick={() => setShowBetterPrompt(!showBetterPrompt)}
-            className="w-full bg-green-50 border-2 border-green-500 rounded-lg p-4 text-left hover:bg-green-100 transition-colors"
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <CheckCircle size={20} className="text-green-600 flex-shrink-0" />
-                <span className="font-bold text-green-900">Better Prompt</span>
-              </div>
-              {showBetterPrompt ? <ChevronUp size={20} className="text-green-600 flex-shrink-0" /> : <ChevronDown size={20} className="text-green-600 flex-shrink-0" />}
-            </div>
-          </button>
-          
-          {showBetterPrompt && (
-            <div className="mt-3 space-y-4">
-              <div className="font-mono text-xs sm:text-sm bg-gray-50 p-4 rounded border-2 border-green-300 leading-relaxed max-h-64 overflow-y-auto whitespace-pre-wrap">
-                {lesson.betterPrompt}
-              </div>
-              <div className="bg-green-50 border border-green-300 rounded-lg p-4">
-                <p className="text-xs text-green-700 font-semibold mb-3">What Claude produced:</p>
-                <div className="bg-white p-4 rounded border border-green-100 max-h-96 overflow-y-auto">
-                  {renderStructuredOutput(lesson.outputAfter)}
-                </div>
-              </div>
-              <div className="bg-green-100 border border-green-300 rounded-lg p-3">
-                <p className="text-sm text-green-900 font-bold">
-                  ✓ Actually useful: specific analysis, real recommendations, strategic thinking
-                </p>
-              </div>
-            </div>
-          )}
+      {/* The Fix Callout */}
+      <div className="flex items-center justify-center mb-6">
+        <div className="bg-gradient-to-r from-blue-600 to-green-600 text-white px-8 py-4 rounded-full font-bold shadow-lg flex items-center gap-2">
+          <Zap size={20} />
+          <span>{lesson.addition}</span>
         </div>
       </div>
 
       {/* Navigation */}
-      <div className="flex items-center justify-between gap-4 mb-8">
+      <div className="flex items-center justify-between gap-4">
         <button
           onClick={() => {
             if (currentLesson > 0) {
               setCurrentLesson(currentLesson - 1);
-              setShowJoePrompt(true);
-              setShowBetterPrompt(true);
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }
           }}
@@ -474,29 +444,25 @@ The rule was published in the Federal Register and will become effective followi
           }`}
         >
           <ArrowLeft size={20} />
-          <span className="hidden sm:inline">Previous</span>
+          Previous
         </button>
 
         {currentLesson < lessons.length - 1 ? (
           <button
             onClick={() => {
               setCurrentLesson(currentLesson + 1);
-              setShowJoePrompt(true);
-              setShowBetterPrompt(true);
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
             className="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center gap-2"
           >
-            <span>Next Example</span>
-            <ArrowRight size={20} />
+            Next <ArrowRight size={20} />
           </button>
         ) : (
           <button
             onClick={() => setStage('complete')}
             className="bg-green-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors flex items-center gap-2"
           >
-            <span>See the Pattern</span>
-            <ArrowRight size={20} />
+            Continue <ArrowRight size={20} />
           </button>
         )}
       </div>
@@ -505,76 +471,64 @@ The rule was published in the Federal Register and will become effective followi
 
   const renderComplete = () => (
     <div className="max-w-3xl mx-auto px-4 sm:px-6">
-      {/* The Pattern */}
       <div className="bg-gradient-to-r from-green-500 to-blue-600 rounded-lg shadow-xl p-8 text-white mb-8">
         <CheckCircle className="mx-auto mb-4" size={48} />
-        <h3 className="text-3xl font-bold mb-3 text-center">You Spotted It</h3>
-        <p className="text-xl mb-8 text-center text-green-50">
+        <h3 className="text-3xl font-bold mb-2 text-center">You Spotted It</h3>
+        <p className="text-xl mb-6 text-center text-green-50">
           Same AI. Better instructions. Actually useful output.
         </p>
         
         <div className="bg-white bg-opacity-20 rounded-lg p-6 backdrop-blur-sm">
-          <div className="text-lg font-bold mb-4 text-center">The three things that matter:</div>
+          <div className="text-lg font-bold mb-4">The three things that matter:</div>
           <div className="space-y-4">
             <div className="flex items-start gap-3">
               <div className="bg-white text-blue-600 rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0 font-bold">1</div>
               <div>
-                <div className="font-bold text-lg">Context beats vagueness</div>
-                <div className="text-green-50">Client name, numbers, timeline, constraints—specifics let AI analyze instead of just summarize</div>
+                <div className="font-bold">Context beats vagueness</div>
+                <div className="text-green-50 text-sm">Client name, numbers, timeline, constraints—specifics let AI analyze instead of summarize</div>
               </div>
             </div>
             <div className="flex items-start gap-3">
               <div className="bg-white text-blue-600 rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0 font-bold">2</div>
               <div>
-                <div className="font-bold text-lg">Constraints drive strategy</div>
-                <div className="text-green-50">Budget limits, timeline pressure, political considerations—AI navigates tradeoffs if you tell it what matters</div>
+                <div className="font-bold">Constraints drive strategy</div>
+                <div className="text-green-50 text-sm">Budget limits, timeline pressure, political considerations—AI navigates tradeoffs when you tell it what matters</div>
               </div>
             </div>
             <div className="flex items-start gap-3">
               <div className="bg-white text-blue-600 rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0 font-bold">3</div>
               <div>
-                <div className="font-bold text-lg">Role = relevance</div>
-                <div className="text-green-50">Who's reading this? What do they need? How will they use it? Answer these and output quality jumps</div>
+                <div className="font-bold">Role = relevance</div>
+                <div className="text-green-50 text-sm">Who's reading this? What do they need? How will they use it? Answer these and output quality jumps</div>
               </div>
             </div>
           </div>
         </div>
-        
-        <div className="mt-6 text-center">
-          <p className="text-green-100 italic">
-            Joe's not dumb. His prompts were just lazy. Don't be Joe.
-          </p>
-        </div>
       </div>
 
-      {/* Next step */}
       <div className="bg-white rounded-lg shadow-lg p-8 text-center">
-        <h2 className="text-2xl font-bold mb-3">Step 1 Complete ✓</h2>
+        <h2 className="text-2xl font-bold mb-2">Round 1 Complete</h2>
         <p className="text-gray-600 mb-6">
           You've seen what breaks and how to fix it. Now try building one yourself.
         </p>
         <button
           onClick={onComplete}
-          className="bg-purple-600 text-white px-10 py-4 rounded-lg font-bold text-lg hover:bg-purple-700 transition-colors inline-flex items-center gap-2 shadow-lg"
+          className="bg-purple-600 text-white px-10 py-4 rounded-lg font-bold hover:bg-purple-700 transition-colors inline-flex items-center gap-2"
         >
-          Start Step 2 <ArrowRight size={20} />
+          Start Round 2 <ArrowRight size={20} />
         </button>
       </div>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-6 sm:py-12">
-      <div className="max-w-6xl mx-auto mb-8 px-4">
-        <div className="text-center">
-          <div className="inline-block bg-blue-100 text-blue-800 px-4 py-1 rounded-full text-sm font-semibold mb-4">
-            Step 1: Observe
-          </div>
-          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">
-            See What Joe Did Wrong
-          </h1>
-          <p className="text-gray-600">Same AI, different results—it's all in the setup</p>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8">
+      <div className="max-w-6xl mx-auto mb-8 px-4 text-center">
+        <div className="inline-block bg-blue-100 text-blue-800 px-4 py-1 rounded-full text-sm font-semibold mb-4">
+          Round 1 of 3
         </div>
+        <h1 className="text-4xl font-bold mb-2">See What Joe Did Wrong</h1>
+        <p className="text-gray-600">Same AI, different results—it's all in the setup</p>
       </div>
 
       {stage === 'scenario' && renderScenario()}
