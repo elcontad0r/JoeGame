@@ -163,19 +163,23 @@ const Round2GameV2 = ({ onComplete }) => {
   };
 
   const generateWithClaude = async () => {
-    setIsGenerating(true);
-    setHasGenerated(true);
-    
-    const basePrompt = buildPrompt();
-    const prompt = `${basePrompt}
+  setIsGenerating(true);
+  setHasGenerated(true);
+  
+  const basePrompt = buildPrompt();
+  const prompt = `${basePrompt}
 
 IMPORTANT: Return your response as a JSON object with this structure:
 {
   "content": "your talking points here"
 }
 
-Make the content excellent and well-formatted according to the format instructions above. Use clear section headers, bullet points, and proper structure. Wrap everything in this JSON structure. Do not include any text outside the JSON.`;
-    
+Make the content excellent and well-formatted according to the format instructions above. Use clear section headers (in ALL CAPS), bullet points, and proper structure. 
+
+DO NOT use markdown formatting (no **, *, __, etc.). Just use plain text with line breaks and spacing for structure. Headers should be in ALL CAPS on their own lines. Use actual bullet characters (•) or dashes (-) for lists.
+
+Wrap everything in this JSON structure. Do not include any text outside the JSON.`;
+  
     try {
       const response = await fetch("/api/generate-content", {
         method: "POST",
