@@ -9,29 +9,193 @@ const ingredientColors = {
   goal: { bg: 'bg-purple-50', border: 'border-purple-300', text: 'text-purple-900', label: 'bg-purple-200 text-purple-900' }
 };
 
-const IngredientField = ({ field, number, title, placeholder, value, onChange, hint, collapsed, onToggleCollapse }) => {
-  const isCollapsed = collapsed[field];
+const IngredientBuilder = ({ 
+  ingredients, 
+  onClose, 
+  onSave,
+  scenario 
+}) => {
+  const [currentStep, setCurrentStep] = useState(0);
+  const [localValues, setLocalValues] = useState(ingredients);
+
+  const steps = [
+    { 
+      field: 'context', 
+      title: 'Context', 
+      hint: 'What specific details does Claude need? Company info, numbers, operational constraints...',
+      placeholder: 'e.g., "Company: MidAtlantic Manufacturing, 12 facilities (PA/OH/WV), 2,400 employees, $38-42M investment needed..."'
+    },
+    { 
+      field: 'format', 
+      title: 'Format', 
+      hint: 'What structure and style should the output have?',
+      placeholder: 'e.g., "Press statement format with clear sections, bullet points for key facts, under 300 words"'
+    },
+    { 
+      field: 'audience', 
+      title: 'Audience', 
+      hint: 'Who will read this and what do they need?',
+      placeholder: 'e.g., "Media/journalists covering business and policy, need credible facts and company perspective"'
+    },
+    { 
+      field: 'constraints', 
+      title: 'Constraints', 
+      hint: 'Time limits, length requirements, approval process...',
+      placeholder: 'e.g., "CEO needs to read in 2 minutes before press call, must avoid technical jargon"'
+    },
+    { 
+      field: 'goal', 
+      title: 'Goal', 
+      hint: 'What outcome do you want? What should readers believe or do?',
+      placeholder: 'e.g., "Position company as responsible corporate citizen seeking reasonable implementation timeline, not exemption"'
+    }
+  ];
+
+  const currentStepData = steps[currentStep];
+  const colors = ingredientColors[currentStepData.field];
+
+  const handleNext = () => {
+    if (currentStep < steps.length - 1) {
+      setCurrentStep(currentStep + 1);
+    } else {
+      onSave(localValues);
+      onClose();
+    }
+  };
+
+  const handleBack = () => {
+    if (currentStep > 0) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
+  const allFilled = Object.values(localValues).every(v => v.trim().length > 0);
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+      <div className="bg-white w-full sm:max-w-2xl sm:rounded-lg shadow-xl flex flex-col max-h-[90vh] sm:max-h-[80vh] rounded-t-2xl sm:rounded-b-lg">
+        {/* Header */}
+        <div className="p-4 border-b border-gray-200 flex-shrink-0">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-bold text-lg">Build Your Prompt</h3>
+            <button 
+              onClick={onClose}
+              className="text-gray-400 hover:text-gray-600 p-1"
+            >
+              ✕
+            </button>
+          </div>
+          
+          {/* Progress bar */}
+          <div className="flex gap-2 mb-2">
+            {steps.map((step, idx) => (
+              <div 
+                key={step.field}
+                className={`h-1.5 flex-1 rounded-full transition-all ${
+                  idx <= currentStep ? 'bg-purple-600' : 'bg-gray-200'
+                }`}
+              />
+            ))}
+          </div>
+          
+          {/* Scenario reminder */}
+          <div className="bg-blue-50 border border-blue-200 rounded p-2 mt-3">
+            <p className="text-xs text-blue-900 font-semibold mb-0.5">Task: {scenario?.requirement}</p>
+            <p className="text-xs text-blue-700 line-clamp-2">{scenario?.situation}</p>
+          </div>
+        </div>
+
+        {/* Current step content */}
+        <div className="flex-1 overflow-y-auto p-4">
+          <div className={`${colors.bg} border-2 ${colors.border} rounded-lg p-4 mb-4`}>
+            <div className={`inline-block ${colors.label} px-3 py-1 rounded text-sm font-bold mb-3`}>
+              Step {currentStep + 1} of {steps.length}: {currentStepData.title}
+            </div>
+            <p className="text-sm text-gray-700 mb-3">{currentStepData.hint}</p>
+            <textarea
+              value={localValues[currentStepData.field]}
+              onChange={(e) => setLocalValues({ ...localValues, [currentStepData.field]: e.target.value })}
+              placeholder={currentStepData.placeholder}
+              className="w-full h-32 sm:h-40 p-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-sm resize-none"
+              autoFocus
+            />
+          </div>
+
+          {/* Quick jump to other steps */}
+          <div className="mt-4">
+            <p className="text-xs text-gray-500 font-semibold mb-2">Jump to:</p>
+            <div className="flex flex-wrap gap-2">
+              {steps.map((step, idx) => {
+                const stepColors = ingredientColors[step.field];
+                const hasContent = localValues[step.field].trim().length > 0;
+                return (
+                  <button
+                    key={step.field}
+                    onClick={() => setCurrentStep(idx)}
+                    className={`px-3 py-1.5 rounded text-xs font-semibold transition-all ${
+                      idx === currentStep 
+                        ? `${stepColors.bg} ${stepColors.border} border-2 ${stepColors.text}`
+                        : hasContent
+                        ? `${stepColors.bg} ${stepColors.text} border border-transparent`
+                        : 'bg-gray-100 text-gray-500 border border-transparent'
+                    }`}
+                  >
+                    {step.title} {hasContent && '✓'}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* Footer with nav buttons */}
+        <div className="p-4 border-t border-gray-200 flex gap-3 flex-shrink-0">
+          {currentStep > 0 && (
+            <button
+              onClick={handleBack}
+              className="px-4 py-2 rounded-lg font-semibold bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors"
+            >
+              Back
+            </button>
+          )}
+          <button
+            onClick={handleNext}
+            disabled={!localValues[currentStepData.field].trim()}
+            className={`flex-1 px-4 py-2 rounded-lg font-semibold transition-colors ${
+              localValues[currentStepData.field].trim()
+                ? 'bg-purple-600 text-white hover:bg-purple-700'
+                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            }`}
+          >
+            {currentStep === steps.length - 1 
+              ? allFilled ? 'Done ✓' : 'Skip to End'
+              : 'Next'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const IngredientSummaryCard = ({ field, number, title, value, onEdit }) => {
   const colors = ingredientColors[field];
   const hasContent = value.trim().length > 0;
 
-  if (isCollapsed && hasContent) {
+  if (!hasContent) {
     return (
-      <div className={`${colors.bg} border-2 ${colors.border} rounded-lg p-4 mb-4`}>
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <div className={`inline-block ${colors.label} px-2 py-0.5 rounded text-xs font-bold mb-2`}>
-              {number}. {title}
-            </div>
-            <p className={`text-sm ${colors.text} font-medium line-clamp-2`}>
-              {value}
-            </p>
+      <div className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-4 mb-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="bg-gray-200 text-gray-500 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">
+              {number}
+            </span>
+            <span className="text-sm text-gray-500 font-medium">{title}</span>
           </div>
           <button
-            onClick={() => onToggleCollapse(field)}
-            className={`${colors.text} hover:opacity-70 p-2 ml-2`}
-            title="Edit"
+            onClick={onEdit}
+            className="text-gray-400 hover:text-gray-600 text-xs font-semibold"
           >
-            <Edit2 size={18} />
+            Add
           </button>
         </div>
       </div>
@@ -39,36 +203,24 @@ const IngredientField = ({ field, number, title, placeholder, value, onChange, h
   }
 
   return (
-    <div className="bg-white rounded-lg border-2 border-gray-200 p-4 mb-4">
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-2">
-          <span className="bg-purple-100 text-purple-800 w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold">
-            {number}
-          </span>
-          <label className="font-semibold text-gray-900">{title}</label>
+    <div className={`${colors.bg} border-2 ${colors.border} rounded-lg p-3 mb-3`}>
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex-1 min-w-0">
+          <div className={`inline-block ${colors.label} px-2 py-0.5 rounded text-xs font-bold mb-1.5`}>
+            {number}. {title}
+          </div>
+          <p className={`text-xs ${colors.text} line-clamp-2`}>
+            {value}
+          </p>
         </div>
-        {hasContent && (
-          <button
-            onClick={() => onToggleCollapse(field)}
-            className="text-gray-400 hover:text-gray-600 p-1"
-            title="Collapse"
-          >
-            <ChevronUp size={18} />
-          </button>
-        )}
+        <button
+          onClick={onEdit}
+          className={`${colors.text} hover:opacity-70 p-1.5 flex-shrink-0`}
+          title="Edit"
+        >
+          <Edit2 size={16} />
+        </button>
       </div>
-      <p className="text-xs text-gray-600 mb-2">{hint}</p>
-      <textarea
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        onBlur={() => {
-          if (hasContent) {
-            onToggleCollapse(field);
-          }
-        }}
-        placeholder={placeholder}
-        className="w-full h-24 p-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-sm"
-      />
     </div>
   );
 };
@@ -81,13 +233,7 @@ const Round3Game = ({ onBack }) => {
   const [promptAudience, setPromptAudience] = useState('');
   const [promptConstraints, setPromptConstraints] = useState('');
   const [promptGoal, setPromptGoal] = useState('');
-  const [collapsed, setCollapsed] = useState({
-    context: false,
-    format: false,
-    audience: false,
-    constraints: false,
-    goal: false
-  });
+  const [showBuilder, setShowBuilder] = useState(false);
   const [userPrompt, setUserPrompt] = useState('');
   const [showHints, setShowHints] = useState(false);
   const [generatedOutput, setGeneratedOutput] = useState('');
@@ -116,8 +262,133 @@ ${parts.join('\n\n')}`;
 
   const allFieldsFilled = promptContext && promptFormat && promptAudience && promptConstraints && promptGoal;
 
-  // Smart formatter to convert plain text to HTML
-  const formatPlainTextToHTML = (text) => {
+  // Enhanced simulation formatter with visual beats
+  const formatSimulation = (text) => {
+    if (!text) return '';
+    
+    // Parse the simulation into beats
+    const sections = [];
+    const lines = text.split('\n');
+    let currentSection = null;
+    
+    for (const line of lines) {
+      const trimmed = line.trim();
+      
+      // Detect section headers
+      if (trimmed.match(/^(1\.|2\.|3\.)\s*(THE |WHERE |THE )/i) || 
+          trimmed.match(/^(THE FIRST GATE|WHERE IT GOES|THE CONSEQUENCES)/i)) {
+        if (currentSection) {
+          sections.push(currentSection);
+        }
+        
+        let type = 'default';
+        let icon = '';
+        if (trimmed.match(/FIRST GATE|1\./i)) {
+          type = 'gate';
+          icon = 'G';
+        } else if (trimmed.match(/WHERE IT GOES|2\./i)) {
+          type = 'destination';
+          icon = 'D';
+        } else if (trimmed.match(/CONSEQUENCES|3\./i)) {
+          type = 'consequences';
+          icon = 'C';
+        }
+        
+        currentSection = { 
+          header: trimmed.replace(/^(1\.|2\.|3\.)\s*/, ''),
+          content: [],
+          type,
+          icon
+        };
+      } else if (trimmed && currentSection) {
+        currentSection.content.push(trimmed);
+      } else if (trimmed && !currentSection) {
+        // Opening text before first section
+        if (!sections.length || sections[sections.length - 1].type !== 'intro') {
+          sections.push({ type: 'intro', content: [trimmed] });
+        } else {
+          sections[sections.length - 1].content.push(trimmed);
+        }
+      }
+    }
+    
+    if (currentSection) {
+      sections.push(currentSection);
+    }
+    
+    // Find quotes in content
+    const findQuotes = (text) => {
+      const quoteMatch = text.match(/[""]([^""]+)[""]/);
+      if (quoteMatch) {
+        return {
+          before: text.substring(0, quoteMatch.index),
+          quote: quoteMatch[1],
+          after: text.substring(quoteMatch.index + quoteMatch[0].length)
+        };
+      }
+      return null;
+    };
+    
+    // Render sections
+    return (
+      <div className="space-y-5">
+        {sections.map((section, idx) => {
+          if (section.type === 'intro') {
+            return (
+              <div key={idx} className="text-gray-800 leading-relaxed">
+                {section.content.map((line, i) => (
+                  <p key={i} className="mb-2">{line}</p>
+                ))}
+              </div>
+            );
+          }
+          
+          const colorScheme = {
+            gate: { bg: 'bg-blue-50', border: 'border-blue-400', icon: 'bg-blue-500', text: 'text-blue-900' },
+            destination: { bg: 'bg-purple-50', border: 'border-purple-400', icon: 'bg-purple-500', text: 'text-purple-900' },
+            consequences: { bg: 'bg-orange-50', border: 'border-orange-400', icon: 'bg-orange-500', text: 'text-orange-900' },
+            default: { bg: 'bg-gray-50', border: 'border-gray-400', icon: 'bg-gray-500', text: 'text-gray-900' }
+          }[section.type];
+          
+          // Check if content has quotes
+          const contentText = section.content.join(' ');
+          const quoteData = findQuotes(contentText);
+          
+          return (
+            <div key={idx} className={`${colorScheme.bg} border-l-4 ${colorScheme.border} rounded-r-lg p-4`}>
+              <div className="flex items-start gap-3 mb-3">
+                <div className={`${colorScheme.icon} w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0`}>
+                  {section.icon}
+                </div>
+                <h4 className={`font-bold text-base ${colorScheme.text}`}>{section.header}</h4>
+              </div>
+              
+              <div className={`${colorScheme.text} leading-relaxed pl-11`}>
+                {quoteData ? (
+                  <>
+                    <p className="mb-3">{quoteData.before}</p>
+                    <blockquote className="bg-white border-l-3 border-gray-400 pl-4 py-2 my-3 italic text-base">
+                      "{quoteData.quote}"
+                    </blockquote>
+                    <p>{quoteData.after}</p>
+                  </>
+                ) : (
+                  section.content.map((line, i) => (
+                    <p key={i} className={i < section.content.length - 1 ? 'mb-2' : ''}>
+                      {line}
+                    </p>
+                  ))
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
+  // Smart formatter for generated content
+  const formatGeneratedContent = (text) => {
     if (!text) return '';
     
     const lines = text.split('\n');
@@ -128,7 +399,6 @@ ${parts.join('\n\n')}`;
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i].trim();
       
-      // Skip completely empty lines but track them
       if (!line) {
         lastWasEmpty = true;
         if (inList) {
@@ -138,13 +408,11 @@ ${parts.join('\n\n')}`;
         continue;
       }
       
-      // Close list if we were in one and this isn't a list item
       if (inList && !line.match(/^[-•·*]\s/)) {
         html += '</ul>\n';
         inList = false;
       }
       
-      // Detect list items (lines starting with -, •, ·, or *)
       if (line.match(/^[-•·*]\s/)) {
         if (!inList) {
           html += '<ul>\n';
@@ -153,21 +421,18 @@ ${parts.join('\n\n')}`;
         html += `<li>${line.replace(/^[-•·*]\s/, '')}</li>\n`;
         lastWasEmpty = false;
       }
-      // Detect section headers (all caps with 2+ words, or short line ending with colon)
       else if ((line === line.toUpperCase() && line.split(/\s+/).length >= 2) || 
                (line.length < 50 && line.match(/^[A-Z][^:]*:$/))) {
-        html += `<h3 class="font-bold mt-4 mb-2">${line}</h3>\n`;
+        html += `<h3 class="font-bold mt-4 mb-2 text-sm">${line}</h3>\n`;
         lastWasEmpty = false;
       }
-      // Detect bold labels at start of line (WORD: or WORDS:)
       else if (line.match(/^[A-Z][A-Z\s]+:/)) {
         const parts = line.split(':');
-        html += `<p class="mt-2"><strong>${parts[0]}:</strong>${parts.slice(1).join(':')}</p>\n`;
+        html += `<p class="mt-2 text-sm"><strong>${parts[0]}:</strong>${parts.slice(1).join(':')}</p>\n`;
         lastWasEmpty = false;
       }
-      // Regular paragraph
       else {
-        const className = lastWasEmpty ? ' class="mt-3"' : '';
+        const className = lastWasEmpty ? ' class="mt-3 text-sm"' : ' class="text-sm"';
         html += `<p${className}>${line}</p>\n`;
         lastWasEmpty = false;
       }
@@ -273,7 +538,7 @@ ${parts.join('\n\n')}`;
       }
 
       const outputData = await outputResponse.json();
-      setGeneratedOutput(formatPlainTextToHTML(outputData.output));
+      setGeneratedOutput(outputData.output);
 
       // Simulate scenario outcome
       setGenerationStep('Simulating what happens...');
@@ -325,7 +590,7 @@ Point to specific elements in the content that caused the outcome. What was miss
       }
 
       const simData = await simResponse.json();
-      setSimulation(formatPlainTextToHTML(simData.output));
+      setSimulation(simData.output);
 
       // Evaluate prompt
       setGenerationStep('Evaluating your prompt...');
@@ -365,8 +630,12 @@ Point to specific elements in the content that caused the outcome. What was miss
     }
   };
 
-  const toggleCollapse = (field) => {
-    setCollapsed({ ...collapsed, [field]: !collapsed[field] });
+  const handleSaveIngredients = (ingredients) => {
+    setPromptContext(ingredients.context);
+    setPromptFormat(ingredients.format);
+    setPromptAudience(ingredients.audience);
+    setPromptConstraints(ingredients.constraints);
+    setPromptGoal(ingredients.goal);
   };
 
   const renderLoading = () => (
@@ -428,12 +697,12 @@ Point to specific elements in the content that caused the outcome. What was miss
     if (!scenario) return null;
 
     return (
-      <div className="max-w-4xl mx-auto p-6">
+      <div className="max-w-4xl mx-auto p-4 sm:p-6">
         {/* Reminder banner */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
           <div className="flex items-start gap-3">
             <AlertCircle className="text-blue-600 flex-shrink-0 mt-0.5" size={20} />
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
               <p className="text-sm text-blue-900 font-semibold mb-1">Your Challenge: {scenario.requirement}</p>
               <p className="text-xs text-blue-800">{scenario.situation}</p>
             </div>
@@ -453,7 +722,7 @@ Point to specific elements in the content that caused the outcome. What was miss
 
         {/* Hints panel */}
         {showHints && (
-          <div className="bg-purple-50 rounded-lg p-6 mb-6 border border-purple-200">
+          <div className="bg-purple-50 rounded-lg p-4 sm:p-6 mb-4 border border-purple-200">
             <h4 className="font-semibold text-purple-900 mb-4">What makes a strong prompt:</h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {hints.map((hint, idx) => (
@@ -473,77 +742,62 @@ Point to specific elements in the content that caused the outcome. What was miss
           </div>
         )}
 
-        {/* Ingredient Fields */}
-        <div className="mb-6">
-          <h3 className="font-bold text-lg mb-4">Build your prompt - fill in each component:</h3>
+        {/* Ingredient Summary Cards */}
+        <div className="mb-4">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-bold text-lg">Your Prompt Components</h3>
+            <button
+              onClick={() => setShowBuilder(true)}
+              className="bg-purple-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-purple-700 transition-colors text-sm flex items-center gap-2"
+            >
+              <Edit2 size={16} />
+              {allFieldsFilled ? 'Edit' : 'Build Prompt'}
+            </button>
+          </div>
           
-          <IngredientField
+          <IngredientSummaryCard
             field="context"
             number={1}
             title="Context"
-            hint="What specific details does Claude need? Company info, numbers, operational constraints..."
-            placeholder="e.g., 'Company: MidAtlantic Manufacturing, 12 facilities (PA/OH/WV), 2,400 employees, $38-42M investment needed...'"
             value={promptContext}
-            onChange={setPromptContext}
-            collapsed={collapsed}
-            onToggleCollapse={toggleCollapse}
+            onEdit={() => setShowBuilder(true)}
           />
-
-          <IngredientField
+          <IngredientSummaryCard
             field="format"
             number={2}
             title="Format"
-            hint="What structure and style should the output have?"
-            placeholder="e.g., 'Press statement format with clear sections, bullet points for key facts, under 300 words'"
             value={promptFormat}
-            onChange={setPromptFormat}
-            collapsed={collapsed}
-            onToggleCollapse={toggleCollapse}
+            onEdit={() => setShowBuilder(true)}
           />
-
-          <IngredientField
+          <IngredientSummaryCard
             field="audience"
             number={3}
             title="Audience"
-            hint="Who will read this and what do they need?"
-            placeholder="e.g., 'Media/journalists covering business and policy, need credible facts and company perspective'"
             value={promptAudience}
-            onChange={setPromptAudience}
-            collapsed={collapsed}
-            onToggleCollapse={toggleCollapse}
+            onEdit={() => setShowBuilder(true)}
           />
-
-          <IngredientField
+          <IngredientSummaryCard
             field="constraints"
             number={4}
             title="Constraints"
-            hint="Time limits, length requirements, approval process..."
-            placeholder="e.g., 'CEO needs to read in 2 minutes before press call, must avoid technical jargon'"
             value={promptConstraints}
-            onChange={setPromptConstraints}
-            collapsed={collapsed}
-            onToggleCollapse={toggleCollapse}
+            onEdit={() => setShowBuilder(true)}
           />
-
-          <IngredientField
+          <IngredientSummaryCard
             field="goal"
             number={5}
             title="Goal"
-            hint="What outcome do you want? What should readers believe or do?"
-            placeholder="e.g., 'Position company as responsible corporate citizen seeking reasonable implementation timeline, not exemption'"
             value={promptGoal}
-            onChange={setPromptGoal}
-            collapsed={collapsed}
-            onToggleCollapse={toggleCollapse}
+            onEdit={() => setShowBuilder(true)}
           />
         </div>
 
         {/* Generate button */}
-        <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg shadow-lg p-6">
+        <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg shadow-lg p-4 sm:p-6 sticky bottom-4 sm:relative sm:bottom-0">
           <button
             onClick={handleGenerate}
             disabled={!allFieldsFilled || isGenerating}
-            className={`w-full px-8 py-4 rounded-lg font-bold text-lg transition-colors flex items-center justify-center gap-2 ${
+            className={`w-full px-6 sm:px-8 py-3 sm:py-4 rounded-lg font-bold text-base sm:text-lg transition-colors flex items-center justify-center gap-2 ${
               allFieldsFilled && !isGenerating
                 ? 'bg-green-600 text-white hover:bg-green-700'
                 : 'bg-gray-300 text-gray-500 cursor-not-allowed'
@@ -565,6 +819,22 @@ Point to specific elements in the content that caused the outcome. What was miss
             <p className="text-sm text-gray-600 text-center mt-3">Fill in all 5 components to generate</p>
           )}
         </div>
+
+        {/* Ingredient Builder Modal */}
+        {showBuilder && (
+          <IngredientBuilder
+            ingredients={{
+              context: promptContext,
+              format: promptFormat,
+              audience: promptAudience,
+              constraints: promptConstraints,
+              goal: promptGoal
+            }}
+            onClose={() => setShowBuilder(false)}
+            onSave={handleSaveIngredients}
+            scenario={scenario}
+          />
+        )}
       </div>
     );
   };
@@ -619,66 +889,60 @@ Point to specific elements in the content that caused the outcome. What was miss
     if (!evaluation || !scenario) return null;
 
     return (
-      <div className="max-w-4xl mx-auto p-6">
+      <div className="max-w-4xl mx-auto p-4 sm:p-6">
         {/* Scenario tackled */}
-        <div className="bg-gray-100 rounded-lg p-4 mb-6 border border-gray-300">
+        <div className="bg-gray-100 rounded-lg p-4 mb-4 border border-gray-300">
           <p className="text-xs text-gray-600 uppercase font-semibold mb-1">Scenario Tackled</p>
           <p className="text-sm font-semibold text-gray-900">{scenario.title}</p>
         </div>
 
         {/* Generated Output */}
-        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-          <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
+        <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 mb-4 sm:mb-6">
+          <h3 className="font-semibold text-base sm:text-lg mb-3 sm:mb-4 flex items-center gap-2">
             <Sparkles size={20} className="text-orange-600" />
             What Claude Generated:
           </h3>
-          <div className="bg-gray-50 p-4 rounded border border-gray-200 text-sm leading-relaxed max-h-64 overflow-y-auto formatted-content">
+          <div className="bg-gray-50 p-3 sm:p-4 rounded border border-gray-200 leading-relaxed max-h-64 overflow-y-auto formatted-content">
             <style>{`
               .formatted-content p { margin-bottom: 0.75rem; }
               .formatted-content p:last-child { margin-bottom: 0; }
-              .formatted-content h3 { font-weight: bold; margin-top: 1rem; margin-bottom: 0.5rem; font-size: 1rem; }
+              .formatted-content h3 { font-weight: bold; margin-top: 1rem; margin-bottom: 0.5rem; }
               .formatted-content ul { margin: 0.5rem 0 0.75rem 1.5rem; list-style-type: disc; }
               .formatted-content li { margin-bottom: 0.25rem; }
             `}</style>
-            <div dangerouslySetInnerHTML={{ __html: generatedOutput }} />
+            <div dangerouslySetInnerHTML={{ __html: formatGeneratedContent(generatedOutput) }} />
           </div>
         </div>
 
         {/* Simulation - THE PAYOFF */}
         {simulation && (
-          <div className="bg-gradient-to-br from-orange-50 to-red-50 border-2 border-orange-300 rounded-lg p-6 mb-6">
-            <h3 className="font-bold text-xl mb-4 text-orange-900 flex items-center gap-2">
-              🎬 How It Played Out
+          <div className="bg-gradient-to-br from-orange-50 to-red-50 border-2 border-orange-300 rounded-lg p-4 sm:p-6 mb-4 sm:mb-6">
+            <h3 className="font-bold text-lg sm:text-xl mb-3 sm:mb-4 text-orange-900">
+              How It Played Out
             </h3>
-            <div className="bg-white rounded-lg p-5 text-gray-900 leading-relaxed text-sm">
-              <style>{`
-                .bg-white p { margin-bottom: 0.75rem; }
-                .bg-white h3 { font-weight: bold; margin-top: 1rem; margin-bottom: 0.5rem; }
-                .bg-white ul { margin: 0.5rem 0 0.75rem 1.5rem; list-style-type: disc; }
-                .bg-white li { margin-bottom: 0.25rem; }
-              `}</style>
-              <div dangerouslySetInnerHTML={{ __html: simulation }} />
+            <div className="bg-white rounded-lg p-4 sm:p-5 text-gray-900 leading-relaxed">
+              {formatSimulation(simulation)}
             </div>
           </div>
         )}
 
         {/* Connecting text */}
-        <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6 rounded-r-lg">
-          <p className="text-blue-900 font-semibold">
+        <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-4 sm:mb-6 rounded-r-lg">
+          <p className="text-sm sm:text-base text-blue-900 font-semibold">
             Here's why it went that way:
           </p>
         </div>
 
         {/* Score Card */}
-        <div className={`rounded-lg p-6 mb-6 border-2 ${getScoreBgColor(evaluation.score)}`}>
+        <div className={`rounded-lg p-4 sm:p-6 mb-4 sm:mb-6 border-2 ${getScoreBgColor(evaluation.score)}`}>
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h2 className="text-2xl font-bold mb-1">Your Score</h2>
-              <p className={`text-lg font-semibold ${getScoreColor(evaluation.score)}`}>
+              <h2 className="text-xl sm:text-2xl font-bold mb-1">Your Score</h2>
+              <p className={`text-base sm:text-lg font-semibold ${getScoreColor(evaluation.score)}`}>
                 {getScoreLabel(evaluation.score)}
               </p>
             </div>
-            <div className={`text-6xl font-bold ${getScoreColor(evaluation.score)}`}>
+            <div className={`text-4xl sm:text-6xl font-bold ${getScoreColor(evaluation.score)}`}>
               {evaluation.score}
             </div>
           </div>
@@ -686,84 +950,84 @@ Point to specific elements in the content that caused the outcome. What was miss
 
         {/* Ingredient Breakdown */}
         {evaluation.ingredients && (
-          <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-            <h3 className="font-semibold text-lg mb-4">What Made Your Prompt Strong (or Weak):</h3>
+          <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 mb-4 sm:mb-6">
+            <h3 className="font-semibold text-base sm:text-lg mb-4">What Made Your Prompt Strong (or Weak):</h3>
             <div className="space-y-3">
               {evaluation.ingredients.context && (
-                <div className={`${ingredientColors.context.bg} border-2 ${ingredientColors.context.border} rounded-lg p-4`}>
+                <div className={`${ingredientColors.context.bg} border-2 ${ingredientColors.context.border} rounded-lg p-3 sm:p-4`}>
                   <div className="flex items-center justify-between mb-2">
-                    <div className={`${ingredientColors.context.label} px-3 py-1 rounded text-sm font-bold`}>
+                    <div className={`${ingredientColors.context.label} px-3 py-1 rounded text-xs sm:text-sm font-bold`}>
                       Context
                     </div>
-                    <div className={`text-2xl font-bold ${getScoreColor(evaluation.ingredients.context.score)}`}>
+                    <div className={`text-xl sm:text-2xl font-bold ${getScoreColor(evaluation.ingredients.context.score)}`}>
                       {evaluation.ingredients.context.score}/20
                     </div>
                   </div>
-                  <p className={`text-sm ${ingredientColors.context.text}`}>
+                  <p className={`text-xs sm:text-sm ${ingredientColors.context.text}`}>
                     {evaluation.ingredients.context.feedback}
                   </p>
                 </div>
               )}
 
               {evaluation.ingredients.format && (
-                <div className={`${ingredientColors.format.bg} border-2 ${ingredientColors.format.border} rounded-lg p-4`}>
+                <div className={`${ingredientColors.format.bg} border-2 ${ingredientColors.format.border} rounded-lg p-3 sm:p-4`}>
                   <div className="flex items-center justify-between mb-2">
-                    <div className={`${ingredientColors.format.label} px-3 py-1 rounded text-sm font-bold`}>
+                    <div className={`${ingredientColors.format.label} px-3 py-1 rounded text-xs sm:text-sm font-bold`}>
                       Format
                     </div>
-                    <div className={`text-2xl font-bold ${getScoreColor(evaluation.ingredients.format.score)}`}>
+                    <div className={`text-xl sm:text-2xl font-bold ${getScoreColor(evaluation.ingredients.format.score)}`}>
                       {evaluation.ingredients.format.score}/20
                     </div>
                   </div>
-                  <p className={`text-sm ${ingredientColors.format.text}`}>
+                  <p className={`text-xs sm:text-sm ${ingredientColors.format.text}`}>
                     {evaluation.ingredients.format.feedback}
                   </p>
                 </div>
               )}
 
               {evaluation.ingredients.audience && (
-                <div className={`${ingredientColors.audience.bg} border-2 ${ingredientColors.audience.border} rounded-lg p-4`}>
+                <div className={`${ingredientColors.audience.bg} border-2 ${ingredientColors.audience.border} rounded-lg p-3 sm:p-4`}>
                   <div className="flex items-center justify-between mb-2">
-                    <div className={`${ingredientColors.audience.label} px-3 py-1 rounded text-sm font-bold`}>
+                    <div className={`${ingredientColors.audience.label} px-3 py-1 rounded text-xs sm:text-sm font-bold`}>
                       Audience
                     </div>
-                    <div className={`text-2xl font-bold ${getScoreColor(evaluation.ingredients.audience.score)}`}>
+                    <div className={`text-xl sm:text-2xl font-bold ${getScoreColor(evaluation.ingredients.audience.score)}`}>
                       {evaluation.ingredients.audience.score}/20
                     </div>
                   </div>
-                  <p className={`text-sm ${ingredientColors.audience.text}`}>
+                  <p className={`text-xs sm:text-sm ${ingredientColors.audience.text}`}>
                     {evaluation.ingredients.audience.feedback}
                   </p>
                 </div>
               )}
 
               {evaluation.ingredients.constraints && (
-                <div className={`${ingredientColors.constraints.bg} border-2 ${ingredientColors.constraints.border} rounded-lg p-4`}>
+                <div className={`${ingredientColors.constraints.bg} border-2 ${ingredientColors.constraints.border} rounded-lg p-3 sm:p-4`}>
                   <div className="flex items-center justify-between mb-2">
-                    <div className={`${ingredientColors.constraints.label} px-3 py-1 rounded text-sm font-bold`}>
+                    <div className={`${ingredientColors.constraints.label} px-3 py-1 rounded text-xs sm:text-sm font-bold`}>
                       Constraints
                     </div>
-                    <div className={`text-2xl font-bold ${getScoreColor(evaluation.ingredients.constraints.score)}`}>
+                    <div className={`text-xl sm:text-2xl font-bold ${getScoreColor(evaluation.ingredients.constraints.score)}`}>
                       {evaluation.ingredients.constraints.score}/20
                     </div>
                   </div>
-                  <p className={`text-sm ${ingredientColors.constraints.text}`}>
+                  <p className={`text-xs sm:text-sm ${ingredientColors.constraints.text}`}>
                     {evaluation.ingredients.constraints.feedback}
                   </p>
                 </div>
               )}
 
               {evaluation.ingredients.goal && (
-                <div className={`${ingredientColors.goal.bg} border-2 ${ingredientColors.goal.border} rounded-lg p-4`}>
+                <div className={`${ingredientColors.goal.bg} border-2 ${ingredientColors.goal.border} rounded-lg p-3 sm:p-4`}>
                   <div className="flex items-center justify-between mb-2">
-                    <div className={`${ingredientColors.goal.label} px-3 py-1 rounded text-sm font-bold`}>
+                    <div className={`${ingredientColors.goal.label} px-3 py-1 rounded text-xs sm:text-sm font-bold`}>
                       Goal
                     </div>
-                    <div className={`text-2xl font-bold ${getScoreColor(evaluation.ingredients.goal.score)}`}>
+                    <div className={`text-xl sm:text-2xl font-bold ${getScoreColor(evaluation.ingredients.goal.score)}`}>
                       {evaluation.ingredients.goal.score}/20
                     </div>
                   </div>
-                  <p className={`text-sm ${ingredientColors.goal.text}`}>
+                  <p className={`text-xs sm:text-sm ${ingredientColors.goal.text}`}>
                     {evaluation.ingredients.goal.feedback}
                   </p>
                 </div>
@@ -773,15 +1037,15 @@ Point to specific elements in the content that caused the outcome. What was miss
         )}
 
         {/* Final CTA */}
-        <div className="bg-gradient-to-r from-purple-50 to-orange-50 rounded-lg shadow-lg p-8 text-center">
-          <Trophy className="mx-auto mb-4 text-orange-600" size={48} />
-          <h3 className="text-2xl font-bold mb-3">Round Complete!</h3>
-          <p className="text-gray-700 mb-6">
+        <div className="bg-gradient-to-r from-purple-50 to-orange-50 rounded-lg shadow-lg p-6 sm:p-8 text-center">
+          <Trophy className="mx-auto mb-4 text-orange-600" size={40} />
+          <h3 className="text-xl sm:text-2xl font-bold mb-3">Round Complete!</h3>
+          <p className="text-sm sm:text-base text-gray-700 mb-6">
             {evaluation.score >= 75 
               ? "Strong work. Try a new scenario to test your skills."
               : "Keep practicing. Each scenario will help you improve."}
           </p>
-          <div className="flex gap-4 justify-center flex-wrap">
+          <div className="flex gap-3 justify-center flex-wrap">
             <button
               onClick={() => {
                 setStage('write-prompt');
@@ -790,20 +1054,13 @@ Point to specific elements in the content that caused the outcome. What was miss
                 setPromptAudience('');
                 setPromptConstraints('');
                 setPromptGoal('');
-                setCollapsed({
-                  context: false,
-                  format: false,
-                  audience: false,
-                  constraints: false,
-                  goal: false
-                });
                 setUserPrompt('');
                 setGeneratedOutput('');
                 setSimulation(null);
                 setEvaluation(null);
                 setGenerationStep('');
               }}
-              className="bg-gray-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-gray-700 transition-colors"
+              className="bg-gray-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg text-sm sm:text-base font-semibold hover:bg-gray-700 transition-colors"
             >
               Try This Scenario Again
             </button>
@@ -814,13 +1071,6 @@ Point to specific elements in the content that caused the outcome. What was miss
                 setPromptAudience('');
                 setPromptConstraints('');
                 setPromptGoal('');
-                setCollapsed({
-                  context: false,
-                  format: false,
-                  audience: false,
-                  constraints: false,
-                  goal: false
-                });
                 setUserPrompt('');
                 setGeneratedOutput('');
                 setSimulation(null);
@@ -828,14 +1078,14 @@ Point to specific elements in the content that caused the outcome. What was miss
                 setGenerationStep('');
                 generateScenario();
               }}
-              className="bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-purple-700 transition-colors flex items-center gap-2"
+              className="bg-purple-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg text-sm sm:text-base font-semibold hover:bg-purple-700 transition-colors flex items-center gap-2"
             >
               <RefreshCw size={18} />
               New Scenario
             </button>
             <button
               onClick={() => setStage('leaderboard')}
-              className="bg-orange-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-orange-700 transition-colors flex items-center gap-2"
+              className="bg-orange-600 text-white px-6 sm:px-8 py-2 sm:py-3 rounded-lg text-sm sm:text-base font-bold hover:bg-orange-700 transition-colors flex items-center gap-2"
             >
               <Trophy size={20} />
               Leaderboard
@@ -908,13 +1158,6 @@ Point to specific elements in the content that caused the outcome. What was miss
             setPromptAudience('');
             setPromptConstraints('');
             setPromptGoal('');
-            setCollapsed({
-              context: false,
-              format: false,
-              audience: false,
-              constraints: false,
-              goal: false
-            });
             setUserPrompt('');
             setGeneratedOutput('');
             setSimulation(null);
