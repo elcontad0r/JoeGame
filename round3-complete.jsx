@@ -73,26 +73,39 @@ const IngredientField = ({ field, number, title, placeholder, value, onChange, h
   );
 };
 
-// Replace the highlightQuotes function with this:
 const highlightQuotes = (text) => {
   if (!text) return text;
   
-  // Match text in actual quotes (double quotes only, not apostrophes)
-  // This regex looks for: opening quote, stuff that's not a quote, closing quote
-  const quoteRegex = /"([^"]+)"/g;
+  const parts = [];
+  let lastIndex = 0;
   
-  return text.split(quoteRegex).map((part, idx) => {
-    // Odd indices are the captured groups (text inside quotes)
-    if (idx % 2 === 1) {
-      return (
-        <span key={idx} className="bg-orange-100 text-orange-900 px-1.5 py-0.5 rounded font-semibold italic">
-          "{part}"
-        </span>
-      );
+  // Match both 'single' and "double" quotes
+  const quoteRegex = /(['"])([^\1]*?)\1/g;
+  let match;
+  
+  while ((match = quoteRegex.exec(text)) !== null) {
+    // Add text before the quote
+    if (match.index > lastIndex) {
+      parts.push(text.substring(lastIndex, match.index));
     }
-    return part;
-  });
-};
+    
+    // Add the highlighted quote
+    parts.push(
+      <span key={match.index} className="bg-orange-100 text-orange-900 px-1.5 py-0.5 rounded font-semibold italic">
+        {match[1]}{match[2]}{match[1]}
+      </span>
+    );
+    
+    lastIndex = match.index + match[0].length;
+  }
+  
+  // Add remaining text
+  if (lastIndex < text.length) {
+    parts.push(text.substring(lastIndex));
+  }
+  
+  return parts.length > 0 ? parts : text;
+}; 
 
 const Round3Game = ({ onBack }) => {
   const [stage, setStage] = useState('loading');
