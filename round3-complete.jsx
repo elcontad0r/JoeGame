@@ -73,12 +73,13 @@ const IngredientField = ({ field, number, title, placeholder, value, onChange, h
   );
 };
 
-// Helper function to highlight quotes in simulation text
+// Replace the highlightQuotes function with this:
 const highlightQuotes = (text) => {
   if (!text) return text;
   
-  // Match text in quotes (both single and double)
-  const quoteRegex = /["']([^"']+)["']/g;
+  // Match text in actual quotes (double quotes only, not apostrophes)
+  // This regex looks for: opening quote, stuff that's not a quote, closing quote
+  const quoteRegex = /"([^"]+)"/g;
   
   return text.split(quoteRegex).map((part, idx) => {
     // Odd indices are the captured groups (text inside quotes)
