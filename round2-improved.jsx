@@ -17,7 +17,7 @@ const Round2GameV2 = ({ onComplete }) => {
     constraints: false,
     goal: false
   });
-  const [showPromptPreview, setShowPromptPreview] = useState(false); // For mobile toggle
+  const [showPromptPreview, setShowPromptPreview] = useState(false);
 
   const scenario = {
     title: "Plot Twist: Client Needs Hill Talking Points",
@@ -162,51 +162,19 @@ const Round2GameV2 = ({ onComplete }) => {
     }
   };
 
-  // Format output with basic structure detection
-  const formatOutput = (text) => {
-    if (!text) return null;
-    
-    const lines = text.split('\n');
-    const formatted = [];
-    
-    lines.forEach((line, idx) => {
-      const trimmed = line.trim();
-      
-      if (!trimmed) {
-        formatted.push(<div key={idx} className="h-3" />);
-      } else if (trimmed.match(/^[A-Z][A-Z\s:]+$/)) {
-        // All caps headers
-        formatted.push(
-          <h4 key={idx} className="font-bold text-gray-900 mt-4 first:mt-0 mb-2">
-            {trimmed}
-          </h4>
-        );
-      } else if (trimmed.match(/^[•\-\*]\s/)) {
-        // Bullet points
-        formatted.push(
-          <div key={idx} className="text-gray-700 ml-4">
-            {trimmed}
-          </div>
-        );
-      } else {
-        // Regular text
-        formatted.push(
-          <p key={idx} className="text-gray-700 mb-2">
-            {trimmed}
-          </p>
-        );
-      }
-    });
-    
-    return <div className="space-y-1">{formatted}</div>;
-  };
-
-  // Generate output by calling Claude API via Vercel serverless function
   const generateWithClaude = async () => {
     setIsGenerating(true);
     setHasGenerated(true);
     
-    const prompt = buildPrompt();
+    const basePrompt = buildPrompt();
+    const prompt = `${basePrompt}
+
+IMPORTANT: Return your response as a JSON object with this structure:
+{
+  "content": "your talking points here"
+}
+
+Make the content excellent and well-formatted according to the format instructions above. Use clear section headers, bullet points, and proper structure. Wrap everything in this JSON structure. Do not include any text outside the JSON.`;
     
     try {
       const response = await fetch("/api/generate-content", {
@@ -214,9 +182,7 @@ const Round2GameV2 = ({ onComplete }) => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          prompt: prompt
-        })
+        body: JSON.stringify({ prompt })
       });
 
       if (!response.ok) {
@@ -225,7 +191,18 @@ const Round2GameV2 = ({ onComplete }) => {
       }
 
       const data = await response.json();
-      setOutput(data.output);
+      
+      // Parse the JSON response
+      let parsed;
+      try {
+        let outputText = data.output.trim();
+        outputText = outputText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+        parsed = JSON.parse(outputText);
+        setOutput(parsed.content);
+      } catch (e) {
+        // Fallback: use as-is
+        setOutput(data.output);
+      }
     } catch (error) {
       console.error("Error calling Claude:", error);
       setOutput("Error generating output. Please try again.");
@@ -267,7 +244,6 @@ const Round2GameV2 = ({ onComplete }) => {
 
   const handleSelection = (ingredientKey, optionId) => {
     setSelections({ ...selections, [ingredientKey]: optionId });
-    // Collapse the card after selection
     setCollapsed({ ...collapsed, [ingredientKey]: true });
   };
 
@@ -308,7 +284,6 @@ const Round2GameV2 = ({ onComplete }) => {
     const isCollapsed = collapsed[ingredientKey];
     const selectedOption = selected ? data.options.find(o => o.id === selected) : null;
     
-    // Collapsed view - show selected option
     if (isCollapsed && selectedOption) {
       return (
         <div className="bg-white rounded-lg border-2 border-purple-200 p-4">
@@ -332,7 +307,6 @@ const Round2GameV2 = ({ onComplete }) => {
       );
     }
     
-    // Expanded view - show all options
     return (
       <div className="bg-white rounded-lg border-2 border-gray-200 p-4 hover:border-purple-300 transition-all">
         <div className="mb-3 flex items-center justify-between">
@@ -619,7 +593,9 @@ const Round2GameV2 = ({ onComplete }) => {
               ) : (
                 <>
                   <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 max-h-[500px] overflow-y-auto">
-                    {formatOutput(output)}
+                    <div className="text-gray-800 leading-relaxed whitespace-pre-wrap text-sm">
+                      {output}
+                    </div>
                   </div>
 
                   <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mt-4">
