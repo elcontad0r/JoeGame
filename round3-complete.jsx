@@ -73,39 +73,29 @@ const IngredientField = ({ field, number, title, placeholder, value, onChange, h
   );
 };
 
+// Simple version - just double quotes
 const highlightQuotes = (text) => {
   if (!text) return text;
   
   const parts = [];
-  let lastIndex = 0;
+  const segments = text.split('"');
   
-  // Match both 'single' and "double" quotes
-  const quoteRegex = /(['"])([^\1]*?)\1/g;
-  let match;
-  
-  while ((match = quoteRegex.exec(text)) !== null) {
-    // Add text before the quote
-    if (match.index > lastIndex) {
-      parts.push(text.substring(lastIndex, match.index));
+  segments.forEach((segment, idx) => {
+    if (idx % 2 === 1) {
+      // Odd indices are inside quotes
+      parts.push(
+        <span key={idx} className="bg-orange-100 text-orange-900 px-1.5 py-0.5 rounded font-semibold italic">
+          "{segment}"
+        </span>
+      );
+    } else {
+      // Even indices are outside quotes
+      parts.push(segment);
     }
-    
-    // Add the highlighted quote
-    parts.push(
-      <span key={match.index} className="bg-orange-100 text-orange-900 px-1.5 py-0.5 rounded font-semibold italic">
-        {match[1]}{match[2]}{match[1]}
-      </span>
-    );
-    
-    lastIndex = match.index + match[0].length;
-  }
+  });
   
-  // Add remaining text
-  if (lastIndex < text.length) {
-    parts.push(text.substring(lastIndex));
-  }
-  
-  return parts.length > 0 ? parts : text;
-}; 
+  return parts;
+};
 
 const Round3Game = ({ onBack }) => {
   const [stage, setStage] = useState('loading');
@@ -294,7 +284,7 @@ IMPORTANT: Return as JSON with this EXACT structure:
   "where_it_goes": "What happens when it reaches the real audience",
   "consequences": "Specific outcomes with at least one quote"
 }
-
+When showing dialogue or reactions, use double quotes ("like this") for anything you want to emphasize as direct speech or thought.
 Do not include any text outside the JSON.`;
 
       const simResponse = await fetch('/api/generate-content', {
