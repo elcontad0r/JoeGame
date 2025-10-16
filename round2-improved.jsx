@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { AlertCircle, ArrowRight, CheckCircle, Zap, RefreshCw, Edit2, ChevronDown, ChevronUp } from 'lucide-react';
+import { AlertCircle, ArrowRight, CheckCircle, Zap, RefreshCw, Edit2, ChevronDown, ChevronUp, Eye, EyeOff } from 'lucide-react';
 
 const Round2GameV2 = ({ onComplete }) => {
   const [stage, setStage] = useState('scenario');
@@ -17,6 +17,7 @@ const Round2GameV2 = ({ onComplete }) => {
     constraints: false,
     goal: false
   });
+  const [showPromptPreview, setShowPromptPreview] = useState(false); // For mobile toggle
 
   const scenario = {
     title: "Plot Twist: Client Needs Hill Talking Points",
@@ -28,6 +29,15 @@ const Round2GameV2 = ({ onComplete }) => {
   const [output, setOutput] = useState('');
   const [hasGenerated, setHasGenerated] = useState(false);
   const outputRef = useRef(null);
+
+  // Auto-scroll to output after generation
+  useEffect(() => {
+    if (hasGenerated && !isGenerating && outputRef.current) {
+      setTimeout(() => {
+        outputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+  }, [hasGenerated, isGenerating]);
 
   const ingredients = {
     context: {
@@ -152,6 +162,45 @@ const Round2GameV2 = ({ onComplete }) => {
     }
   };
 
+  // Format output with basic structure detection
+  const formatOutput = (text) => {
+    if (!text) return null;
+    
+    const lines = text.split('\n');
+    const formatted = [];
+    
+    lines.forEach((line, idx) => {
+      const trimmed = line.trim();
+      
+      if (!trimmed) {
+        formatted.push(<div key={idx} className="h-3" />);
+      } else if (trimmed.match(/^[A-Z][A-Z\s:]+$/)) {
+        // All caps headers
+        formatted.push(
+          <h4 key={idx} className="font-bold text-gray-900 mt-4 first:mt-0 mb-2">
+            {trimmed}
+          </h4>
+        );
+      } else if (trimmed.match(/^[•\-\*]\s/)) {
+        // Bullet points
+        formatted.push(
+          <div key={idx} className="text-gray-700 ml-4">
+            {trimmed}
+          </div>
+        );
+      } else {
+        // Regular text
+        formatted.push(
+          <p key={idx} className="text-gray-700 mb-2">
+            {trimmed}
+          </p>
+        );
+      }
+    });
+    
+    return <div className="space-y-1">{formatted}</div>;
+  };
+
   // Generate output by calling Claude API via Vercel serverless function
   const generateWithClaude = async () => {
     setIsGenerating(true);
@@ -231,7 +280,7 @@ const Round2GameV2 = ({ onComplete }) => {
       <div className="bg-blue-50 border-l-4 border-blue-500 p-6 mb-6 rounded-r-lg">
         <div className="flex items-start">
           <AlertCircle className="text-blue-500 mr-3 mt-1 flex-shrink-0" size={24} />
-          <div>
+          <div className="flex-1 min-w-0">
             <h2 className="text-2xl font-bold text-blue-900 mb-2">{scenario.title}</h2>
             <p className="text-blue-800 text-lg font-semibold mb-3">{scenario.urgency}</p>
             <p className="text-blue-900 leading-relaxed">{scenario.situation}</p>
@@ -264,16 +313,16 @@ const Round2GameV2 = ({ onComplete }) => {
       return (
         <div className="bg-white rounded-lg border-2 border-purple-200 p-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3 flex-1">
+            <div className="flex items-center gap-3 flex-1 min-w-0">
               <CheckCircle className="text-purple-600 flex-shrink-0" size={20} />
-              <div>
+              <div className="flex-1 min-w-0">
                 <div className="font-bold text-gray-900">{data.title}</div>
-                <div className="text-sm text-purple-700 font-semibold">{selectedOption.label}</div>
+                <div className="text-sm text-purple-700 font-semibold truncate">{selectedOption.label}</div>
               </div>
             </div>
             <button
               onClick={() => toggleCollapse(ingredientKey)}
-              className="text-purple-600 hover:text-purple-800 p-2 hover:bg-purple-50 rounded-lg transition-colors"
+              className="text-purple-600 hover:text-purple-800 p-2 hover:bg-purple-50 rounded-lg transition-colors flex-shrink-0"
               title="Edit selection"
             >
               <Edit2 size={18} />
@@ -294,7 +343,7 @@ const Round2GameV2 = ({ onComplete }) => {
           {selected && (
             <button
               onClick={() => toggleCollapse(ingredientKey)}
-              className="text-gray-400 hover:text-gray-600 p-1"
+              className="text-gray-400 hover:text-gray-600 p-1 flex-shrink-0"
               title="Collapse"
             >
               <ChevronUp size={18} />
@@ -316,7 +365,7 @@ const Round2GameV2 = ({ onComplete }) => {
               <div className="flex items-center justify-between mb-1">
                 <span className="font-semibold text-sm">{option.label}</span>
                 {selected === option.id && (
-                  <CheckCircle size={16} className="text-purple-600" />
+                  <CheckCircle size={16} className="text-purple-600 flex-shrink-0" />
                 )}
               </div>
               <div className="text-xs text-gray-600">{option.hint}</div>
@@ -431,8 +480,8 @@ const Round2GameV2 = ({ onComplete }) => {
         <div className="max-w-7xl mx-auto bg-white rounded-lg shadow-sm p-4 mb-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Zap className="text-purple-600" size={24} />
-              <div>
+              <Zap className="text-purple-600 flex-shrink-0" size={24} />
+              <div className="flex-1 min-w-0">
                 <h2 className="text-xl font-bold">Prompt Builder</h2>
                 <p className="text-xs text-gray-600">
                   {selectedCount}/5 ingredients selected
@@ -458,16 +507,16 @@ const Round2GameV2 = ({ onComplete }) => {
                 setHasGenerated(false);
                 setOutput('');
               }}
-              className="text-sm text-gray-600 hover:text-gray-900 flex items-center gap-1"
+              className="text-sm text-gray-600 hover:text-gray-900 flex items-center gap-1 flex-shrink-0"
             >
               <RefreshCw size={14} />
-              Reset
+              <span className="hidden sm:inline">Reset</span>
             </button>
           </div>
         </div>
 
         <div className="max-w-7xl mx-auto">
-          {/* Ingredients Grid */}
+          {/* Main Content Area */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
             {/* Left Column - Ingredients */}
             <div className="space-y-4">
@@ -485,100 +534,107 @@ const Round2GameV2 = ({ onComplete }) => {
               <IngredientCard ingredientKey="goal" data={ingredients.goal} />
             </div>
 
-            {/* Right Column - Prompt Viewer */}
+            {/* Right Column - Prompt Viewer (Desktop) / Toggle (Mobile) */}
             <div className="space-y-4">
-              <div className="bg-white rounded-lg shadow-lg p-6 lg:sticky lg:top-4">
-                <h3 className="font-bold text-lg mb-3 flex items-center gap-2">
-                  <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm">Your Prompt</span>
-                </h3>
-                <div className="max-h-[600px] overflow-y-auto">
-                  {renderPromptSection()}
+              {/* Mobile: Toggle button */}
+              <div className="lg:hidden">
+                <button
+                  onClick={() => setShowPromptPreview(!showPromptPreview)}
+                  className="w-full bg-blue-50 border-2 border-blue-300 rounded-lg p-4 font-semibold text-blue-900 hover:bg-blue-100 transition-colors flex items-center justify-between"
+                >
+                  <span>Your Prompt Preview</span>
+                  {showPromptPreview ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
+
+              {/* Desktop: Always visible / Mobile: Conditional */}
+              <div className={`${showPromptPreview ? 'block' : 'hidden'} lg:block`}>
+                <div className="bg-white rounded-lg shadow-lg p-6 lg:sticky lg:top-4">
+                  <h3 className="font-bold text-lg mb-3 flex items-center gap-2">
+                    <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm">Your Prompt</span>
+                  </h3>
+                  <div className="max-h-[600px] overflow-y-auto">
+                    {renderPromptSection()}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Generate Button + Output (at bottom) */}
-          <div className="max-w-7xl mx-auto space-y-6">
-            {/* Generate Button */}
-            {!hasGenerated && (
-              <div className="bg-white rounded-lg shadow-lg p-6">
+          {/* Generate Button */}
+          {!hasGenerated && (
+            <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+              <button
+                onClick={generateWithClaude}
+                disabled={!allSelected || isGenerating}
+                className={`w-full px-6 py-4 rounded-lg font-bold transition-colors flex items-center justify-center gap-2 ${
+                  allSelected && !isGenerating
+                    ? 'bg-purple-600 text-white hover:bg-purple-700'
+                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                }`}
+              >
+                {isGenerating ? (
+                  <>
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    <Zap size={20} />
+                    Generate with Claude
+                  </>
+                )}
+              </button>
+
+              {!allSelected && (
+                <p className="text-xs text-gray-500 text-center mt-2">
+                  Select all 5 ingredients to generate
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* Output Section */}
+          {hasGenerated && (
+            <div ref={outputRef} className="bg-white rounded-lg shadow-xl border-2 border-purple-200 p-6 mb-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-bold text-lg flex items-center gap-2">
+                  <Zap size={20} className="text-purple-600" />
+                  <span>Claude's Output</span>
+                </h3>
                 <button
                   onClick={generateWithClaude}
                   disabled={!allSelected || isGenerating}
-                  className={`w-full px-6 py-4 rounded-lg font-bold transition-colors flex items-center justify-center gap-2 ${
-                    allSelected && !isGenerating
-                      ? 'bg-purple-600 text-white hover:bg-purple-700'
-                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  }`}
+                  className="text-sm text-purple-600 hover:text-purple-800 font-semibold flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isGenerating ? (
-                    <>
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                      Generating...
-                    </>
-                  ) : (
-                    <>
-                      <Zap size={20} />
-                      Generate with Claude
-                    </>
-                  )}
+                  <RefreshCw size={14} />
+                  <span className="hidden sm:inline">Regenerate</span>
                 </button>
-
-                {!allSelected && (
-                  <p className="text-xs text-gray-500 text-center mt-2">
-                    Select all 5 ingredients to generate
-                  </p>
-                )}
               </div>
-            )}
 
-            {/* Output Section */}
-            {hasGenerated && (
-              <div ref={outputRef} className="bg-white rounded-lg shadow-xl border-2 border-purple-200 p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-bold text-lg flex items-center gap-2">
-                    <Zap size={20} className="text-purple-600" />
-                    <span>Claude's Output</span>
-                  </h3>
-                  <button
-                    onClick={generateWithClaude}
-                    disabled={!allSelected || isGenerating}
-                    className="text-sm text-purple-600 hover:text-purple-800 font-semibold flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    <RefreshCw size={14} />
-                    Regenerate
-                  </button>
+              {isGenerating ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-purple-600"></div>
                 </div>
-
-                {isGenerating ? (
-                  <div className="flex items-center justify-center py-12">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-purple-600"></div>
+              ) : (
+                <>
+                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 max-h-[500px] overflow-y-auto">
+                    {formatOutput(output)}
                   </div>
-                ) : (
-                  <>
-                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 max-h-[500px] overflow-y-auto">
-                      <div className="prose prose-sm max-w-none">
-                        <div className="text-gray-900 leading-relaxed whitespace-pre-wrap">
-                          {output}
-                        </div>
-                      </div>
-                    </div>
 
-                    <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mt-4">
-                      <p className="text-sm text-yellow-900">
-                        💡 <strong>Try experimenting:</strong> Edit any ingredient above and click Regenerate to see how the output changes
-                      </p>
-                    </div>
-                  </>
-                )}
-              </div>
-            )}
-          </div>
+                  <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mt-4">
+                    <p className="text-sm text-yellow-900">
+                      💡 <strong>Try experimenting:</strong> Edit any ingredient above and click Regenerate to see how the output changes
+                    </p>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
 
           {/* Continue Button */}
           {hasGenerated && !isGenerating && (
-            <div className="max-w-7xl mx-auto bg-gradient-to-r from-green-50 to-blue-50 rounded-lg shadow-lg p-6 text-center border-2 border-green-200">
+            <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg shadow-lg p-6 text-center border-2 border-green-200">
               <CheckCircle className="mx-auto mb-3 text-green-600" size={32} />
               <h4 className="font-bold text-lg mb-2">Seen how the ingredients work?</h4>
               <p className="text-sm text-gray-700 mb-4">
@@ -614,7 +670,7 @@ const Round2GameV2 = ({ onComplete }) => {
             <div className="bg-purple-500 text-white w-7 h-7 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0">
               1
             </div>
-            <div>
+            <div className="flex-1 min-w-0">
               <div className="font-semibold text-gray-900">Context</div>
               <div className="text-sm text-gray-600">Specific numbers and constraints beat vague descriptions</div>
             </div>
@@ -624,7 +680,7 @@ const Round2GameV2 = ({ onComplete }) => {
             <div className="bg-purple-500 text-white w-7 h-7 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0">
               2
             </div>
-            <div>
+            <div className="flex-1 min-w-0">
               <div className="font-semibold text-gray-900">Format</div>
               <div className="text-sm text-gray-600">Tell Claude HOW to structure the output (bullets, headers, length)</div>
             </div>
@@ -634,7 +690,7 @@ const Round2GameV2 = ({ onComplete }) => {
             <div className="bg-purple-500 text-white w-7 h-7 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0">
               3
             </div>
-            <div>
+            <div className="flex-1 min-w-0">
               <div className="font-semibold text-gray-900">Audience</div>
               <div className="text-sm text-gray-600">Specify who's reading it and their level of expertise</div>
             </div>
@@ -644,7 +700,7 @@ const Round2GameV2 = ({ onComplete }) => {
             <div className="bg-purple-500 text-white w-7 h-7 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0">
               4
             </div>
-            <div>
+            <div className="flex-1 min-w-0">
               <div className="font-semibold text-gray-900">Constraints</div>
               <div className="text-sm text-gray-600">Real-world limits (time, complexity, reader preparation)</div>
             </div>
@@ -654,7 +710,7 @@ const Round2GameV2 = ({ onComplete }) => {
             <div className="bg-purple-500 text-white w-7 h-7 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0">
               5
             </div>
-            <div>
+            <div className="flex-1 min-w-0">
               <div className="font-semibold text-gray-900">Goal</div>
               <div className="text-sm text-gray-600">What should this accomplish? Be specific with asks</div>
             </div>
@@ -667,7 +723,7 @@ const Round2GameV2 = ({ onComplete }) => {
         <p className="text-gray-700 mb-6">
           Next: Write your own prompt from scratch (with structure hints)
         </p>
-        <div className="flex gap-4 justify-center flex-wrap">
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <button
             onClick={() => setStage('builder')}
             className="bg-gray-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-gray-700 transition-colors"
@@ -676,7 +732,7 @@ const Round2GameV2 = ({ onComplete }) => {
           </button>
           <button
             onClick={() => onComplete && onComplete()}
-            className="bg-purple-600 text-white px-10 py-4 rounded-lg font-bold text-lg hover:bg-purple-700 transition-colors inline-flex items-center gap-2"
+            className="bg-purple-600 text-white px-10 py-4 rounded-lg font-bold text-lg hover:bg-purple-700 transition-colors inline-flex items-center justify-center gap-2"
           >
             Start Round 3 <ArrowRight size={20} />
           </button>
