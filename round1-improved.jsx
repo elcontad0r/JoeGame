@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AlertCircle, ArrowRight, ArrowLeft, Clock, CheckCircle, Zap } from 'lucide-react';
+import { AlertCircle, ArrowRight, ArrowLeft, Clock, CheckCircle, X } from 'lucide-react';
 
 const Round1GameV3 = ({ onComplete }) => {
   const [stage, setStage] = useState('scenario');
@@ -14,11 +14,10 @@ const Round1GameV3 = ({ onComplete }) => {
   const lessons = [
     {
       id: 'specifics',
-      title: "Give AI Your Context",
-      subtitle: "Generic prompts get generic garbage",
+      title: "Context beats vagueness",
       joePrompt: "Write a brief about the new EPA air quality rule and how it affects manufacturing companies.",
-      joeProblem: "No client details, no constraints, no specifics",
-      addition: "Add real context",
+      joeProblem: "No client details, no constraints, nothing specific",
+      whatToAdd: "Add real context: client name, numbers, timeline, constraints",
       betterPrompt: `You're advising MidAtlantic Manufacturing's CEO who just learned about new EPA air quality standards.
 
 Context:
@@ -35,8 +34,7 @@ Write a 1-page executive brief that:
 4. Your recommendation with reasoning
 
 Format for scanning: section headers, bullets, keep dense.`,
-      outputBefore: {
-        content: `The EPA has recently updated its air quality standards, introducing stricter limits on volatile organic compounds (VOCs) for manufacturing facilities. Companies will need to evaluate their current emissions levels and determine appropriate compliance pathways.
+      outputBefore: `The EPA has recently updated its air quality standards, introducing stricter limits on volatile organic compounds (VOCs) for manufacturing facilities. Companies will need to evaluate their current emissions levels and determine appropriate compliance pathways.
 
 Key considerations include:
 - Assessment of current emissions across all facilities
@@ -44,75 +42,51 @@ Key considerations include:
 - Timeline for implementation
 - Cost-benefit analysis of various approaches
 
-Manufacturers should consider engaging with environmental consultants to develop a comprehensive compliance strategy that balances regulatory requirements with operational needs.`
-      },
-      outputAfter: {
-        sections: [
-          {
-            header: "EXECUTIVE BRIEF: EPA VOC Standards",
-            subheader: "For: MidAtlantic Manufacturing CEO | Board Meeting: Today, 2pm",
-            content: null
-          },
-          {
-            header: "WHAT CHANGED",
-            content: `• EPA dropped VOC limits from 250 ppm to 35 ppm (86% reduction)
+Manufacturers should consider engaging with environmental consultants to develop a comprehensive compliance strategy that balances regulatory requirements with operational needs.`,
+      outputAfter: `EXECUTIVE BRIEF: EPA VOC Standards
+For: MidAtlantic Manufacturing CEO | Board Meeting: Today, 2pm
+
+WHAT CHANGED
+- EPA dropped VOC limits from 250 ppm to 35 ppm (86% reduction)
 - Takes effect January 2027—only 26 months away
 - Targets coating operations >25 tons/year
-- 8 of our 12 facilities immediately affected`
-          },
-          {
-            header: "WHY THIS HURTS",
-            content: `• Normal retrofit timeline: 24-30 months (we have 26)
+- 8 of our 12 facilities immediately affected
+
+WHY THIS HURTS
+- Normal retrofit timeline: 24-30 months (we have 26)
 - Our 8 facilities are big emitters (40-80 tons/year each)
 - Cannot run coating operations during retrofit (3-4 weeks per facility)
-- Trade group estimates 15-20% of suppliers will struggle to comply → supply chain risk`
-          },
-          {
-            header: "RESPONSE OPTIONS",
-            subsections: [
-              {
-                title: "1. FULL COMPLIANCE NOW",
-                bullets: [
-                  "Install thermal oxidizers at all 8 facilities",
-                  "Cost: $38-42M | Timeline: 26 months (tight but possible)",
-                  "✓ Zero regulatory risk, demonstrates leadership",
-                  "✗ Entire capital budget for 2 years"
-                ]
-              },
-              {
-                title: "2. STAGED COMPLIANCE",
-                bullets: [
-                  "Retrofit 5 worst facilities now, delay 3 others",
-                  "Cost: $24-28M upfront | Total: $40M over 3 years",
-                  "✓ Spreads capital impact",
-                  "✗ Regulatory exposure on 3 facilities (penalties ~$37K/day)"
-                ]
-              },
-              {
-                title: "3. TECHNOLOGY BET",
-                bullets: [
-                  "Install newer bio-filtration systems (unproven at our scale)",
-                  "Cost: $22-26M | Timeline: 18-24 months",
-                  "✓ 35% cheaper, faster installation",
-                  "✗ HIGH RISK: Only 2 facilities this size using it"
-                ]
-              }
-            ]
-          },
-          {
-            header: "RECOMMENDATION: Full Compliance (Option 1)",
-            content: "Board needs to approve $40M tonight. Penalties and supply chain disruption from delay cost more than the capital hit."
-          }
-        ]
-      }
+- Trade group estimates 15-20% of suppliers will struggle to comply → supply chain risk
+
+RESPONSE OPTIONS
+
+1. FULL COMPLIANCE NOW
+Install thermal oxidizers at all 8 facilities
+Cost: $38-42M | Timeline: 26 months (tight but possible)
+✓ Zero regulatory risk, demonstrates leadership
+✗ Entire capital budget for 2 years
+
+2. STAGED COMPLIANCE
+Retrofit 5 worst facilities now, delay 3 others
+Cost: $24-28M upfront | Total: $40M over 3 years
+✓ Spreads capital impact
+✗ Regulatory exposure on 3 facilities (penalties ~$37K/day)
+
+3. TECHNOLOGY BET
+Install newer bio-filtration systems (unproven at our scale)
+Cost: $22-26M | Timeline: 18-24 months
+✓ 35% cheaper, faster installation
+✗ HIGH RISK: Only 2 facilities this size using it
+
+RECOMMENDATION: Full Compliance (Option 1)
+Board needs to approve $40M tonight. Penalties and supply chain disruption from delay cost more than the capital hit.`
     },
     {
       id: 'constraints',
-      title: "Tell AI Your Constraints",
-      subtitle: "Tradeoffs matter more than options",
+      title: "Constraints drive strategy",
       joePrompt: "What options do we have for responding to this EPA rule?",
-      joeProblem: "Gets a generic list with no real-world thinking",
-      addition: "Add operating constraints",
+      joeProblem: "Generic list with no real-world thinking",
+      whatToAdd: "Add operating constraints: budget, capacity limits, political context",
       betterPrompt: `Analyze MidAtlantic's response options to the EPA VOC rule. Consider:
 
 Our constraints:
@@ -129,8 +103,7 @@ Give me 3-4 strategic options beyond just "comply" or "sue." For each:
 - Risk level (Low/Med/High)
 
 End with which you'd recommend and one-sentence why.`,
-      outputBefore: {
-        content: `There are several potential approaches to address the new EPA regulations:
+      outputBefore: `There are several potential approaches to address the new EPA regulations:
 
 1. Full Compliance
 Install necessary equipment to meet the new standards across all affected facilities.
@@ -144,53 +117,40 @@ Prioritize compliance at the most critical facilities while exploring options fo
 4. Technology Solutions
 Investigate emerging technologies that might offer more cost-effective compliance pathways.
 
-Each approach has different costs, timelines, and risk profiles that should be carefully evaluated.`
-      },
-      outputAfter: {
-        sections: [
-          {
-            header: "STRATEGIC OPTIONS ANALYSIS",
-            content: null
-          },
-          {
-            header: "Option 1: PARALLEL TRACK",
-            content: `Core approach: Start compliance prep while joining legal challenge
+Each approach has different costs, timelines, and risk profiles that should be carefully evaluated.`,
+      outputAfter: `STRATEGIC OPTIONS ANALYSIS
+
+Option 1: PARALLEL TRACK
+Core approach: Start compliance prep while joining legal challenge
 ✓ Preserves legal rights without delaying engineering
 ✓ If challenge fails, we're ahead of competitors
 ✗ Spend $4-6M on engineering before knowing legal outcome
-Cost: $42M total | Timeline: 26 months | Risk: MEDIUM`
-          },
-          {
-            header: "Option 2: CONSOLIDATION PLAY",
-            content: `Core approach: Close 3 facilities, shift production to compliant sites
+Cost: $42M total | Timeline: 26 months | Risk: MEDIUM
+
+Option 2: CONSOLIDATION PLAY
+Core approach: Close 3 facilities, shift production to compliant sites
 ✓ Only retrofit 5 facilities instead of 8 (~$12M savings)
 ✓ Permanently lower emissions footprint
 ✗ 180 job cuts (political/community relations hit)
 ✗ Stranded real estate assets (~$15M)
-Cost: $28M + $15M stranded | Timeline: 18 months | Risk: MEDIUM-HIGH`
-          },
-          {
-            header: "Option 3: PHASED TECHNOLOGY BET",
-            content: `Core approach: Install bio-filtration at 3 facilities (test), thermal oxidizers at 5 (proven)
+Cost: $28M + $15M stranded | Timeline: 18 months | Risk: MEDIUM-HIGH
+
+Option 3: PHASED TECHNOLOGY BET
+Core approach: Install bio-filtration at 3 facilities (test), thermal oxidizers at 5 (proven)
 ✓ Tests cheaper technology with safety net
 ✓ If bio works, save $8-10M on future retrofits
 ✗ Bio-filtration unproven at our coating volumes
-Cost: $35-38M | Timeline: 28 months | Risk: MEDIUM`
-          },
-          {
-            header: "RECOMMENDATION: Phased Technology Bet (Option 3)",
-            content: "Balances capital constraints, tests promising tech with proven backup, and stays inside supply chain limits—worth the 2-month timeline squeeze."
-          }
-        ]
-      }
+Cost: $35-38M | Timeline: 28 months | Risk: MEDIUM
+
+RECOMMENDATION: Phased Technology Bet (Option 3)
+Balances capital constraints, tests promising tech with proven backup, and stays inside supply chain limits—worth the 2-month timeline squeeze.`
     },
     {
       id: 'role',
-      title: "Define the Role & Audience",
-      subtitle: "Same facts, different framing for different people",
+      title: "Role shapes relevance",
       joePrompt: "Explain the EPA rule details.",
-      joeProblem: "Gets textbook explanation, not a usable brief",
-      addition: "Specify who needs this and how they'll use it",
+      joeProblem: "Textbook explanation nobody can use",
+      whatToAdd: "Specify who needs this and how they'll use it",
       betterPrompt: `Brief your partner before the MidAtlantic CEO call. They're smart but haven't followed EPA stuff.
 
 They need to know:
@@ -206,104 +166,40 @@ Format:
 - "TYPICAL FACILITY COST" (one line)
 
 Partner needs to sound informed in 90 seconds. Skip anything that won't come up in the call.`,
-      outputBefore: {
-        content: `EPA Air Quality Standards Update
+      outputBefore: `EPA Air Quality Standards Update
 
 The Environmental Protection Agency (EPA) has issued a final rule revising the National Ambient Air Quality Standards (NAAQS) for volatile organic compounds. This rulemaking follows the Clean Air Act requirement for periodic review of air quality standards.
 
 The updated standards reflect the latest scientific evidence regarding VOC emissions and their impact on air quality and public health. Facilities will need to implement Best Available Control Technology (BACT) or install emission control systems to achieve compliance.
 
-The rule was published in the Federal Register and will become effective following the standard 60-day comment period.`
-      },
-      outputAfter: {
-        sections: [
-          {
-            header: "PARTNER BRIEF: EPA VOC Rule",
-            content: null
-          },
-          {
-            header: "WHAT CHANGED",
-            content: `• VOC limit dropped from 250 ppm to 35 ppm (86% cut)
+The rule was published in the Federal Register and will become effective following the standard 60-day comment period.`,
+      outputAfter: `PARTNER BRIEF: EPA VOC Rule
+
+WHAT CHANGED
+- VOC limit dropped from 250 ppm to 35 ppm (86% cut)
 - Hits coating facilities >25 tons/year—mostly auto, aerospace, industrial coating
 - Compliance deadline: January 1, 2027 (26 months)
-- No grandfathering, no phase-in`
-          },
-          {
-            header: "WHY NOW",
-            content: `• EPA under court order from 2022 Sierra Club settlement
+- No grandfathering, no phase-in
+
+WHY NOW
+- EPA under court order from 2022 Sierra Club settlement
 - New science links VOCs to ozone formation + respiratory issues in kids
-- Biden admin's last big air rule before potential 2025 turnover`
-          },
-          {
-            header: "KEY DATES",
-            content: `• Jan 1, 2027: Compliance deadline (hard date)
+- Biden admin's last big air rule before potential 2025 turnover
+
+KEY DATES
+- Jan 1, 2027: Compliance deadline (hard date)
 - Q4 2025: EPA expects states to update implementation plans
-- Equipment lead times: 12-14 months for thermal oxidizers`
-          },
-          {
-            header: "TYPICAL FACILITY COST",
-            content: "$4-6M for mid-size coating operation (thermal oxidizer + installation)—MidAtlantic has 8 affected facilities, so multiply it out."
-          },
-          {
-            header: "CLIENT SPECIFIC",
-            content: "MidAtlantic's challenge is timeline, not cost—they need to retrofit 8 facilities in 26 months without disrupting production. That's the squeeze point."
-          }
-        ]
-      }
+- Equipment lead times: 12-14 months for thermal oxidizers
+
+TYPICAL FACILITY COST
+$4-6M for mid-size coating operation (thermal oxidizer + installation)—MidAtlantic has 8 affected facilities, so multiply it out.
+
+CLIENT SPECIFIC
+MidAtlantic's challenge is timeline, not cost—they need to retrofit 8 facilities in 26 months without disrupting production. That's the squeeze point.`
     }
   ];
 
   const lesson = lessons[currentLesson];
-
-  const renderStructuredOutput = (output) => {
-    if (output.content) {
-      return (
-        <div className="text-sm text-gray-700 whitespace-pre-line leading-relaxed">
-          {output.content}
-        </div>
-      );
-    }
-
-    if (output.sections) {
-      return (
-        <div className="space-y-4">
-          {output.sections.map((section, idx) => (
-            <div key={idx}>
-              {section.header && (
-                <h4 className="font-bold text-gray-900 mb-1 text-sm">
-                  {section.header}
-                </h4>
-              )}
-              {section.subheader && (
-                <p className="text-xs text-gray-600 mb-2">{section.subheader}</p>
-              )}
-              {section.content && (
-                <div className="text-gray-700 whitespace-pre-line text-sm leading-relaxed">
-                  {section.content}
-                </div>
-              )}
-              {section.subsections && (
-                <div className="space-y-2 ml-3">
-                  {section.subsections.map((sub, subIdx) => (
-                    <div key={subIdx}>
-                      <p className="font-bold text-gray-900 text-xs mb-1">{sub.title}</p>
-                      <div className="space-y-0.5">
-                        {sub.bullets.map((bullet, bIdx) => (
-                          <p key={bIdx} className="text-xs text-gray-700 leading-relaxed">{bullet}</p>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      );
-    }
-
-    return null;
-  };
 
   const renderScenario = () => (
     <div className="max-w-4xl mx-auto px-4 sm:px-6">
@@ -336,9 +232,9 @@ The rule was published in the Federal Register and will become effective followi
   );
 
   const renderLessons = () => (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6">
       {/* Progress */}
-      <div className="mb-6">
+      <div className="mb-8">
         <div className="flex items-center justify-center gap-2 mb-2">
           {lessons.map((_, idx) => (
             <div
@@ -356,75 +252,69 @@ The rule was published in the Federal Register and will become effective followi
         </p>
       </div>
 
-      {/* Header */}
-      <div className="bg-white rounded-lg shadow-sm p-4 mb-6 text-center">
-        <h3 className="text-2xl font-bold text-gray-900 mb-1">{lesson.title}</h3>
-        <p className="text-sm text-gray-600">{lesson.subtitle}</p>
+      {/* Title */}
+      <div className="text-center mb-8">
+        <h2 className="text-3xl font-bold text-gray-900 mb-2">{lesson.title}</h2>
       </div>
 
-      {/* Comparison */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        {/* Bad Version */}
-        <div className="bg-white rounded-lg shadow-lg border-2 border-red-200 p-5">
-          <div className="flex items-center gap-2 mb-3">
-            <AlertCircle className="text-red-600" size={20} />
-            <h4 className="font-bold text-red-900">Joe's Prompt</h4>
-          </div>
-          
-          <div className="bg-gray-50 border-2 border-red-200 rounded-lg p-3 mb-4">
-            <div className="font-mono text-sm text-gray-800">
-              "{lesson.joePrompt}"
-            </div>
-          </div>
-
-          <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-3">
-            <p className="text-xs font-semibold text-red-700 mb-2">What Claude produced:</p>
-            <div className="bg-white p-3 rounded border border-red-100 max-h-80 overflow-y-auto">
-              {renderStructuredOutput(lesson.outputBefore)}
-            </div>
-          </div>
-
-          <div className="bg-red-100 rounded-lg p-3">
-            <p className="text-sm text-red-900">
-              <span className="font-bold">Problem:</span> {lesson.joeProblem}
-            </p>
-          </div>
+      {/* Bad Prompt */}
+      <div className="bg-red-50 border-2 border-red-300 rounded-lg p-5 mb-6">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="font-bold text-red-900">Joe's Prompt</h3>
+          <X className="text-red-600" size={20} />
         </div>
-
-        {/* Good Version */}
-        <div className="bg-white rounded-lg shadow-lg border-2 border-green-200 p-5">
-          <div className="flex items-center gap-2 mb-3">
-            <CheckCircle className="text-green-600" size={20} />
-            <h4 className="font-bold text-green-900">Better Prompt</h4>
-          </div>
-
-          <div className="bg-gray-50 border-2 border-green-300 rounded-lg p-3 mb-4 max-h-64 overflow-y-auto">
-            <div className="font-mono text-xs leading-relaxed whitespace-pre-wrap text-gray-800">
-              {lesson.betterPrompt}
-            </div>
-          </div>
-
-          <div className="bg-green-50 border border-green-300 rounded-lg p-3 mb-3">
-            <p className="text-xs font-semibold text-green-700 mb-2">What Claude produced:</p>
-            <div className="bg-white p-3 rounded border border-green-100 max-h-80 overflow-y-auto">
-              {renderStructuredOutput(lesson.outputAfter)}
-            </div>
-          </div>
-
-          <div className="bg-green-100 rounded-lg p-3">
-            <p className="text-sm text-green-900 font-bold">
-              ✓ Actually useful: specific, strategic, actionable
-            </p>
-          </div>
+        <div className="bg-white border border-red-200 rounded p-4 mb-4">
+          <p className="font-mono text-sm text-gray-800">"{lesson.joePrompt}"</p>
         </div>
       </div>
 
-      {/* The Fix Callout */}
-      <div className="flex items-center justify-center mb-6">
-        <div className="bg-gradient-to-r from-blue-600 to-green-600 text-white px-8 py-4 rounded-full font-bold shadow-lg flex items-center gap-2">
-          <Zap size={20} />
-          <span>{lesson.addition}</span>
+      {/* Bad Output */}
+      <div className="bg-white border-2 border-red-300 rounded-lg p-5 mb-6">
+        <h4 className="text-sm font-semibold text-red-700 mb-3">What Claude produced:</h4>
+        <div className="bg-gray-50 rounded p-4 text-sm text-gray-700 whitespace-pre-line leading-relaxed">
+          {lesson.outputBefore}
         </div>
+      </div>
+
+      {/* Problem */}
+      <div className="bg-red-100 border-l-4 border-red-500 rounded-r p-4 mb-8">
+        <p className="text-red-900">
+          <span className="font-bold">Why this is useless:</span> {lesson.joeProblem}
+        </p>
+      </div>
+
+      {/* The Fix */}
+      <div className="bg-gradient-to-r from-blue-600 to-green-600 text-white rounded-lg p-6 mb-8 text-center">
+        <p className="text-lg font-bold mb-2">The fix:</p>
+        <p className="text-xl">{lesson.whatToAdd}</p>
+      </div>
+
+      {/* Better Prompt */}
+      <div className="bg-green-50 border-2 border-green-300 rounded-lg p-5 mb-6">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="font-bold text-green-900">Better Prompt</h3>
+          <CheckCircle className="text-green-600" size={20} />
+        </div>
+        <div className="bg-white border border-green-200 rounded p-4">
+          <pre className="font-mono text-xs text-gray-800 whitespace-pre-wrap leading-relaxed">
+            {lesson.betterPrompt}
+          </pre>
+        </div>
+      </div>
+
+      {/* Better Output */}
+      <div className="bg-white border-2 border-green-300 rounded-lg p-5 mb-6">
+        <h4 className="text-sm font-semibold text-green-700 mb-3">What Claude produced:</h4>
+        <div className="bg-gray-50 rounded p-4 text-sm text-gray-700 whitespace-pre-line leading-relaxed font-mono">
+          {lesson.outputAfter}
+        </div>
+      </div>
+
+      {/* Why It Works */}
+      <div className="bg-green-100 border-l-4 border-green-500 rounded-r p-4 mb-8">
+        <p className="text-green-900 font-bold">
+          ✓ Actually useful: specific, strategic, actionable
+        </p>
       </div>
 
       {/* Navigation */}
@@ -485,21 +375,21 @@ The rule was published in the Federal Register and will become effective followi
               <div className="bg-white text-blue-600 rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0 font-bold">1</div>
               <div>
                 <div className="font-bold">Context beats vagueness</div>
-                <div className="text-green-50 text-sm">Client name, numbers, timeline, constraints—specifics let AI analyze instead of summarize</div>
+                <div className="text-green-50 text-sm">Specifics let AI analyze instead of summarize</div>
               </div>
             </div>
             <div className="flex items-start gap-3">
               <div className="bg-white text-blue-600 rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0 font-bold">2</div>
               <div>
                 <div className="font-bold">Constraints drive strategy</div>
-                <div className="text-green-50 text-sm">Budget limits, timeline pressure, political considerations—AI navigates tradeoffs when you tell it what matters</div>
+                <div className="text-green-50 text-sm">AI navigates tradeoffs when you tell it what matters</div>
               </div>
             </div>
             <div className="flex items-start gap-3">
               <div className="bg-white text-blue-600 rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0 font-bold">3</div>
               <div>
-                <div className="font-bold">Role = relevance</div>
-                <div className="text-green-50 text-sm">Who's reading this? What do they need? How will they use it? Answer these and output quality jumps</div>
+                <div className="font-bold">Role shapes relevance</div>
+                <div className="text-green-50 text-sm">Define who needs this and how they'll use it</div>
               </div>
             </div>
           </div>
