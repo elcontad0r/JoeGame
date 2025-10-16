@@ -354,7 +354,39 @@ Return as JSON:
           </div>
         </div>
 
-        {/* Generate Button */}
+        {/* Output (appears above generate button) */}
+        {output && (
+          <div className="bg-white rounded-lg shadow-xl border-2 border-purple-200 p-6 mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-bold text-lg flex items-center gap-2">
+                <Zap size={20} className="text-purple-600" />
+                Output
+              </h3>
+              <button
+                onClick={generateWithClaude}
+                disabled={isGenerating}
+                className="text-sm text-purple-600 hover:text-purple-800 font-semibold flex items-center gap-1 disabled:opacity-50"
+              >
+                <RefreshCw size={14} />
+                Regenerate
+              </button>
+            </div>
+
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 max-h-[500px] overflow-y-auto">
+              <div className="text-gray-800 leading-relaxed whitespace-pre-wrap text-sm font-mono">
+                {output}
+              </div>
+            </div>
+
+            <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mt-4">
+              <p className="text-sm text-yellow-900">
+                💡 Change any ingredient above and regenerate to see how output shifts
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Generate Button - always visible, stays in same place */}
         <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
           <button
             onClick={generateWithClaude}
@@ -373,59 +405,27 @@ Return as JSON:
             ) : (
               <>
                 <Zap size={20} />
-                Generate Output
+                {output ? 'Regenerate Output' : 'Generate Output'}
               </>
             )}
           </button>
         </div>
 
-        {/* Output */}
-        {output && (
-          <>
-            <div className="bg-white rounded-lg shadow-xl border-2 border-purple-200 p-6 mb-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-bold text-lg flex items-center gap-2">
-                  <Zap size={20} className="text-purple-600" />
-                  Output
-                </h3>
-                <button
-                  onClick={generateWithClaude}
-                  disabled={isGenerating}
-                  className="text-sm text-purple-600 hover:text-purple-800 font-semibold flex items-center gap-1"
-                >
-                  <RefreshCw size={14} />
-                  Regenerate
-                </button>
-              </div>
-
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 max-h-[500px] overflow-y-auto">
-                <div className="text-gray-800 leading-relaxed whitespace-pre-wrap text-sm font-mono">
-                  {output}
-                </div>
-              </div>
-
-              <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mt-4">
-                <p className="text-sm text-yellow-900">
-                  💡 Change any ingredient above and regenerate to see how output shifts
-                </p>
-              </div>
-            </div>
-
-            {/* Continue */}
-            <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg shadow-lg p-6 text-center border-2 border-green-200">
-              <CheckCircle className="mx-auto mb-3 text-green-600" size={32} />
-              <h4 className="font-bold text-lg mb-2">Ready to continue?</h4>
-              <p className="text-sm text-gray-700 mb-4">
-                Experiment more, or move on when you've seen enough
-              </p>
-              <button
-                onClick={() => setStage('complete')}
-                className="bg-green-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-green-700 transition-colors inline-flex items-center gap-2"
-              >
-                Continue <ArrowRight size={20} />
-              </button>
-            </div>
-          </>
+        {/* Continue Button - only shows after output */}
+        {output && !isGenerating && (
+          <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg shadow-lg p-6 text-center border-2 border-green-200">
+            <CheckCircle className="mx-auto mb-3 text-green-600" size={32} />
+            <h4 className="font-bold text-lg mb-2">Ready to continue?</h4>
+            <p className="text-sm text-gray-700 mb-4">
+              Experiment more, or move on when you've seen enough
+            </p>
+            <button
+              onClick={() => setStage('complete')}
+              className="bg-green-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-green-700 transition-colors inline-flex items-center gap-2"
+            >
+              Continue <ArrowRight size={20} />
+            </button>
+          </div>
         )}
       </div>
     );
