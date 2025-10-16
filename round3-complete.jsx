@@ -73,6 +73,26 @@ const IngredientField = ({ field, number, title, placeholder, value, onChange, h
   );
 };
 
+// Helper function to highlight quotes in simulation text
+const highlightQuotes = (text) => {
+  if (!text) return text;
+  
+  // Match text in quotes (both single and double)
+  const quoteRegex = /["']([^"']+)["']/g;
+  
+  return text.split(quoteRegex).map((part, idx) => {
+    // Odd indices are the captured groups (text inside quotes)
+    if (idx % 2 === 1) {
+      return (
+        <span key={idx} className="bg-orange-100 text-orange-900 px-1.5 py-0.5 rounded font-semibold italic">
+          "{part}"
+        </span>
+      );
+    }
+    return part;
+  });
+};
+
 const Round3Game = ({ onBack }) => {
   const [stage, setStage] = useState('loading');
   const [scenario, setScenario] = useState(null);
@@ -502,6 +522,19 @@ Do not include any text outside the JSON.`;
           />
         </div>
 
+        {/* PREVIEW OF FULL PROMPT */}
+        {allFieldsFilled && (
+          <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 mb-6">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="font-semibold text-purple-900 text-sm">Your prompt will look like this:</h4>
+              <span className="text-xs text-purple-600 bg-purple-100 px-2 py-1 rounded">Preview</span>
+            </div>
+            <div className="bg-white rounded border border-purple-200 p-4 text-sm text-gray-700 font-mono whitespace-pre-wrap max-h-64 overflow-y-auto">
+              {buildFullPrompt()}
+            </div>
+          </div>
+        )}
+
         {/* Generate button */}
         <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg shadow-lg p-6">
           <button
@@ -602,7 +635,9 @@ Do not include any text outside the JSON.`;
             <h3 className="font-bold text-gray-900 mb-2 flex items-center gap-2">
               <span className="bg-orange-100 text-orange-800 px-2 py-0.5 rounded text-sm">First Gate</span>
             </h3>
-            <p className="text-gray-800 leading-relaxed">{simulation.first_gate}</p>
+            <p className="text-gray-800 leading-relaxed">
+              {highlightQuotes(simulation.first_gate)}
+            </p>
           </div>
 
           {/* Where it Goes */}
@@ -611,7 +646,9 @@ Do not include any text outside the JSON.`;
               <h3 className="font-bold text-gray-900 mb-2 flex items-center gap-2">
                 <span className="bg-orange-100 text-orange-800 px-2 py-0.5 rounded text-sm">The Real Test</span>
               </h3>
-              <p className="text-gray-800 leading-relaxed">{simulation.where_it_goes}</p>
+              <p className="text-gray-800 leading-relaxed">
+                {highlightQuotes(simulation.where_it_goes)}
+              </p>
             </div>
           )}
 
@@ -621,7 +658,9 @@ Do not include any text outside the JSON.`;
               <h3 className="font-bold text-gray-900 mb-2 flex items-center gap-2">
                 <span className="bg-red-100 text-red-800 px-2 py-0.5 rounded text-sm">The Fallout</span>
               </h3>
-              <p className="text-gray-800 leading-relaxed">{simulation.consequences}</p>
+              <p className="text-gray-800 leading-relaxed">
+                {highlightQuotes(simulation.consequences)}
+              </p>
             </div>
           )}
         </div>
