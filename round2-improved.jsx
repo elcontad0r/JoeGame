@@ -22,7 +22,7 @@ const Round2GameV2 = ({ onComplete }) => {
 
   const ingredients = {
     context: {
-      title: "Strategic Angle",
+      title: "Context",
       options: [
         {
           id: 'jobs',
@@ -42,7 +42,7 @@ const Round2GameV2 = ({ onComplete }) => {
       ]
     },
     format: {
-      title: "Document Type",
+      title: "Format",
       options: [
         {
           id: 'talking-points',
@@ -62,7 +62,7 @@ const Round2GameV2 = ({ onComplete }) => {
       ]
     },
     audience: {
-      title: "Primary Reader",
+      title: "Audience",
       options: [
         {
           id: 'chief-of-staff',
@@ -82,7 +82,7 @@ const Round2GameV2 = ({ onComplete }) => {
       ]
     },
     constraints: {
-      title: "Meeting Context",
+      title: "Constraints",
       options: [
         {
           id: 'elevator',
@@ -102,7 +102,7 @@ const Round2GameV2 = ({ onComplete }) => {
       ]
     },
     goal: {
-      title: "Desired Outcome",
+      title: "Goal",
       options: [
         {
           id: 'delay',
@@ -188,7 +188,7 @@ Return as JSON:
     let prompt = "Write talking points for a Hill meeting about the EPA air quality rule.\n\n";
     
     if (selections.context) {
-      prompt += `Strategic Angle: ${ingredients.context.options.find(o => o.id === selections.context).promptText}\n\n`;
+      prompt += `Context: ${ingredients.context.options.find(o => o.id === selections.context).promptText}\n\n`;
     }
     if (selections.format) {
       prompt += `Format: ${ingredients.format.options.find(o => o.id === selections.format).promptText}\n\n`;
@@ -197,7 +197,7 @@ Return as JSON:
       prompt += `Audience: ${ingredients.audience.options.find(o => o.id === selections.audience).promptText}\n\n`;
     }
     if (selections.constraints) {
-      prompt += `Context: ${ingredients.constraints.options.find(o => o.id === selections.constraints).promptText}\n\n`;
+      prompt += `Constraints: ${ingredients.constraints.options.find(o => o.id === selections.constraints).promptText}\n\n`;
     }
     if (selections.goal) {
       prompt += `Goal: ${ingredients.goal.options.find(o => o.id === selections.goal).promptText}`;
@@ -443,24 +443,24 @@ Return as JSON:
         <h3 className="text-xl font-bold mb-4">The 5 Ingredients:</h3>
         <div className="space-y-3 text-sm">
           <div className="p-3 bg-gray-50 rounded-lg">
-            <div className="font-semibold mb-1">Strategic Angle</div>
+            <div className="font-semibold mb-1">Context</div>
             <div className="text-gray-600">Different framings get different results - jobs vs timeline vs fairness</div>
           </div>
           <div className="p-3 bg-gray-50 rounded-lg">
-            <div className="font-semibold mb-1">Document Type</div>
-            <div className="text-gray-600">Format matters - talking points vs Q&A vs memo</div>
+            <div className="font-semibold mb-1">Format</div>
+            <div className="text-gray-600">Structure matters - talking points vs Q&A vs memo</div>
           </div>
           <div className="p-3 bg-gray-50 rounded-lg">
-            <div className="font-semibold mb-1">Primary Reader</div>
-            <div className="text-gray-600">Audience shapes content - political vs policy vs messaging</div>
+            <div className="font-semibold mb-1">Audience</div>
+            <div className="text-gray-600">Reader shapes content - political vs policy vs messaging</div>
           </div>
           <div className="p-3 bg-gray-50 rounded-lg">
-            <div className="font-semibold mb-1">Meeting Context</div>
-            <div className="text-gray-600">Constraints drive structure - 2 min vs 15 min vs email</div>
+            <div className="font-semibold mb-1">Constraints</div>
+            <div className="text-gray-600">Real limits drive structure - 2 min vs 15 min vs email</div>
           </div>
           <div className="p-3 bg-gray-50 rounded-lg">
-            <div className="font-semibold mb-1">Desired Outcome</div>
-            <div className="text-gray-600">Clear goals get concrete results - delay vs funding vs access</div>
+            <div className="font-semibold mb-1">Goal</div>
+            <div className="text-gray-600">Clear asks get concrete results - delay vs funding vs access</div>
           </div>
         </div>
       </div>
