@@ -213,11 +213,18 @@ ${parts.join('\n\n')}`;
     for (const line of lines) {
       const trimmed = line.trim();
       
-      if (trimmed.match(/^(1\.|2\.|3\.)\s*(THE |WHERE |THE )/i) || 
-          trimmed.match(/^(THE FIRST GATE|WHERE IT GOES|THE CONSEQUENCES)/i)) {
+      // Match section headers including markdown bold markers
+      if (trimmed.match(/^(\*\*)?[1-3]\.?\s*(\*\*)?\s*(THE |WHERE )/i) || 
+          trimmed.match(/^(\*\*)?(THE FIRST GATE|WHERE IT GOES|THE CONSEQUENCES)(\*\*)?/i)) {
         if (currentSection) {
           sections.push(currentSection);
         }
+        
+        // Clean up the header - remove markdown and numbering
+        let cleanHeader = trimmed
+          .replace(/^\*\*/g, '')
+          .replace(/\*\*$/g, '')
+          .replace(/^[1-3]\.?\s*/g, '');
         
         let type = 'default';
         if (trimmed.match(/FIRST GATE|1\./i)) {
@@ -229,7 +236,7 @@ ${parts.join('\n\n')}`;
         }
         
         currentSection = { 
-          header: trimmed.replace(/^(1\.|2\.|3\.)\s*/, ''),
+          header: cleanHeader,
           content: [],
           type
         };
@@ -261,13 +268,13 @@ ${parts.join('\n\n')}`;
     };
     
     return (
-      <div className="space-y-4">
+      <div className="space-y-5">
         {sections.map((section, idx) => {
           if (section.type === 'intro') {
             return (
-              <div key={idx} className="text-gray-800 text-sm leading-relaxed">
+              <div key={idx} className="text-gray-800 leading-relaxed">
                 {section.content.map((line, i) => (
-                  <p key={i} className="mb-2">{line}</p>
+                  <p key={i} className="mb-3 text-base">{line}</p>
                 ))}
               </div>
             );
@@ -276,27 +283,31 @@ ${parts.join('\n\n')}`;
           const colorScheme = {
             gate: { 
               bg: 'bg-blue-50', 
-              border: 'border-blue-400', 
-              accent: 'bg-blue-500',
-              text: 'text-blue-900' 
+              border: 'border-blue-500', 
+              dot: 'bg-blue-500',
+              text: 'text-blue-900',
+              header: 'text-blue-800'
             },
             destination: { 
               bg: 'bg-purple-50', 
-              border: 'border-purple-400', 
-              accent: 'bg-purple-500',
-              text: 'text-purple-900' 
+              border: 'border-purple-500', 
+              dot: 'bg-purple-500',
+              text: 'text-purple-900',
+              header: 'text-purple-800'
             },
             consequences: { 
               bg: 'bg-orange-50', 
-              border: 'border-orange-400', 
-              accent: 'bg-orange-500',
-              text: 'text-orange-900' 
+              border: 'border-orange-500', 
+              dot: 'bg-orange-500',
+              text: 'text-orange-900',
+              header: 'text-orange-800'
             },
             default: { 
               bg: 'bg-gray-50', 
-              border: 'border-gray-400', 
-              accent: 'bg-gray-500',
-              text: 'text-gray-900' 
+              border: 'border-gray-500', 
+              dot: 'bg-gray-500',
+              text: 'text-gray-900',
+              header: 'text-gray-800'
             }
           }[section.type];
           
@@ -304,24 +315,26 @@ ${parts.join('\n\n')}`;
           const quoteData = findQuotes(contentText);
           
           return (
-            <div key={idx} className={`${colorScheme.bg} border-l-4 ${colorScheme.border} rounded-r-lg p-4`}>
-              <div className="flex items-start gap-3 mb-3">
-                <div className={`${colorScheme.accent} w-2 h-2 rounded-full flex-shrink-0 mt-2`}></div>
-                <h4 className={`font-bold text-sm ${colorScheme.text}`}>{section.header}</h4>
+            <div key={idx} className={`${colorScheme.bg} border-l-4 ${colorScheme.border} rounded-r-lg p-5`}>
+              <div className="flex items-center gap-3 mb-4">
+                <div className={`${colorScheme.dot} w-3 h-3 rounded-full flex-shrink-0`}></div>
+                <h4 className={`font-bold ${colorScheme.header} uppercase text-xs tracking-wide`}>
+                  {section.header}
+                </h4>
               </div>
               
-              <div className={`${colorScheme.text} text-sm leading-relaxed pl-5`}>
+              <div className={`${colorScheme.text} leading-relaxed pl-6`}>
                 {quoteData ? (
                   <>
-                    {quoteData.before && <p className="mb-3">{quoteData.before}</p>}
-                    <blockquote className="bg-white bg-opacity-60 border-l-3 border-gray-400 pl-4 py-2 my-3 italic">
+                    {quoteData.before && <p className="mb-4">{quoteData.before}</p>}
+                    <blockquote className="bg-white bg-opacity-70 border-l-4 border-gray-400 pl-4 py-3 my-4 italic text-gray-700">
                       "{quoteData.quote}"
                     </blockquote>
-                    {quoteData.after && <p>{quoteData.after}</p>}
+                    {quoteData.after && <p className="mt-4">{quoteData.after}</p>}
                   </>
                 ) : (
                   section.content.map((line, i) => (
-                    <p key={i} className={i < section.content.length - 1 ? 'mb-2' : ''}>
+                    <p key={i} className={i < section.content.length - 1 ? 'mb-3' : ''}>
                       {line}
                     </p>
                   ))
@@ -774,46 +787,61 @@ Point to specific elements in the content that caused the outcome. What was miss
     if (!evaluation || !scenario) return null;
 
     return (
-      <div className="max-w-5xl mx-auto p-4 sm:p-6">
+      <div className="max-w-4xl mx-auto p-4 sm:p-6">
         {/* Scenario tackled */}
-        <div className="bg-gray-100 rounded-lg p-3 mb-4 border border-gray-300">
+        <div className="bg-gray-100 rounded-lg p-3 mb-6 border border-gray-300">
           <p className="text-xs text-gray-600 uppercase font-semibold mb-0.5">Scenario Tackled</p>
           <p className="text-sm font-semibold text-gray-900">{scenario.title}</p>
         </div>
 
-        {/* Two column layout for desktop */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-          {/* Generated Output */}
-          <div className="bg-white rounded-lg shadow-lg p-4 sm:p-5">
-            <h3 className="font-semibold text-base mb-3 flex items-center gap-2">
-              <Sparkles size={18} className="text-orange-600" />
-              What Claude Generated
-            </h3>
-            <div className="bg-gray-50 p-3 rounded border border-gray-200 leading-relaxed max-h-96 overflow-y-auto formatted-content">
-              <style>{`
-                .formatted-content p { margin-bottom: 0.75rem; }
-                .formatted-content p:last-child { margin-bottom: 0; }
-                .formatted-content h3 { font-weight: bold; margin-top: 0.75rem; margin-bottom: 0.5rem; }
-                .formatted-content ul { margin: 0.5rem 0 0.75rem 1.25rem; list-style-type: disc; }
-                .formatted-content li { margin-bottom: 0.25rem; }
-              `}</style>
-              <div dangerouslySetInnerHTML={{ __html: formatGeneratedContent(generatedOutput) }} />
-            </div>
-          </div>
-
-          {/* Simulation alongside */}
-          <div className="bg-gradient-to-br from-orange-50 to-red-50 rounded-lg border-2 border-orange-300 p-4 sm:p-5">
-            <h3 className="font-bold text-base mb-3 text-orange-900">
-              → How It Played Out
-            </h3>
-            <div className="bg-white bg-opacity-80 rounded-lg p-3 text-gray-900 leading-relaxed max-h-96 overflow-y-auto">
-              {formatSimulation(simulation)}
-            </div>
+        {/* Generated Output */}
+        <div className="bg-white rounded-lg shadow-lg p-5 sm:p-6 mb-6">
+          <h3 className="font-semibold text-lg mb-4 flex items-center gap-2">
+            <Sparkles size={20} className="text-orange-600" />
+            What Claude Generated
+          </h3>
+          <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 leading-relaxed formatted-content">
+            <style>{`
+              .formatted-content p { margin-bottom: 0.75rem; line-height: 1.6; }
+              .formatted-content p:last-child { margin-bottom: 0; }
+              .formatted-content h3 { font-weight: bold; margin-top: 1rem; margin-bottom: 0.5rem; }
+              .formatted-content ul { margin: 0.5rem 0 0.75rem 1.5rem; list-style-type: disc; }
+              .formatted-content li { margin-bottom: 0.5rem; line-height: 1.5; }
+            `}</style>
+            <div dangerouslySetInnerHTML={{ __html: formatGeneratedContent(generatedOutput) }} />
           </div>
         </div>
 
+        {/* Transition */}
+        <div className="flex items-center justify-center mb-6">
+          <div className="flex items-center gap-3 text-gray-500">
+            <div className="h-px w-12 bg-gray-300"></div>
+            <span className="text-sm font-semibold">Then this happened</span>
+            <div className="h-px w-12 bg-gray-300"></div>
+          </div>
+        </div>
+
+        {/* Simulation - THE PAYOFF */}
+        {simulation && (
+          <div className="bg-gradient-to-br from-orange-50 to-red-50 border-2 border-orange-300 rounded-lg p-5 sm:p-6 mb-6">
+            <h3 className="font-bold text-xl mb-5 text-orange-900">
+              How It Played Out
+            </h3>
+            <div className="bg-white rounded-lg p-5 text-gray-900 leading-relaxed">
+              {formatSimulation(simulation)}
+            </div>
+          </div>
+        )}
+
+        {/* Connecting text */}
+        <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6 rounded-r-lg">
+          <p className="text-sm sm:text-base text-blue-900 font-semibold">
+            Here's why it went that way:
+          </p>
+        </div>
+
         {/* Score Card */}
-        <div className={`rounded-lg p-5 mb-4 border-2 ${getScoreBgColor(evaluation.score)}`}>
+        <div className={`rounded-lg p-5 sm:p-6 mb-6 border-2 ${getScoreBgColor(evaluation.score)}`}>
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-xl sm:text-2xl font-bold mb-1">Your Score</h2>
@@ -829,22 +857,22 @@ Point to specific elements in the content that caused the outcome. What was miss
 
         {/* Ingredient Breakdown */}
         {evaluation.ingredients && (
-          <div className="bg-white rounded-lg shadow-lg p-4 sm:p-5 mb-6">
-            <h3 className="font-semibold text-base mb-4">What Made Your Prompt Strong (or Weak):</h3>
-            <div className="space-y-2.5">
+          <div className="bg-white rounded-lg shadow-lg p-5 sm:p-6 mb-6">
+            <h3 className="font-semibold text-base sm:text-lg mb-4">What Made Your Prompt Strong (or Weak):</h3>
+            <div className="space-y-3">
               {Object.entries(evaluation.ingredients).map(([key, data]) => {
                 const colors = ingredientColors[key];
                 return (
-                  <div key={key} className={`${colors.bg} border-l-4 ${colors.border} rounded-r-lg p-3`}>
-                    <div className="flex items-center justify-between mb-1.5">
-                      <div className={`${colors.label} px-2.5 py-0.5 rounded text-xs font-bold capitalize`}>
+                  <div key={key} className={`${colors.bg} border-l-4 ${colors.border} rounded-r-lg p-4`}>
+                    <div className="flex items-center justify-between mb-2">
+                      <div className={`${colors.label} px-3 py-1 rounded text-xs sm:text-sm font-bold capitalize`}>
                         {key}
                       </div>
-                      <div className={`text-xl font-bold ${getScoreColor(data.score)}`}>
+                      <div className={`text-xl sm:text-2xl font-bold ${getScoreColor(data.score)}`}>
                         {data.score}/20
                       </div>
                     </div>
-                    <p className={`text-xs ${colors.text}`}>
+                    <p className={`text-xs sm:text-sm ${colors.text} leading-relaxed`}>
                       {data.feedback}
                     </p>
                   </div>
@@ -855,10 +883,10 @@ Point to specific elements in the content that caused the outcome. What was miss
         )}
 
         {/* Final CTA */}
-        <div className="bg-gradient-to-r from-purple-50 to-orange-50 rounded-lg shadow-lg p-6 text-center">
-          <Trophy className="mx-auto mb-3 text-orange-600" size={36} />
-          <h3 className="text-xl font-bold mb-2">Round Complete!</h3>
-          <p className="text-sm text-gray-700 mb-5">
+        <div className="bg-gradient-to-r from-purple-50 to-orange-50 rounded-lg shadow-lg p-6 sm:p-8 text-center">
+          <Trophy className="mx-auto mb-4 text-orange-600" size={40} />
+          <h3 className="text-xl sm:text-2xl font-bold mb-3">Round Complete!</h3>
+          <p className="text-sm sm:text-base text-gray-700 mb-6">
             {evaluation.score >= 75 
               ? "Strong work. Try a new scenario to test your skills."
               : "Keep practicing. Each scenario will help you improve."}
