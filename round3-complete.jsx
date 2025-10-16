@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { AlertCircle, Sparkles, Zap, Trophy, TrendingUp, CheckCircle, Lightbulb, ArrowRight, RefreshCw, Edit2, ChevronUp } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { AlertCircle, Sparkles, Zap, Trophy, TrendingUp, CheckCircle, Lightbulb, ArrowRight, RefreshCw, Edit2, ChevronDown, ChevronRight } from 'lucide-react';
 
 const ingredientColors = {
   context: { bg: 'bg-orange-50', border: 'border-orange-300', text: 'text-orange-900', label: 'bg-orange-200 text-orange-900' },
@@ -9,20 +9,133 @@ const ingredientColors = {
   goal: { bg: 'bg-purple-50', border: 'border-purple-300', text: 'text-purple-900', label: 'bg-purple-200 text-purple-900' }
 };
 
-const IngredientBuilder = ({ 
-  ingredients, 
-  onClose, 
-  onSave,
-  scenario 
+const ProgressiveIngredient = ({ 
+  field, 
+  number, 
+  title, 
+  hint, 
+  placeholder, 
+  value, 
+  onChange,
+  isActive,
+  isCompleted,
+  onComplete,
+  onExpand
 }) => {
-  const [currentStep, setCurrentStep] = useState(0);
-  const [localValues, setLocalValues] = useState(ingredients);
+  const colors = ingredientColors[field];
+  const textareaRef = useRef(null);
 
-  const steps = [
+  useEffect(() => {
+    if (isActive && textareaRef.current) {
+      textareaRef.current.focus();
+    }
+  }, [isActive]);
+
+  // Completed collapsed state
+  if (isCompleted && !isActive) {
+    return (
+      <div 
+        className={`${colors.bg} border-l-4 ${colors.border} rounded-r-lg p-4 mb-3 cursor-pointer hover:shadow-md transition-all`}
+        onClick={onExpand}
+      >
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex items-start gap-3 flex-1 min-w-0">
+            <div className={`${colors.label} w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0`}>
+              {number}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="font-semibold text-sm text-gray-900 mb-1">{title}</div>
+              <p className={`text-xs ${colors.text} line-clamp-2`}>
+                {value}
+              </p>
+            </div>
+          </div>
+          <ChevronDown size={18} className={`${colors.text} flex-shrink-0 mt-1`} />
+        </div>
+      </div>
+    );
+  }
+
+  // Not started yet (locked)
+  if (!isActive && !isCompleted) {
+    return (
+      <div className="bg-gray-100 border-l-4 border-gray-300 rounded-r-lg p-4 mb-3 opacity-60">
+        <div className="flex items-center gap-3">
+          <div className="bg-gray-300 text-gray-600 w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold">
+            {number}
+          </div>
+          <div className="font-semibold text-sm text-gray-600">{title}</div>
+        </div>
+      </div>
+    );
+  }
+
+  // Active/editing state
+  return (
+    <div className={`${colors.bg} border-2 ${colors.border} rounded-lg p-5 mb-3 shadow-lg transition-all`}>
+      <div className="flex items-center gap-3 mb-3">
+        <div className={`${colors.label} w-8 h-8 rounded-full flex items-center justify-center font-bold flex-shrink-0`}>
+          {number}
+        </div>
+        <div>
+          <h3 className="font-bold text-base text-gray-900">{title}</h3>
+          <p className="text-xs text-gray-600 mt-0.5">{hint}</p>
+        </div>
+      </div>
+      
+      <textarea
+        ref={textareaRef}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className={`w-full h-32 p-3 border-2 ${colors.border} rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 focus:outline-none text-sm resize-none transition-all`}
+      />
+      
+      {value.trim() && (
+        <div className="flex justify-end mt-3">
+          <button
+            onClick={onComplete}
+            className="bg-purple-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-purple-700 transition-colors flex items-center gap-2"
+          >
+            Next <ChevronRight size={16} />
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const Round3Game = ({ onBack }) => {
+  const [stage, setStage] = useState('loading');
+  const [scenario, setScenario] = useState(null);
+  const [promptContext, setPromptContext] = useState('');
+  const [promptFormat, setPromptFormat] = useState('');
+  const [promptAudience, setPromptAudience] = useState('');
+  const [promptConstraints, setPromptConstraints] = useState('');
+  const [promptGoal, setPromptGoal] = useState('');
+  const [activeIngredient, setActiveIngredient] = useState(0);
+  const [userPrompt, setUserPrompt] = useState('');
+  const [showHints, setShowHints] = useState(false);
+  const [generatedOutput, setGeneratedOutput] = useState('');
+  const [simulation, setSimulation] = useState(null);
+  const [evaluation, setEvaluation] = useState(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generationStep, setGenerationStep] = useState('');
+  const [leaderboard, setLeaderboard] = useState([]);
+
+  const ingredients = [
+    { field: 'context', value: promptContext, setter: setPromptContext },
+    { field: 'format', value: promptFormat, setter: setPromptFormat },
+    { field: 'audience', value: promptAudience, setter: setPromptAudience },
+    { field: 'constraints', value: promptConstraints, setter: setPromptConstraints },
+    { field: 'goal', value: promptGoal, setter: setPromptGoal }
+  ];
+
+  const ingredientConfigs = [
     { 
       field: 'context', 
       title: 'Context', 
-      hint: 'What specific details does Claude need? Company info, numbers, operational constraints...',
+      hint: 'What specific details does Claude need?',
       placeholder: 'e.g., "Company: MidAtlantic Manufacturing, 12 facilities (PA/OH/WV), 2,400 employees, $38-42M investment needed..."'
     },
     { 
@@ -46,204 +159,32 @@ const IngredientBuilder = ({
     { 
       field: 'goal', 
       title: 'Goal', 
-      hint: 'What outcome do you want? What should readers believe or do?',
+      hint: 'What outcome do you want?',
       placeholder: 'e.g., "Position company as responsible corporate citizen seeking reasonable implementation timeline, not exemption"'
     }
   ];
 
-  const currentStepData = steps[currentStep];
-  const colors = ingredientColors[currentStepData.field];
+  const scrollToElement = (index) => {
+    setTimeout(() => {
+      const elements = document.querySelectorAll('[data-ingredient]');
+      if (elements[index]) {
+        elements[index].scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 100);
+  };
 
-  const handleNext = () => {
-    if (currentStep < steps.length - 1) {
-      setCurrentStep(currentStep + 1);
-    } else {
-      onSave(localValues);
-      onClose();
+  const handleComplete = (index) => {
+    if (index < ingredients.length - 1) {
+      setActiveIngredient(index + 1);
+      scrollToElement(index + 1);
     }
   };
 
-  const handleBack = () => {
-    if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
-    }
+  const handleExpand = (index) => {
+    setActiveIngredient(index);
+    scrollToElement(index);
   };
 
-  const allFilled = Object.values(localValues).every(v => v.trim().length > 0);
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-      <div className="bg-white w-full sm:max-w-2xl sm:rounded-lg shadow-xl flex flex-col max-h-[90vh] sm:max-h-[80vh] rounded-t-2xl sm:rounded-b-lg">
-        {/* Header */}
-        <div className="p-4 border-b border-gray-200 flex-shrink-0">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="font-bold text-lg">Build Your Prompt</h3>
-            <button 
-              onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 p-1"
-            >
-              ✕
-            </button>
-          </div>
-          
-          {/* Progress bar */}
-          <div className="flex gap-2 mb-2">
-            {steps.map((step, idx) => (
-              <div 
-                key={step.field}
-                className={`h-1.5 flex-1 rounded-full transition-all ${
-                  idx <= currentStep ? 'bg-purple-600' : 'bg-gray-200'
-                }`}
-              />
-            ))}
-          </div>
-          
-          {/* Scenario reminder */}
-          <div className="bg-blue-50 border border-blue-200 rounded p-2 mt-3">
-            <p className="text-xs text-blue-900 font-semibold mb-0.5">Task: {scenario?.requirement}</p>
-            <p className="text-xs text-blue-700 line-clamp-2">{scenario?.situation}</p>
-          </div>
-        </div>
-
-        {/* Current step content */}
-        <div className="flex-1 overflow-y-auto p-4">
-          <div className={`${colors.bg} border-2 ${colors.border} rounded-lg p-4 mb-4`}>
-            <div className={`inline-block ${colors.label} px-3 py-1 rounded text-sm font-bold mb-3`}>
-              Step {currentStep + 1} of {steps.length}: {currentStepData.title}
-            </div>
-            <p className="text-sm text-gray-700 mb-3">{currentStepData.hint}</p>
-            <textarea
-              value={localValues[currentStepData.field]}
-              onChange={(e) => setLocalValues({ ...localValues, [currentStepData.field]: e.target.value })}
-              placeholder={currentStepData.placeholder}
-              className="w-full h-32 sm:h-40 p-3 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-sm resize-none"
-              autoFocus
-            />
-          </div>
-
-          {/* Quick jump to other steps */}
-          <div className="mt-4">
-            <p className="text-xs text-gray-500 font-semibold mb-2">Jump to:</p>
-            <div className="flex flex-wrap gap-2">
-              {steps.map((step, idx) => {
-                const stepColors = ingredientColors[step.field];
-                const hasContent = localValues[step.field].trim().length > 0;
-                return (
-                  <button
-                    key={step.field}
-                    onClick={() => setCurrentStep(idx)}
-                    className={`px-3 py-1.5 rounded text-xs font-semibold transition-all ${
-                      idx === currentStep 
-                        ? `${stepColors.bg} ${stepColors.border} border-2 ${stepColors.text}`
-                        : hasContent
-                        ? `${stepColors.bg} ${stepColors.text} border border-transparent`
-                        : 'bg-gray-100 text-gray-500 border border-transparent'
-                    }`}
-                  >
-                    {step.title} {hasContent && '✓'}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-
-        {/* Footer with nav buttons */}
-        <div className="p-4 border-t border-gray-200 flex gap-3 flex-shrink-0">
-          {currentStep > 0 && (
-            <button
-              onClick={handleBack}
-              className="px-4 py-2 rounded-lg font-semibold bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors"
-            >
-              Back
-            </button>
-          )}
-          <button
-            onClick={handleNext}
-            disabled={!localValues[currentStepData.field].trim()}
-            className={`flex-1 px-4 py-2 rounded-lg font-semibold transition-colors ${
-              localValues[currentStepData.field].trim()
-                ? 'bg-purple-600 text-white hover:bg-purple-700'
-                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-            }`}
-          >
-            {currentStep === steps.length - 1 
-              ? allFilled ? 'Done ✓' : 'Skip to End'
-              : 'Next'}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const IngredientSummaryCard = ({ field, number, title, value, onEdit }) => {
-  const colors = ingredientColors[field];
-  const hasContent = value.trim().length > 0;
-
-  if (!hasContent) {
-    return (
-      <div className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-4 mb-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="bg-gray-200 text-gray-500 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">
-              {number}
-            </span>
-            <span className="text-sm text-gray-500 font-medium">{title}</span>
-          </div>
-          <button
-            onClick={onEdit}
-            className="text-gray-400 hover:text-gray-600 text-xs font-semibold"
-          >
-            Add
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className={`${colors.bg} border-2 ${colors.border} rounded-lg p-3 mb-3`}>
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex-1 min-w-0">
-          <div className={`inline-block ${colors.label} px-2 py-0.5 rounded text-xs font-bold mb-1.5`}>
-            {number}. {title}
-          </div>
-          <p className={`text-xs ${colors.text} line-clamp-2`}>
-            {value}
-          </p>
-        </div>
-        <button
-          onClick={onEdit}
-          className={`${colors.text} hover:opacity-70 p-1.5 flex-shrink-0`}
-          title="Edit"
-        >
-          <Edit2 size={16} />
-        </button>
-      </div>
-    </div>
-  );
-};
-
-const Round3Game = ({ onBack }) => {
-  const [stage, setStage] = useState('loading');
-  const [scenario, setScenario] = useState(null);
-  const [promptContext, setPromptContext] = useState('');
-  const [promptFormat, setPromptFormat] = useState('');
-  const [promptAudience, setPromptAudience] = useState('');
-  const [promptConstraints, setPromptConstraints] = useState('');
-  const [promptGoal, setPromptGoal] = useState('');
-  const [showBuilder, setShowBuilder] = useState(false);
-  const [userPrompt, setUserPrompt] = useState('');
-  const [showHints, setShowHints] = useState(false);
-  const [generatedOutput, setGeneratedOutput] = useState('');
-  const [simulation, setSimulation] = useState(null);
-  const [evaluation, setEvaluation] = useState(null);
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [generationStep, setGenerationStep] = useState('');
-  const [leaderboard, setLeaderboard] = useState([]);
-
-  // Build full prompt from components
   const buildFullPrompt = () => {
     const parts = [];
     
@@ -262,11 +203,9 @@ ${parts.join('\n\n')}`;
 
   const allFieldsFilled = promptContext && promptFormat && promptAudience && promptConstraints && promptGoal;
 
-  // Enhanced simulation formatter with visual beats
   const formatSimulation = (text) => {
     if (!text) return '';
     
-    // Parse the simulation into beats
     const sections = [];
     const lines = text.split('\n');
     let currentSection = null;
@@ -274,7 +213,6 @@ ${parts.join('\n\n')}`;
     for (const line of lines) {
       const trimmed = line.trim();
       
-      // Detect section headers
       if (trimmed.match(/^(1\.|2\.|3\.)\s*(THE |WHERE |THE )/i) || 
           trimmed.match(/^(THE FIRST GATE|WHERE IT GOES|THE CONSEQUENCES)/i)) {
         if (currentSection) {
@@ -282,28 +220,22 @@ ${parts.join('\n\n')}`;
         }
         
         let type = 'default';
-        let icon = '';
         if (trimmed.match(/FIRST GATE|1\./i)) {
           type = 'gate';
-          icon = 'G';
         } else if (trimmed.match(/WHERE IT GOES|2\./i)) {
           type = 'destination';
-          icon = 'D';
         } else if (trimmed.match(/CONSEQUENCES|3\./i)) {
           type = 'consequences';
-          icon = 'C';
         }
         
         currentSection = { 
           header: trimmed.replace(/^(1\.|2\.|3\.)\s*/, ''),
           content: [],
-          type,
-          icon
+          type
         };
       } else if (trimmed && currentSection) {
         currentSection.content.push(trimmed);
       } else if (trimmed && !currentSection) {
-        // Opening text before first section
         if (!sections.length || sections[sections.length - 1].type !== 'intro') {
           sections.push({ type: 'intro', content: [trimmed] });
         } else {
@@ -316,7 +248,6 @@ ${parts.join('\n\n')}`;
       sections.push(currentSection);
     }
     
-    // Find quotes in content
     const findQuotes = (text) => {
       const quoteMatch = text.match(/[""]([^""]+)[""]/);
       if (quoteMatch) {
@@ -329,13 +260,12 @@ ${parts.join('\n\n')}`;
       return null;
     };
     
-    // Render sections
     return (
-      <div className="space-y-5">
+      <div className="space-y-4">
         {sections.map((section, idx) => {
           if (section.type === 'intro') {
             return (
-              <div key={idx} className="text-gray-800 leading-relaxed">
+              <div key={idx} className="text-gray-800 text-sm leading-relaxed">
                 {section.content.map((line, i) => (
                   <p key={i} className="mb-2">{line}</p>
                 ))}
@@ -344,33 +274,50 @@ ${parts.join('\n\n')}`;
           }
           
           const colorScheme = {
-            gate: { bg: 'bg-blue-50', border: 'border-blue-400', icon: 'bg-blue-500', text: 'text-blue-900' },
-            destination: { bg: 'bg-purple-50', border: 'border-purple-400', icon: 'bg-purple-500', text: 'text-purple-900' },
-            consequences: { bg: 'bg-orange-50', border: 'border-orange-400', icon: 'bg-orange-500', text: 'text-orange-900' },
-            default: { bg: 'bg-gray-50', border: 'border-gray-400', icon: 'bg-gray-500', text: 'text-gray-900' }
+            gate: { 
+              bg: 'bg-blue-50', 
+              border: 'border-blue-400', 
+              accent: 'bg-blue-500',
+              text: 'text-blue-900' 
+            },
+            destination: { 
+              bg: 'bg-purple-50', 
+              border: 'border-purple-400', 
+              accent: 'bg-purple-500',
+              text: 'text-purple-900' 
+            },
+            consequences: { 
+              bg: 'bg-orange-50', 
+              border: 'border-orange-400', 
+              accent: 'bg-orange-500',
+              text: 'text-orange-900' 
+            },
+            default: { 
+              bg: 'bg-gray-50', 
+              border: 'border-gray-400', 
+              accent: 'bg-gray-500',
+              text: 'text-gray-900' 
+            }
           }[section.type];
           
-          // Check if content has quotes
           const contentText = section.content.join(' ');
           const quoteData = findQuotes(contentText);
           
           return (
             <div key={idx} className={`${colorScheme.bg} border-l-4 ${colorScheme.border} rounded-r-lg p-4`}>
               <div className="flex items-start gap-3 mb-3">
-                <div className={`${colorScheme.icon} w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0`}>
-                  {section.icon}
-                </div>
-                <h4 className={`font-bold text-base ${colorScheme.text}`}>{section.header}</h4>
+                <div className={`${colorScheme.accent} w-2 h-2 rounded-full flex-shrink-0 mt-2`}></div>
+                <h4 className={`font-bold text-sm ${colorScheme.text}`}>{section.header}</h4>
               </div>
               
-              <div className={`${colorScheme.text} leading-relaxed pl-11`}>
+              <div className={`${colorScheme.text} text-sm leading-relaxed pl-5`}>
                 {quoteData ? (
                   <>
-                    <p className="mb-3">{quoteData.before}</p>
-                    <blockquote className="bg-white border-l-3 border-gray-400 pl-4 py-2 my-3 italic text-base">
+                    {quoteData.before && <p className="mb-3">{quoteData.before}</p>}
+                    <blockquote className="bg-white bg-opacity-60 border-l-3 border-gray-400 pl-4 py-2 my-3 italic">
                       "{quoteData.quote}"
                     </blockquote>
-                    <p>{quoteData.after}</p>
+                    {quoteData.after && <p>{quoteData.after}</p>}
                   </>
                 ) : (
                   section.content.map((line, i) => (
@@ -387,7 +334,6 @@ ${parts.join('\n\n')}`;
     );
   };
 
-  // Smart formatter for generated content
   const formatGeneratedContent = (text) => {
     if (!text) return '';
     
@@ -423,7 +369,7 @@ ${parts.join('\n\n')}`;
       }
       else if ((line === line.toUpperCase() && line.split(/\s+/).length >= 2) || 
                (line.length < 50 && line.match(/^[A-Z][^:]*:$/))) {
-        html += `<h3 class="font-bold mt-4 mb-2 text-sm">${line}</h3>\n`;
+        html += `<h3 class="font-bold mt-3 mb-1 text-sm">${line}</h3>\n`;
         lastWasEmpty = false;
       }
       else if (line.match(/^[A-Z][A-Z\s]+:/)) {
@@ -432,7 +378,7 @@ ${parts.join('\n\n')}`;
         lastWasEmpty = false;
       }
       else {
-        const className = lastWasEmpty ? ' class="mt-3 text-sm"' : ' class="text-sm"';
+        const className = lastWasEmpty ? ' class="mt-2 text-sm"' : ' class="text-sm"';
         html += `<p${className}>${line}</p>\n`;
         lastWasEmpty = false;
       }
@@ -496,11 +442,11 @@ ${parts.join('\n\n')}`;
   const hints = [
     {
       category: "Context",
-      questions: ["What does Claude need to know about the company?", "What are the specific facts?", "What's at stake?"]
+      questions: ["What does Claude need to know?", "What are the specific facts?", "What's at stake?"]
     },
     {
       category: "Format",
-      questions: ["What structure works best?", "How long should it be?", "Any specific sections needed?"]
+      questions: ["What structure works best?", "How long should it be?", "Any specific sections?"]
     },
     {
       category: "Audience",
@@ -512,7 +458,7 @@ ${parts.join('\n\n')}`;
     },
     {
       category: "Goal",
-      questions: ["What outcome do you want?", "What should readers believe?", "What's the strategic positioning?"]
+      questions: ["What outcome do you want?", "What should readers believe?", "What's the positioning?"]
     }
   ];
 
@@ -526,7 +472,6 @@ ${parts.join('\n\n')}`;
     setStage('generating');
 
     try {
-      // Generate output
       const outputResponse = await fetch('/api/generate-content', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -540,7 +485,6 @@ ${parts.join('\n\n')}`;
       const outputData = await outputResponse.json();
       setGeneratedOutput(outputData.output);
 
-      // Simulate scenario outcome
       setGenerationStep('Simulating what happens...');
       const simPrompt = `You're simulating what happens when this content gets used in the actual scenario. The danger isn't always that someone catches it internally - it's when it gets past that first check and hits the real world.
 
@@ -592,7 +536,6 @@ Point to specific elements in the content that caused the outcome. What was miss
       const simData = await simResponse.json();
       setSimulation(simData.output);
 
-      // Evaluate prompt
       setGenerationStep('Evaluating your prompt...');
       const evalResponse = await fetch('/api/evaluate-prompt', {
         method: 'POST',
@@ -617,7 +560,6 @@ Point to specific elements in the content that caused the outcome. What was miss
       const evalData = await evalResponse.json();
       setEvaluation(evalData.evaluation);
       
-      // Save to leaderboard
       saveToLeaderboard(evalData.evaluation.score, scenario.sector);
       
       setIsGenerating(false);
@@ -628,14 +570,6 @@ Point to specific elements in the content that caused the outcome. What was miss
       alert('Generation failed. Please try again.');
       setStage('write-prompt');
     }
-  };
-
-  const handleSaveIngredients = (ingredients) => {
-    setPromptContext(ingredients.context);
-    setPromptFormat(ingredients.format);
-    setPromptAudience(ingredients.audience);
-    setPromptConstraints(ingredients.constraints);
-    setPromptGoal(ingredients.goal);
   };
 
   const renderLoading = () => (
@@ -697,14 +631,14 @@ Point to specific elements in the content that caused the outcome. What was miss
     if (!scenario) return null;
 
     return (
-      <div className="max-w-4xl mx-auto p-4 sm:p-6">
-        {/* Reminder banner */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+      <div className="max-w-3xl mx-auto p-4 sm:p-6">
+        {/* Scenario reminder */}
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 sticky top-4 z-10 shadow-sm">
           <div className="flex items-start gap-3">
-            <AlertCircle className="text-blue-600 flex-shrink-0 mt-0.5" size={20} />
+            <AlertCircle className="text-blue-600 flex-shrink-0 mt-0.5" size={18} />
             <div className="flex-1 min-w-0">
-              <p className="text-sm text-blue-900 font-semibold mb-1">Your Challenge: {scenario.requirement}</p>
-              <p className="text-xs text-blue-800">{scenario.situation}</p>
+              <p className="text-sm text-blue-900 font-semibold mb-1">{scenario.requirement}</p>
+              <p className="text-xs text-blue-700">{scenario.situation}</p>
             </div>
           </div>
         </div>
@@ -722,12 +656,12 @@ Point to specific elements in the content that caused the outcome. What was miss
 
         {/* Hints panel */}
         {showHints && (
-          <div className="bg-purple-50 rounded-lg p-4 sm:p-6 mb-4 border border-purple-200">
-            <h4 className="font-semibold text-purple-900 mb-4">What makes a strong prompt:</h4>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="bg-purple-50 rounded-lg p-4 mb-6 border border-purple-200">
+            <h4 className="font-semibold text-purple-900 mb-3 text-sm">What makes a strong prompt:</h4>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {hints.map((hint, idx) => (
                 <div key={idx}>
-                  <div className="font-semibold text-sm text-purple-800 mb-2">{hint.category}</div>
+                  <div className="font-semibold text-xs text-purple-800 mb-1.5">{hint.category}</div>
                   <ul className="space-y-1">
                     {hint.questions.map((q, qidx) => (
                       <li key={qidx} className="text-xs text-purple-700 flex items-start gap-2">
@@ -742,98 +676,49 @@ Point to specific elements in the content that caused the outcome. What was miss
           </div>
         )}
 
-        {/* Ingredient Summary Cards */}
-        <div className="mb-4">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="font-bold text-lg">Your Prompt Components</h3>
+        {/* Progressive Ingredients */}
+        <div className="mb-6">
+          {ingredientConfigs.map((config, index) => (
+            <div key={config.field} data-ingredient={index}>
+              <ProgressiveIngredient
+                {...config}
+                number={index + 1}
+                value={ingredients[index].value}
+                onChange={ingredients[index].setter}
+                isActive={activeIngredient === index}
+                isCompleted={ingredients[index].value.trim().length > 0}
+                onComplete={() => handleComplete(index)}
+                onExpand={() => handleExpand(index)}
+              />
+            </div>
+          ))}
+        </div>
+
+        {/* Generate button - shows after all filled */}
+        {allFieldsFilled && (
+          <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg shadow-lg p-6 sticky bottom-4 animate-fadeIn">
             <button
-              onClick={() => setShowBuilder(true)}
-              className="bg-purple-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-purple-700 transition-colors text-sm flex items-center gap-2"
+              onClick={handleGenerate}
+              disabled={isGenerating}
+              className={`w-full px-8 py-4 rounded-lg font-bold text-lg transition-colors flex items-center justify-center gap-2 ${
+                !isGenerating
+                  ? 'bg-green-600 text-white hover:bg-green-700'
+                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              }`}
             >
-              <Edit2 size={16} />
-              {allFieldsFilled ? 'Edit' : 'Build Prompt'}
+              {isGenerating ? (
+                <>
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                  Claude is working...
+                </>
+              ) : (
+                <>
+                  <Zap size={20} />
+                  Generate & See What Happens
+                </>
+              )}
             </button>
           </div>
-          
-          <IngredientSummaryCard
-            field="context"
-            number={1}
-            title="Context"
-            value={promptContext}
-            onEdit={() => setShowBuilder(true)}
-          />
-          <IngredientSummaryCard
-            field="format"
-            number={2}
-            title="Format"
-            value={promptFormat}
-            onEdit={() => setShowBuilder(true)}
-          />
-          <IngredientSummaryCard
-            field="audience"
-            number={3}
-            title="Audience"
-            value={promptAudience}
-            onEdit={() => setShowBuilder(true)}
-          />
-          <IngredientSummaryCard
-            field="constraints"
-            number={4}
-            title="Constraints"
-            value={promptConstraints}
-            onEdit={() => setShowBuilder(true)}
-          />
-          <IngredientSummaryCard
-            field="goal"
-            number={5}
-            title="Goal"
-            value={promptGoal}
-            onEdit={() => setShowBuilder(true)}
-          />
-        </div>
-
-        {/* Generate button */}
-        <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg shadow-lg p-4 sm:p-6 sticky bottom-4 sm:relative sm:bottom-0">
-          <button
-            onClick={handleGenerate}
-            disabled={!allFieldsFilled || isGenerating}
-            className={`w-full px-6 sm:px-8 py-3 sm:py-4 rounded-lg font-bold text-base sm:text-lg transition-colors flex items-center justify-center gap-2 ${
-              allFieldsFilled && !isGenerating
-                ? 'bg-green-600 text-white hover:bg-green-700'
-                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-            }`}
-          >
-            {isGenerating ? (
-              <>
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                Claude is working...
-              </>
-            ) : (
-              <>
-                <Zap size={20} />
-                Generate & See What Happens
-              </>
-            )}
-          </button>
-          {!allFieldsFilled && (
-            <p className="text-sm text-gray-600 text-center mt-3">Fill in all 5 components to generate</p>
-          )}
-        </div>
-
-        {/* Ingredient Builder Modal */}
-        {showBuilder && (
-          <IngredientBuilder
-            ingredients={{
-              context: promptContext,
-              format: promptFormat,
-              audience: promptAudience,
-              constraints: promptConstraints,
-              goal: promptGoal
-            }}
-            onClose={() => setShowBuilder(false)}
-            onSave={handleSaveIngredients}
-            scenario={scenario}
-          />
         )}
       </div>
     );
@@ -889,60 +774,54 @@ Point to specific elements in the content that caused the outcome. What was miss
     if (!evaluation || !scenario) return null;
 
     return (
-      <div className="max-w-4xl mx-auto p-4 sm:p-6">
+      <div className="max-w-5xl mx-auto p-4 sm:p-6">
         {/* Scenario tackled */}
-        <div className="bg-gray-100 rounded-lg p-4 mb-4 border border-gray-300">
-          <p className="text-xs text-gray-600 uppercase font-semibold mb-1">Scenario Tackled</p>
+        <div className="bg-gray-100 rounded-lg p-3 mb-4 border border-gray-300">
+          <p className="text-xs text-gray-600 uppercase font-semibold mb-0.5">Scenario Tackled</p>
           <p className="text-sm font-semibold text-gray-900">{scenario.title}</p>
         </div>
 
-        {/* Generated Output */}
-        <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 mb-4 sm:mb-6">
-          <h3 className="font-semibold text-base sm:text-lg mb-3 sm:mb-4 flex items-center gap-2">
-            <Sparkles size={20} className="text-orange-600" />
-            What Claude Generated:
-          </h3>
-          <div className="bg-gray-50 p-3 sm:p-4 rounded border border-gray-200 leading-relaxed max-h-64 overflow-y-auto formatted-content">
-            <style>{`
-              .formatted-content p { margin-bottom: 0.75rem; }
-              .formatted-content p:last-child { margin-bottom: 0; }
-              .formatted-content h3 { font-weight: bold; margin-top: 1rem; margin-bottom: 0.5rem; }
-              .formatted-content ul { margin: 0.5rem 0 0.75rem 1.5rem; list-style-type: disc; }
-              .formatted-content li { margin-bottom: 0.25rem; }
-            `}</style>
-            <div dangerouslySetInnerHTML={{ __html: formatGeneratedContent(generatedOutput) }} />
-          </div>
-        </div>
-
-        {/* Simulation - THE PAYOFF */}
-        {simulation && (
-          <div className="bg-gradient-to-br from-orange-50 to-red-50 border-2 border-orange-300 rounded-lg p-4 sm:p-6 mb-4 sm:mb-6">
-            <h3 className="font-bold text-lg sm:text-xl mb-3 sm:mb-4 text-orange-900">
-              How It Played Out
+        {/* Two column layout for desktop */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+          {/* Generated Output */}
+          <div className="bg-white rounded-lg shadow-lg p-4 sm:p-5">
+            <h3 className="font-semibold text-base mb-3 flex items-center gap-2">
+              <Sparkles size={18} className="text-orange-600" />
+              What Claude Generated
             </h3>
-            <div className="bg-white rounded-lg p-4 sm:p-5 text-gray-900 leading-relaxed">
+            <div className="bg-gray-50 p-3 rounded border border-gray-200 leading-relaxed max-h-96 overflow-y-auto formatted-content">
+              <style>{`
+                .formatted-content p { margin-bottom: 0.75rem; }
+                .formatted-content p:last-child { margin-bottom: 0; }
+                .formatted-content h3 { font-weight: bold; margin-top: 0.75rem; margin-bottom: 0.5rem; }
+                .formatted-content ul { margin: 0.5rem 0 0.75rem 1.25rem; list-style-type: disc; }
+                .formatted-content li { margin-bottom: 0.25rem; }
+              `}</style>
+              <div dangerouslySetInnerHTML={{ __html: formatGeneratedContent(generatedOutput) }} />
+            </div>
+          </div>
+
+          {/* Simulation alongside */}
+          <div className="bg-gradient-to-br from-orange-50 to-red-50 rounded-lg border-2 border-orange-300 p-4 sm:p-5">
+            <h3 className="font-bold text-base mb-3 text-orange-900">
+              → How It Played Out
+            </h3>
+            <div className="bg-white bg-opacity-80 rounded-lg p-3 text-gray-900 leading-relaxed max-h-96 overflow-y-auto">
               {formatSimulation(simulation)}
             </div>
           </div>
-        )}
-
-        {/* Connecting text */}
-        <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-4 sm:mb-6 rounded-r-lg">
-          <p className="text-sm sm:text-base text-blue-900 font-semibold">
-            Here's why it went that way:
-          </p>
         </div>
 
         {/* Score Card */}
-        <div className={`rounded-lg p-4 sm:p-6 mb-4 sm:mb-6 border-2 ${getScoreBgColor(evaluation.score)}`}>
-          <div className="flex items-center justify-between mb-4">
+        <div className={`rounded-lg p-5 mb-4 border-2 ${getScoreBgColor(evaluation.score)}`}>
+          <div className="flex items-center justify-between">
             <div>
               <h2 className="text-xl sm:text-2xl font-bold mb-1">Your Score</h2>
               <p className={`text-base sm:text-lg font-semibold ${getScoreColor(evaluation.score)}`}>
                 {getScoreLabel(evaluation.score)}
               </p>
             </div>
-            <div className={`text-4xl sm:text-6xl font-bold ${getScoreColor(evaluation.score)}`}>
+            <div className={`text-5xl sm:text-6xl font-bold ${getScoreColor(evaluation.score)}`}>
               {evaluation.score}
             </div>
           </div>
@@ -950,97 +829,36 @@ Point to specific elements in the content that caused the outcome. What was miss
 
         {/* Ingredient Breakdown */}
         {evaluation.ingredients && (
-          <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 mb-4 sm:mb-6">
-            <h3 className="font-semibold text-base sm:text-lg mb-4">What Made Your Prompt Strong (or Weak):</h3>
-            <div className="space-y-3">
-              {evaluation.ingredients.context && (
-                <div className={`${ingredientColors.context.bg} border-2 ${ingredientColors.context.border} rounded-lg p-3 sm:p-4`}>
-                  <div className="flex items-center justify-between mb-2">
-                    <div className={`${ingredientColors.context.label} px-3 py-1 rounded text-xs sm:text-sm font-bold`}>
-                      Context
+          <div className="bg-white rounded-lg shadow-lg p-4 sm:p-5 mb-6">
+            <h3 className="font-semibold text-base mb-4">What Made Your Prompt Strong (or Weak):</h3>
+            <div className="space-y-2.5">
+              {Object.entries(evaluation.ingredients).map(([key, data]) => {
+                const colors = ingredientColors[key];
+                return (
+                  <div key={key} className={`${colors.bg} border-l-4 ${colors.border} rounded-r-lg p-3`}>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <div className={`${colors.label} px-2.5 py-0.5 rounded text-xs font-bold capitalize`}>
+                        {key}
+                      </div>
+                      <div className={`text-xl font-bold ${getScoreColor(data.score)}`}>
+                        {data.score}/20
+                      </div>
                     </div>
-                    <div className={`text-xl sm:text-2xl font-bold ${getScoreColor(evaluation.ingredients.context.score)}`}>
-                      {evaluation.ingredients.context.score}/20
-                    </div>
+                    <p className={`text-xs ${colors.text}`}>
+                      {data.feedback}
+                    </p>
                   </div>
-                  <p className={`text-xs sm:text-sm ${ingredientColors.context.text}`}>
-                    {evaluation.ingredients.context.feedback}
-                  </p>
-                </div>
-              )}
-
-              {evaluation.ingredients.format && (
-                <div className={`${ingredientColors.format.bg} border-2 ${ingredientColors.format.border} rounded-lg p-3 sm:p-4`}>
-                  <div className="flex items-center justify-between mb-2">
-                    <div className={`${ingredientColors.format.label} px-3 py-1 rounded text-xs sm:text-sm font-bold`}>
-                      Format
-                    </div>
-                    <div className={`text-xl sm:text-2xl font-bold ${getScoreColor(evaluation.ingredients.format.score)}`}>
-                      {evaluation.ingredients.format.score}/20
-                    </div>
-                  </div>
-                  <p className={`text-xs sm:text-sm ${ingredientColors.format.text}`}>
-                    {evaluation.ingredients.format.feedback}
-                  </p>
-                </div>
-              )}
-
-              {evaluation.ingredients.audience && (
-                <div className={`${ingredientColors.audience.bg} border-2 ${ingredientColors.audience.border} rounded-lg p-3 sm:p-4`}>
-                  <div className="flex items-center justify-between mb-2">
-                    <div className={`${ingredientColors.audience.label} px-3 py-1 rounded text-xs sm:text-sm font-bold`}>
-                      Audience
-                    </div>
-                    <div className={`text-xl sm:text-2xl font-bold ${getScoreColor(evaluation.ingredients.audience.score)}`}>
-                      {evaluation.ingredients.audience.score}/20
-                    </div>
-                  </div>
-                  <p className={`text-xs sm:text-sm ${ingredientColors.audience.text}`}>
-                    {evaluation.ingredients.audience.feedback}
-                  </p>
-                </div>
-              )}
-
-              {evaluation.ingredients.constraints && (
-                <div className={`${ingredientColors.constraints.bg} border-2 ${ingredientColors.constraints.border} rounded-lg p-3 sm:p-4`}>
-                  <div className="flex items-center justify-between mb-2">
-                    <div className={`${ingredientColors.constraints.label} px-3 py-1 rounded text-xs sm:text-sm font-bold`}>
-                      Constraints
-                    </div>
-                    <div className={`text-xl sm:text-2xl font-bold ${getScoreColor(evaluation.ingredients.constraints.score)}`}>
-                      {evaluation.ingredients.constraints.score}/20
-                    </div>
-                  </div>
-                  <p className={`text-xs sm:text-sm ${ingredientColors.constraints.text}`}>
-                    {evaluation.ingredients.constraints.feedback}
-                  </p>
-                </div>
-              )}
-
-              {evaluation.ingredients.goal && (
-                <div className={`${ingredientColors.goal.bg} border-2 ${ingredientColors.goal.border} rounded-lg p-3 sm:p-4`}>
-                  <div className="flex items-center justify-between mb-2">
-                    <div className={`${ingredientColors.goal.label} px-3 py-1 rounded text-xs sm:text-sm font-bold`}>
-                      Goal
-                    </div>
-                    <div className={`text-xl sm:text-2xl font-bold ${getScoreColor(evaluation.ingredients.goal.score)}`}>
-                      {evaluation.ingredients.goal.score}/20
-                    </div>
-                  </div>
-                  <p className={`text-xs sm:text-sm ${ingredientColors.goal.text}`}>
-                    {evaluation.ingredients.goal.feedback}
-                  </p>
-                </div>
-              )}
+                );
+              })}
             </div>
           </div>
         )}
 
         {/* Final CTA */}
-        <div className="bg-gradient-to-r from-purple-50 to-orange-50 rounded-lg shadow-lg p-6 sm:p-8 text-center">
-          <Trophy className="mx-auto mb-4 text-orange-600" size={40} />
-          <h3 className="text-xl sm:text-2xl font-bold mb-3">Round Complete!</h3>
-          <p className="text-sm sm:text-base text-gray-700 mb-6">
+        <div className="bg-gradient-to-r from-purple-50 to-orange-50 rounded-lg shadow-lg p-6 text-center">
+          <Trophy className="mx-auto mb-3 text-orange-600" size={36} />
+          <h3 className="text-xl font-bold mb-2">Round Complete!</h3>
+          <p className="text-sm text-gray-700 mb-5">
             {evaluation.score >= 75 
               ? "Strong work. Try a new scenario to test your skills."
               : "Keep practicing. Each scenario will help you improve."}
@@ -1054,13 +872,14 @@ Point to specific elements in the content that caused the outcome. What was miss
                 setPromptAudience('');
                 setPromptConstraints('');
                 setPromptGoal('');
+                setActiveIngredient(0);
                 setUserPrompt('');
                 setGeneratedOutput('');
                 setSimulation(null);
                 setEvaluation(null);
                 setGenerationStep('');
               }}
-              className="bg-gray-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg text-sm sm:text-base font-semibold hover:bg-gray-700 transition-colors"
+              className="bg-gray-600 text-white px-5 py-2.5 rounded-lg text-sm font-semibold hover:bg-gray-700 transition-colors"
             >
               Try This Scenario Again
             </button>
@@ -1071,6 +890,7 @@ Point to specific elements in the content that caused the outcome. What was miss
                 setPromptAudience('');
                 setPromptConstraints('');
                 setPromptGoal('');
+                setActiveIngredient(0);
                 setUserPrompt('');
                 setGeneratedOutput('');
                 setSimulation(null);
@@ -1078,16 +898,16 @@ Point to specific elements in the content that caused the outcome. What was miss
                 setGenerationStep('');
                 generateScenario();
               }}
-              className="bg-purple-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg text-sm sm:text-base font-semibold hover:bg-purple-700 transition-colors flex items-center gap-2"
+              className="bg-purple-600 text-white px-5 py-2.5 rounded-lg text-sm font-semibold hover:bg-purple-700 transition-colors flex items-center gap-2"
             >
-              <RefreshCw size={18} />
+              <RefreshCw size={16} />
               New Scenario
             </button>
             <button
               onClick={() => setStage('leaderboard')}
-              className="bg-orange-600 text-white px-6 sm:px-8 py-2 sm:py-3 rounded-lg text-sm sm:text-base font-bold hover:bg-orange-700 transition-colors flex items-center gap-2"
+              className="bg-orange-600 text-white px-6 py-2.5 rounded-lg text-sm font-bold hover:bg-orange-700 transition-colors flex items-center gap-2"
             >
-              <Trophy size={20} />
+              <Trophy size={18} />
               Leaderboard
             </button>
           </div>
@@ -1158,6 +978,7 @@ Point to specific elements in the content that caused the outcome. What was miss
             setPromptAudience('');
             setPromptConstraints('');
             setPromptGoal('');
+            setActiveIngredient(0);
             setUserPrompt('');
             setGeneratedOutput('');
             setSimulation(null);
@@ -1175,6 +996,16 @@ Point to specific elements in the content that caused the outcome. What was miss
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-4 sm:py-8">
+      <style>{`
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fadeIn {
+          animation: fadeIn 0.3s ease-out;
+        }
+      `}</style>
+      
       <div className="max-w-6xl mx-auto mb-6 px-4">
         <div className="text-center">
           <div className="inline-block bg-orange-100 text-orange-800 px-4 py-1 rounded-full text-sm font-semibold mb-4">
