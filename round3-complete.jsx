@@ -278,15 +278,14 @@ ${parts.join('\n\n')}`;
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          prompt: {
+          userPrompt: fullPrompt,
+          promptComponents: {
             context: promptContext,
             format: promptFormat,
             audience: promptAudience,
             constraints: promptConstraints,
             goal: promptGoal
           },
-          output: generateData.output,
-          simulation: simulateData.simulation,
           scenario: scenario
         })
       });
