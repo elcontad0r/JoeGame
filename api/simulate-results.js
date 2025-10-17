@@ -20,7 +20,7 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         model: "claude-sonnet-4-20250514",
-        max_tokens: 800,
+        max_tokens: 1200,
         temperature: 0.7,
         messages: [{
           role: "user",
@@ -42,11 +42,17 @@ ACT 3 - THE FALLOUT: What's the end result? Did it achieve the goal? What are th
 
 Use realistic details. Include quoted reactions. Be honest about both successes and failures.
 
+After writing the narrative, identify the single most memorable or revealing quote from your story. This should be something someone actually said (not just description). Pick the quote that best captures what went right or wrong.
+
+Finally, write a 2-3 sentence analysis explaining what specific aspects of the generated content caused the story to unfold this way. Focus on concrete things in the content (tone, specificity, structure, arguments used, etc.) that directly led to the outcomes you described.
+
 Return ONLY valid JSON with no markdown:
 {
   "first_gate": "[2-3 sentences with specific details and quotes]",
   "where_it_goes": "[2-3 sentences about how it performs in the real test]",
-  "consequences": "[2-3 sentences about the final outcome]"
+  "consequences": "[2-3 sentences about the final outcome]",
+  "best_quote": "[The most memorable quote from someone in your narrative - just the quote text without the quotation marks]",
+  "analysis": "[2-3 sentences explaining what about the generated content specifically caused this outcome]"
 }`
         }]
       })
