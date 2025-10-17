@@ -597,6 +597,24 @@ ${parts.join('\n\n')}`;
           <p className="text-sm font-semibold text-gray-900">{scenario.title}</p>
         </div>
 
+        {/* What Claude Generated - now at top, open by default */}
+        <details open className="bg-white rounded-lg shadow-md border-2 border-purple-200 mb-6">
+          <summary className="p-4 cursor-pointer hover:bg-gray-50 font-semibold text-gray-900 flex items-center gap-2">
+            <Sparkles size={18} className="text-purple-600" />
+            What Claude Generated
+            <span className="ml-auto text-gray-400 text-sm">Click to collapse</span>
+          </summary>
+          <div className="p-6 border-t border-gray-200">
+            <div className="prose prose-sm max-w-none text-gray-800">
+              {generatedOutput.content.split('\n\n').map((paragraph, idx) => (
+                <p key={idx} className="mb-4 last:mb-0 leading-relaxed">
+                  {paragraph}
+                </p>
+              ))}
+            </div>
+          </div>
+        </details>
+
         {/* THE REVEAL - Simulation first (the payoff) */}
         <div className="bg-gradient-to-br from-orange-50 to-red-50 border-2 border-orange-400 rounded-xl p-6 mb-6 shadow-lg">
           <div className="flex items-center gap-3 mb-4">
@@ -628,13 +646,23 @@ ${parts.join('\n\n')}`;
 
           {/* Consequences */}
           {simulation.consequences && (
-            <div className="bg-white rounded-lg p-4">
+            <div className="bg-white rounded-lg p-4 mb-4">
               <h3 className="font-bold text-gray-900 mb-2 flex items-center gap-2">
                 <span className="bg-red-100 text-red-800 px-2 py-0.5 rounded text-sm">The Fallout</span>
               </h3>
               <p className="text-gray-800 leading-relaxed">
                 {highlightQuotes(simulation.consequences)}
               </p>
+            </div>
+          )}
+
+          {/* Best Quote */}
+          {simulation.best_quote && (
+            <div className="mt-4 pt-4 border-t-2 border-orange-300">
+              <p className="text-xs font-semibold text-orange-900 uppercase mb-2">Quote of the Day</p>
+              <blockquote className="text-base italic text-gray-900 font-medium">
+                "{simulation.best_quote}"
+              </blockquote>
             </div>
           )}
         </div>
@@ -667,19 +695,21 @@ ${parts.join('\n\n')}`;
           </div>
         </div>
 
-        {/* What you made - collapsible by default */}
-        <details className="bg-white rounded-lg shadow-md border border-gray-200 mb-6">
-          <summary className="p-4 cursor-pointer hover:bg-gray-50 font-semibold text-gray-900 flex items-center gap-2">
-            <Sparkles size={18} className="text-orange-600" />
-            What Claude Generated
-            <span className="ml-auto text-gray-400 text-sm">Click to view</span>
-          </summary>
-          <div className="p-4 border-t border-gray-200">
-            <div className="prose prose-sm max-w-none text-gray-800 whitespace-pre-wrap">
-              {generatedOutput.content}
+        {/* What Went Wrong - new section */}
+        {simulation.analysis && (
+          <details open className="bg-white rounded-lg shadow-md border border-gray-200 mb-6">
+            <summary className="p-4 cursor-pointer hover:bg-gray-50 font-semibold text-gray-900 flex items-center gap-2">
+              <AlertCircle size={18} className="text-orange-600" />
+              What Went Wrong (or Right)
+              <span className="ml-auto text-gray-400 text-sm">Click to collapse</span>
+            </summary>
+            <div className="p-4 border-t border-gray-200">
+              <p className="text-gray-800 leading-relaxed">
+                {simulation.analysis}
+              </p>
             </div>
-          </div>
-        </details>
+          </details>
+        )}
 
         {/* Why it happened - ingredient breakdown */}
         <div className="bg-white rounded-xl shadow-lg p-6 mb-6 border border-gray-200">
