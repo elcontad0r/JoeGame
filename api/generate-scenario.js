@@ -3,26 +3,58 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
-
+  
   try {
+    const { userTopic } = req.body;
+    
     // Add randomness seed to prompt to force variety
     const randomSeed = Math.floor(Math.random() * 10000);
     const timestamp = new Date().toISOString();
     
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": process.env.ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01"
-      },
-      body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
-        max_tokens: 500,
-        temperature: 1.0,
-        messages: [{
-          role: "user",
-          content: `[Scenario ID: ${randomSeed} | Generated: ${timestamp}]
+    // Build the prompt based on whether user provided a topic
+    const promptContent = userTopic && userTopic.trim() 
+      ? `[Scenario ID: ${randomSeed} | Generated: ${timestamp}]
+
+You are generating a crisis scenario for a public affairs/lobbying training game.
+
+THE USER IS CURRENTLY WORKING ON: "${userTopic}"
+
+Generate a realistic crisis scenario that is DIRECTLY RELEVANT to their current work. The scenario should feel like something they might actually encounter in their current project.
+
+Create a high-pressure scenario with:
+1. Time pressure (meeting/deadline in 60-120 minutes)
+2. Specific numbers/facts (dollar amounts, employee counts, facility locations)
+3. Named entities (cities, Congressional committees, agencies)
+4. Clear stakes (jobs, revenue, market position)
+
+The scenario should relate to their stated topic/project but present an unexpected twist or urgent development that requires immediate action.
+
+VARY THE CRISIS TYPE:
+- Regulatory crisis (new rule, enforcement action, investigation)
+- Legislative threat (bill introduced, amendment proposed, hearing announced)
+- Media/PR crisis (report published, allegations made, viral social media)
+- Stakeholder conflict (activist campaign, union action, community opposition)
+- Legal development (lawsuit filed, court ruling, settlement pressure)
+
+VARY THE DELIVERABLE:
+- Press statement for media
+- Hill talking points for Congressional meeting
+- Stakeholder brief for investors/board
+- Employee communication for internal town hall
+- Coalition letter to agency/legislators
+- Op-ed draft for executive
+
+Return ONLY valid JSON with no markdown:
+{
+  "title": "Breaking: [Specific Crisis]",
+  "urgency": "[Exact timeframe - e.g. 'Meeting in 75 minutes' or 'Press call at 3pm']",
+  "situation": "[2-3 sentences with CONCRETE details - numbers, locations, entities]",
+  "requirement": "[Specific deliverable type]",
+  "sector": "[specific industry]"
+}
+
+Make it feel urgent and directly relevant to their work.`
+      : `[Scenario ID: ${randomSeed} | Generated: ${timestamp}]
 
 You are generating a UNIQUE crisis scenario for a public affairs/lobbying training game. Generate something DIFFERENT from typical FDA/pharma scenarios.
 
@@ -67,17 +99,32 @@ EXAMPLE VARIETY (don't copy these, use as inspiration):
 - "Emergency: Union Calls Strike at 3 East Coast Facilities" (Manufacturing)
 - "Alert: State AG Opens Investigation into Data Broker Practices" (Fintech)
 - "Urgent: Major Customer Announces Switch to Competitor" (Telecom)
-- "Crisis: Environmental Group Launches Campaign Against Pipeline Project" (Energy)`
+- "Crisis: Environmental Group Launches Campaign Against Pipeline Project" (Energy)`;
+    
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": process.env.ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01"
+      },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 500,
+        temperature: 1.0,
+        messages: [{
+          role: "user",
+          content: promptContent
         }]
       })
     });
-
+    
     const data = await response.json();
     
     if (!response.ok) {
       throw new Error(data.error?.message || 'API request failed');
     }
-
+    
     let scenarioText = data.content[0].text;
     
     // Strip markdown code blocks if present
