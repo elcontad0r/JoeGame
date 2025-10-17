@@ -204,9 +204,7 @@ const Round3Game = ({ onBack }) => {
     
     if (parts.length === 0) return '';
     
-    return `Create ${scenario?.requirement || 'content'} for this situation: ${scenario?.situation || ''}
-
-${parts.join('\n\n')}`;
+    return parts.join('\n\n');
   };
 
   const allFieldsFilled = promptContext && promptFormat && promptAudience && promptConstraints && promptGoal;
