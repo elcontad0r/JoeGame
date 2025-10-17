@@ -408,12 +408,20 @@ ${parts.join('\n\n')}`;
     return (
       <div className="max-w-4xl mx-auto p-6">
         {/* Scenario reminder */}
-        <div className="bg-orange-50 border-2 border-orange-200 rounded-lg p-4 mb-6">
-          <div className="flex items-start gap-3">
-            <Lightbulb className="text-orange-600 flex-shrink-0 mt-1" size={20} />
-            <div>
-              <p className="text-sm font-semibold text-orange-900 mb-1">Your challenge:</p>
-              <p className="text-sm text-orange-800">{scenario?.requirement}</p>
+        <div className="bg-orange-50 border-2 border-orange-200 rounded-lg p-6 mb-6">
+          <div className="flex items-start gap-3 mb-4">
+            <div className="bg-orange-100 p-2 rounded-lg flex-shrink-0">
+              <Zap className="text-orange-600" size={24} />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-bold text-orange-900 mb-2">Your Scenario</h3>
+              <p className="text-sm text-orange-800 leading-relaxed mb-3">
+                {scenario?.situation}
+              </p>
+              <div className="bg-white border-l-4 border-orange-400 rounded p-3">
+                <p className="text-xs font-semibold text-orange-900 mb-1">Your challenge:</p>
+                <p className="text-sm text-orange-800">{scenario?.requirement}</p>
+              </div>
             </div>
           </div>
         </div>
