@@ -73,6 +73,76 @@ const IngredientField = ({ field, number, title, placeholder, value, onChange, h
   );
 };
 
+// Simple markdown parser for generated content
+const renderMarkdown = (text) => {
+  if (!text) return null;
+  
+  const lines = text.split('\n');
+  const elements = [];
+  let currentList = [];
+  
+  lines.forEach((line, idx) => {
+    // Headers
+    if (line.startsWith('### ')) {
+      if (currentList.length > 0) {
+        elements.push(<ul key={`list-${idx}`} className="list-disc pl-6 mb-4 space-y-1">{currentList}</ul>);
+        currentList = [];
+      }
+      elements.push(<h3 key={idx} className="text-lg font-bold mt-4 mb-2">{line.slice(4)}</h3>);
+    } else if (line.startsWith('## ')) {
+      if (currentList.length > 0) {
+        elements.push(<ul key={`list-${idx}`} className="list-disc pl-6 mb-4 space-y-1">{currentList}</ul>);
+        currentList = [];
+      }
+      elements.push(<h2 key={idx} className="text-xl font-bold mt-4 mb-2">{line.slice(3)}</h2>);
+    } else if (line.startsWith('# ')) {
+      if (currentList.length > 0) {
+        elements.push(<ul key={`list-${idx}`} className="list-disc pl-6 mb-4 space-y-1">{currentList}</ul>);
+        currentList = [];
+      }
+      elements.push(<h1 key={idx} className="text-2xl font-bold mt-4 mb-3">{line.slice(2)}</h1>);
+    }
+    // Bullet points
+    else if (line.trim().startsWith('• ') || line.trim().startsWith('- ')) {
+      const text = line.trim().slice(2);
+      currentList.push(<li key={idx}>{parseBold(text)}</li>);
+    }
+    // Empty line
+    else if (line.trim() === '') {
+      if (currentList.length > 0) {
+        elements.push(<ul key={`list-${idx}`} className="list-disc pl-6 mb-4 space-y-1">{currentList}</ul>);
+        currentList = [];
+      }
+    }
+    // Regular paragraph
+    else if (line.trim()) {
+      if (currentList.length > 0) {
+        elements.push(<ul key={`list-${idx}`} className="list-disc pl-6 mb-4 space-y-1">{currentList}</ul>);
+        currentList = [];
+      }
+      elements.push(<p key={idx} className="mb-3 leading-relaxed">{parseBold(line)}</p>);
+    }
+  });
+  
+  // Don't forget any remaining list items
+  if (currentList.length > 0) {
+    elements.push(<ul key="list-final" className="list-disc pl-6 mb-4 space-y-1">{currentList}</ul>);
+  }
+  
+  return elements;
+};
+
+// Helper to parse **bold** text
+const parseBold = (text) => {
+  const parts = text.split(/(\*\*[^*]+\*\*)/g);
+  return parts.map((part, idx) => {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      return <strong key={idx} className="font-bold">{part.slice(2, -2)}</strong>;
+    }
+    return part;
+  });
+};
+
 // Simple version - just double quotes
 const highlightQuotes = (text) => {
   if (!text) return text;
@@ -605,12 +675,8 @@ ${parts.join('\n\n')}`;
             <span className="ml-auto text-gray-400 text-sm">Click to collapse</span>
           </summary>
           <div className="p-6 border-t border-gray-200">
-            <div className="prose prose-sm max-w-none text-gray-800">
-              {generatedOutput.content.split('\n\n').map((paragraph, idx) => (
-                <p key={idx} className="mb-4 last:mb-0 leading-relaxed">
-                  {paragraph}
-                </p>
-              ))}
+            <div className="text-gray-800">
+              {renderMarkdown(generatedOutput.content)}
             </div>
           </div>
         </details>
