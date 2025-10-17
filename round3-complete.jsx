@@ -250,7 +250,7 @@ ${parts.join('\n\n')}`;
       }
 
       const generateData = await generateResponse.json();
-      setGeneratedOutput(generateData.output);
+      setGeneratedOutput({ content: generateData.output });
       
       setGenerationStep('Simulating real-world results...');
       await new Promise(resolve => setTimeout(resolve, 1000));
@@ -572,81 +572,122 @@ ${parts.join('\n\n')}`;
     );
   };
 
+  const getScoreBgColor = (score) => {
+    if (score >= 85) return 'bg-green-50 border-green-300';
+    if (score >= 70) return 'bg-blue-50 border-blue-300';
+    if (score >= 50) return 'bg-yellow-50 border-yellow-300';
+    return 'bg-orange-50 border-orange-300';
+  };
+
+  const getScoreLabel = (score) => {
+    if (score >= 85) return 'Expert';
+    if (score >= 70) return 'Proficient';
+    if (score >= 50) return 'Developing';
+    return 'Needs Work';
+  };
+
   const renderResults = () => {
-    if (!evaluation || !generatedOutput || !simulation) return null;
+    if (!evaluation || !scenario || !simulation || !generatedOutput) return null;
 
     return (
-      <div className="max-w-5xl mx-auto p-6">
-        {/* Score card */}
-        <div className="bg-gradient-to-r from-purple-600 to-orange-600 text-white rounded-xl shadow-2xl p-8 mb-8 text-center">
-          <Trophy className="mx-auto mb-4" size={56} />
-          <h2 className="text-4xl font-bold mb-2">Score: {evaluation.score}/100</h2>
-          <p className="text-xl text-purple-100">{evaluation.summary}</p>
+      <div className="max-w-4xl mx-auto p-6">
+        {/* Scenario reference - compact */}
+        <div className="bg-gray-100 rounded-lg p-3 mb-6 border border-gray-300">
+          <p className="text-xs text-gray-600 uppercase font-semibold mb-0.5">Scenario</p>
+          <p className="text-sm font-semibold text-gray-900">{scenario.title}</p>
         </div>
 
-        {/* Main content */}
-        <div className="grid lg:grid-cols-2 gap-6 mb-8">
-          {/* Generated Output */}
-          <div className="bg-white rounded-lg shadow-lg p-6 border-2 border-purple-200">
-            <div className="flex items-center gap-2 mb-4">
-              <Sparkles className="text-purple-600" size={24} />
-              <h3 className="text-xl font-bold text-gray-900">What Claude Generated</h3>
-            </div>
-            <div className="bg-gray-50 rounded-lg p-4 max-h-96 overflow-y-auto">
-              <p className="text-sm text-gray-800 leading-relaxed whitespace-pre-wrap">
-                {highlightQuotes(generatedOutput.content)}
+        {/* THE REVEAL - Simulation first (the payoff) */}
+        <div className="bg-gradient-to-br from-orange-50 to-red-50 border-2 border-orange-400 rounded-xl p-6 mb-6 shadow-lg">
+          <div className="flex items-center gap-3 mb-4">
+            <span className="text-3xl">🎬</span>
+            <h2 className="text-2xl font-bold text-orange-900">What Happened</h2>
+          </div>
+
+          {/* First Gate */}
+          <div className="bg-white rounded-lg p-4 mb-4">
+            <h3 className="font-bold text-gray-900 mb-2 flex items-center gap-2">
+              <span className="bg-orange-100 text-orange-800 px-2 py-0.5 rounded text-sm">First Gate</span>
+            </h3>
+            <p className="text-gray-800 leading-relaxed">
+              {highlightQuotes(simulation.first_gate)}
+            </p>
+          </div>
+
+          {/* Where it Goes */}
+          {simulation.where_it_goes && (
+            <div className="bg-white rounded-lg p-4 mb-4">
+              <h3 className="font-bold text-gray-900 mb-2 flex items-center gap-2">
+                <span className="bg-orange-100 text-orange-800 px-2 py-0.5 rounded text-sm">The Real Test</span>
+              </h3>
+              <p className="text-gray-800 leading-relaxed">
+                {highlightQuotes(simulation.where_it_goes)}
               </p>
             </div>
+          )}
+
+          {/* Consequences */}
+          {simulation.consequences && (
+            <div className="bg-white rounded-lg p-4">
+              <h3 className="font-bold text-gray-900 mb-2 flex items-center gap-2">
+                <span className="bg-red-100 text-red-800 px-2 py-0.5 rounded text-sm">The Fallout</span>
+              </h3>
+              <p className="text-gray-800 leading-relaxed">
+                {highlightQuotes(simulation.consequences)}
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Score - simplified, more visual */}
+        <div className={`rounded-xl p-6 mb-6 border-2 ${getScoreBgColor(evaluation.score)}`}>
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="text-xl font-bold mb-1">Your Score</h2>
+              <p className={`text-base font-semibold ${getScoreColor(evaluation.score)}`}>
+                {getScoreLabel(evaluation.score)}
+              </p>
+            </div>
+            <div className={`text-5xl sm:text-6xl font-bold ${getScoreColor(evaluation.score)}`}>
+              {evaluation.score}
+            </div>
           </div>
-
-          {/* Simulation */}
-          <div className="bg-white rounded-lg shadow-lg p-6 border-2 border-orange-200">
-            <div className="flex items-center gap-2 mb-4">
-              <TrendingUp className="text-orange-600" size={24} />
-              <h3 className="text-xl font-bold text-gray-900">Real-World Result</h3>
-            </div>
-            <div className="space-y-4">
-              <div className="bg-orange-50 rounded-lg p-4">
-                <p className="text-sm font-semibold text-orange-900 mb-2">What happened:</p>
-                <p className="text-sm text-gray-800 leading-relaxed">{simulation.outcome}</p>
-              </div>
-              
-              {simulation.strengths && simulation.strengths.length > 0 && (
-                <div className="bg-green-50 rounded-lg p-4">
-                  <p className="text-sm font-semibold text-green-900 mb-2 flex items-center gap-2">
-                    <CheckCircle size={16} />
-                    What worked:
-                  </p>
-                  <ul className="space-y-1">
-                    {simulation.strengths.map((strength, idx) => (
-                      <li key={idx} className="text-sm text-gray-800">• {strength}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {simulation.issues && simulation.issues.length > 0 && (
-                <div className="bg-red-50 rounded-lg p-4">
-                  <p className="text-sm font-semibold text-red-900 mb-2 flex items-center gap-2">
-                    <AlertCircle size={16} />
-                    What fell short:
-                  </p>
-                  <ul className="space-y-1">
-                    {simulation.issues.map((issue, idx) => (
-                      <li key={idx} className="text-sm text-gray-800">• {issue}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
+          
+          {/* Score bar */}
+          <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+            <div 
+              className={`h-full rounded-full transition-all duration-500 ${
+                evaluation.score >= 85 ? 'bg-green-500' :
+                evaluation.score >= 70 ? 'bg-blue-500' :
+                evaluation.score >= 50 ? 'bg-yellow-500' :
+                'bg-orange-500'
+              }`}
+              style={{ width: `${evaluation.score}%` }}
+            />
           </div>
         </div>
 
-        {/* Ingredient scores */}
-        <div className="bg-white rounded-lg shadow-lg p-6 mb-8 border-2 border-gray-200">
-          <h3 className="text-xl font-bold text-gray-900 mb-6 text-center">Your Prompt Breakdown</h3>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {evaluation.ingredients && evaluation.ingredients.context && (
+        {/* What you made - collapsible by default */}
+        <details className="bg-white rounded-lg shadow-md border border-gray-200 mb-6">
+          <summary className="p-4 cursor-pointer hover:bg-gray-50 font-semibold text-gray-900 flex items-center gap-2">
+            <Sparkles size={18} className="text-orange-600" />
+            What Claude Generated
+            <span className="ml-auto text-gray-400 text-sm">Click to view</span>
+          </summary>
+          <div className="p-4 border-t border-gray-200">
+            <div className="prose prose-sm max-w-none text-gray-800 whitespace-pre-wrap">
+              {generatedOutput.content}
+            </div>
+          </div>
+        </details>
+
+        {/* Why it happened - ingredient breakdown */}
+        <div className="bg-white rounded-xl shadow-lg p-6 mb-6 border border-gray-200">
+          <h3 className="font-bold text-xl mb-4 text-gray-900">Why It Went That Way</h3>
+          <p className="text-gray-600 text-sm mb-6">Here's how each part of your prompt affected the outcome:</p>
+          
+          <div className="space-y-3">
+            {evaluation.ingredients?.context && (
               <div className={`${ingredientColors.context.bg} border-2 ${ingredientColors.context.border} rounded-lg p-4`}>
                 <div className="flex items-center justify-between mb-2">
                   <div className={`${ingredientColors.context.label} px-3 py-1 rounded text-xs font-bold`}>
@@ -662,7 +703,7 @@ ${parts.join('\n\n')}`;
               </div>
             )}
 
-            {evaluation.ingredients && evaluation.ingredients.format && (
+            {evaluation.ingredients?.format && (
               <div className={`${ingredientColors.format.bg} border-2 ${ingredientColors.format.border} rounded-lg p-4`}>
                 <div className="flex items-center justify-between mb-2">
                   <div className={`${ingredientColors.format.label} px-3 py-1 rounded text-xs font-bold`}>
@@ -678,7 +719,7 @@ ${parts.join('\n\n')}`;
               </div>
             )}
 
-            {evaluation.ingredients && evaluation.ingredients.audience && (
+            {evaluation.ingredients?.audience && (
               <div className={`${ingredientColors.audience.bg} border-2 ${ingredientColors.audience.border} rounded-lg p-4`}>
                 <div className="flex items-center justify-between mb-2">
                   <div className={`${ingredientColors.audience.label} px-3 py-1 rounded text-xs font-bold`}>
@@ -694,7 +735,7 @@ ${parts.join('\n\n')}`;
               </div>
             )}
 
-            {evaluation.ingredients && evaluation.ingredients.constraints && (
+            {evaluation.ingredients?.constraints && (
               <div className={`${ingredientColors.constraints.bg} border-2 ${ingredientColors.constraints.border} rounded-lg p-4`}>
                 <div className="flex items-center justify-between mb-2">
                   <div className={`${ingredientColors.constraints.label} px-3 py-1 rounded text-xs font-bold`}>
@@ -710,7 +751,7 @@ ${parts.join('\n\n')}`;
               </div>
             )}
 
-            {evaluation.ingredients && evaluation.ingredients.goal && (
+            {evaluation.ingredients?.goal && (
               <div className={`${ingredientColors.goal.bg} border-2 ${ingredientColors.goal.border} rounded-lg p-4`}>
                 <div className="flex items-center justify-between mb-2">
                   <div className={`${ingredientColors.goal.label} px-3 py-1 rounded text-xs font-bold`}>
