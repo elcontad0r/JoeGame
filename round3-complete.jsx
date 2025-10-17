@@ -236,11 +236,11 @@ ${parts.join('\n\n')}`;
       
       setGenerationStep('Generating the output...');
       
-      const generateResponse = await fetch('/api/generate-output', {
+      const generateResponse = await fetch('/api/generate-content', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          userPrompt: fullPrompt,
+          prompt: fullPrompt,
           scenario: scenario
         })
       });
