@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AlertCircle, ArrowRight, CheckCircle, Zap, RefreshCw } from 'lucide-react';
+import { AlertCircle, ArrowRight, Clock, CheckCircle, Zap, RefreshCw } from 'lucide-react';
 
 const Round2GameV2 = ({ onComplete }) => {
   const [stage, setStage] = useState('scenario');
@@ -228,28 +228,31 @@ Return as JSON:
   const selectedCount = Object.values(selections).filter(v => v !== null).length;
 
   const renderScenario = () => (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6">
-      <div className="bg-blue-50 border-l-4 border-blue-500 p-6 mb-6 rounded-r-lg">
-        <div className="flex items-start">
-          <AlertCircle className="text-blue-500 mr-3 mt-1 flex-shrink-0" size={24} />
+    <div className="max-w-3xl mx-auto px-4 sm:px-6">
+      <div className="bg-white rounded-lg shadow-xl p-8 mb-6">
+        <div className="flex items-start gap-4 mb-6">
+          <AlertCircle className="text-purple-500 flex-shrink-0 mt-1" size={28} />
           <div>
-            <h2 className="text-2xl font-bold text-blue-900 mb-2">{scenario.title}</h2>
-            <p className="text-blue-800 font-semibold mb-2">{scenario.urgency}</p>
-            <p className="text-blue-900">{scenario.situation}</p>
+            <h2 className="text-2xl font-bold text-purple-900 mb-2">{scenario.title}</h2>
+            <div className="flex items-center gap-2 text-purple-700 font-semibold mb-4">
+              <Clock size={18} />
+              <span>{scenario.urgency}</span>
+            </div>
+            <p className="text-gray-700 text-lg leading-relaxed">{scenario.situation}</p>
           </div>
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-lg p-6">
-        <h3 className="text-xl font-semibold mb-2">Build Your Prompt</h3>
-        <p className="text-gray-700 mb-4">
-          Pick 5 ingredients. Watch how your choices shape the output.
+      <div className="bg-gradient-to-br from-purple-500 to-blue-600 rounded-lg shadow-xl p-6 text-white">
+        <h3 className="text-xl font-bold mb-3">Now You Build One</h3>
+        <p className="text-base mb-5 text-purple-50">
+          Pick 5 ingredients and watch how your choices shape the output. No right answer—just see what happens.
         </p>
         <button
           onClick={() => setStage('builder')}
-          className="bg-purple-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-purple-700 transition-colors flex items-center gap-2"
+          className="bg-white text-purple-600 px-8 py-3 rounded-lg font-bold hover:bg-purple-50 transition-colors inline-flex items-center gap-2"
         >
-          Start <ArrowRight size={20} />
+          Start Building <ArrowRight size={20} />
         </button>
       </div>
     </div>
@@ -296,8 +299,10 @@ Return as JSON:
 
     return (
       <div className="space-y-3">
-        <div className="bg-gray-100 border-2 border-gray-300 rounded-lg p-3">
-          <p className="text-sm font-medium text-gray-700">
+        {/* Task - always at top, visually distinct */}
+        <div className="bg-gray-100 border-2 border-gray-400 rounded-lg p-3">
+          <div className="text-xs font-bold text-gray-600 mb-1">TASK</div>
+          <p className="text-sm font-semibold text-gray-800">
             Write talking points for a Hill meeting about the EPA air quality rule.
           </p>
         </div>
@@ -325,6 +330,22 @@ Return as JSON:
   const renderBuilder = () => {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        {/* Scenario reminder at top */}
+        <div className="bg-white rounded-lg shadow-lg p-6 mb-6 border-l-4 border-purple-500">
+          <div className="flex items-start gap-4">
+            <AlertCircle className="text-purple-500 flex-shrink-0 mt-1" size={24} />
+            <div>
+              <div className="text-xs font-bold text-purple-700 mb-2 uppercase tracking-wide">Scenario</div>
+              <h3 className="text-lg font-bold text-purple-900 mb-1">{scenario.title}</h3>
+              <div className="flex items-center gap-2 text-purple-700 text-sm font-semibold mb-2">
+                <Clock size={16} />
+                <span>{scenario.urgency}</span>
+              </div>
+              <p className="text-gray-700 text-sm leading-relaxed">{scenario.situation}</p>
+            </div>
+          </div>
+        </div>
+
         {/* Header */}
         <div className="bg-white rounded-lg shadow-sm p-4 mb-6 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -511,8 +532,8 @@ Return as JSON:
         <div className="inline-block bg-purple-100 text-purple-800 px-4 py-1 rounded-full text-sm font-semibold mb-4">
           Round 2 of 3
         </div>
-        <h1 className="text-4xl font-bold mb-2">Prompt Builder</h1>
-        <p className="text-gray-600">See how strategic choices change output</p>
+        <h1 className="text-4xl font-bold mb-2">Build Your Prompt</h1>
+        <p className="text-gray-600">See how strategic choices shape output</p>
       </div>
 
       {stage === 'scenario' && renderScenario()}
