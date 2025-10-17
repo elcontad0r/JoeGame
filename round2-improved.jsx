@@ -123,24 +123,49 @@ const Round2GameV2 = ({ onComplete }) => {
     }
   };
 
+  // Simple markdown to HTML converter
+  const markdownToHtml = (markdown) => {
+    let html = markdown;
+    
+    // Headers (do these first)
+    html = html.replace(/^### (.+)$/gm, '<h3 class="text-lg font-bold mt-4 mb-2">$1</h3>');
+    html = html.replace(/^## (.+)$/gm, '<h2 class="text-xl font-bold mt-5 mb-3">$1</h2>');
+    html = html.replace(/^# (.+)$/gm, '<h1 class="text-2xl font-bold mt-6 mb-3">$1</h1>');
+    
+    // Bold and italic
+    html = html.replace(/\*\*(.+?)\*\*/g, '<strong class="font-semibold">$1</strong>');
+    html = html.replace(/\*(.+?)\*/g, '<em class="italic">$1</em>');
+    html = html.replace(/__(.+?)__/g, '<strong class="font-semibold">$1</strong>');
+    
+    // Lists - handle both * and -
+    html = html.replace(/^[\*\-] (.+)$/gm, '<li class="ml-4">$1</li>');
+    html = html.replace(/(<li class="ml-4">.*<\/li>\n?)+/g, '<ul class="list-disc list-inside space-y-1 mb-3">$&</ul>');
+    
+    // Paragraphs - split on double newlines
+    html = html.replace(/\n\n/g, '</p><p class="mb-3">');
+    html = '<p class="mb-3">' + html + '</p>';
+    
+    // Clean up empty paragraphs
+    html = html.replace(/<p class="mb-3"><\/p>/g, '');
+    
+    return html;
+  };
+
   const generateWithClaude = async () => {
     setIsGenerating(true);
     
     const basePrompt = buildPrompt();
     const prompt = `${basePrompt}
 
-Write this content clearly and professionally. Use proper structure, clear sections, and bullet points where appropriate.
-
-CRITICAL FORMATTING: Return ONLY plain text with NO markdown:
-- NO ** for bold, NO * for italic, NO __ for underline, NO # for headers, NO \` for code
-- Use ALL CAPS for section headers on their own lines
-- Use bullet points (•) or dashes (-) for lists  
-- Use line breaks and spacing for structure
-- Write clean, formatted plain text
+Write this content clearly and professionally. Use markdown formatting:
+- Use ## for main section headers
+- Use **bold** for emphasis on key points
+- Use bullet points (- or *) for lists
+- Use clear paragraph breaks
 
 Return as JSON:
 {
-  "content": "your content here"
+  "content": "your markdown content here"
 }`;
   
     try {
@@ -162,23 +187,16 @@ Return as JSON:
         outputText = outputText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
         parsed = JSON.parse(outputText);
         
-        // Strip any markdown that got through
-        let content = parsed.content;
-        content = content
-          .replace(/\*\*(.+?)\*\*/g, '$1')
-          .replace(/\*(.+?)\*/g, '$1')
-          .replace(/__(.+?)__/g, '$1')
-          .replace(/`(.+?)`/g, '$1')
-          .replace(/^#{1,6}\s+/gm, '')
-          .replace(/^\s*[-*+]\s+/gm, '• ');
-        
-        setOutput(content);
+        // Convert markdown to HTML
+        const htmlContent = markdownToHtml(parsed.content);
+        setOutput(htmlContent);
       } catch (e) {
-        setOutput(data.output);
+        // Fallback: try to convert the raw output
+        setOutput(markdownToHtml(data.output));
       }
     } catch (error) {
       console.error("Error:", error);
-      setOutput("Error generating output. Please try again.");
+      setOutput("<p class='text-red-600'>Error generating output. Please try again.</p>");
     } finally {
       setIsGenerating(false);
     }
@@ -373,9 +391,10 @@ Return as JSON:
             </div>
 
             <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 max-h-[500px] overflow-y-auto">
-              <div className="text-gray-800 leading-relaxed whitespace-pre-wrap text-sm font-mono">
-                {output}
-              </div>
+              <div 
+                className="text-gray-800 leading-relaxed prose prose-sm max-w-none"
+                dangerouslySetInnerHTML={{ __html: output }}
+              />
             </div>
 
             <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mt-4">
