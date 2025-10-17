@@ -24,7 +24,7 @@ export default async function handler(req, res) {
         temperature: 0.7,
         messages: [{
           role: "user",
-          content: `You are simulating how this content would perform in the real world for a lobbying/public affairs training game.
+          content: `You are simulating what would happen if this content were used in the real world for a lobbying/public affairs training game.
 
 SCENARIO: ${scenario.situation}
 REQUIREMENT: ${scenario.requirement}
@@ -32,23 +32,22 @@ REQUIREMENT: ${scenario.requirement}
 GENERATED CONTENT:
 ${output}
 
-Simulate what would realistically happen if this content were used. Be honest and specific about both successes and failures.
+Write a realistic 3-act narrative showing how this would play out:
 
-Consider:
-- Would it achieve the intended goal?
-- How would different stakeholders react?
-- What would work well?
-- What would fall short or backfire?
-- Be realistic - most content has both strengths and weaknesses
+ACT 1 - FIRST GATE: The immediate reception. Who sees it first? What's their first reaction? Do they approve it, or does it get kicked back? Be specific about who and what they say.
+
+ACT 2 - THE REAL TEST: Where does it go next? Congressional staffers? Media? Coalition partners? How does it perform under scrutiny? What questions come up? What works, what doesn't?
+
+ACT 3 - THE FALLOUT: What's the end result? Did it achieve the goal? What are the consequences - good or bad? What happens next?
+
+Use realistic details. Include quoted reactions. Be honest about both successes and failures.
 
 Return ONLY valid JSON with no markdown:
 {
-  "outcome": "[2-3 sentences describing what happened when this was used]",
-  "strengths": ["[specific thing that worked]", "[another strength]"],
-  "issues": ["[specific problem or gap]", "[another issue]"]
-}
-
-Be constructive but honest. Include 2-4 strengths and 2-4 issues.`
+  "first_gate": "[2-3 sentences with specific details and quotes]",
+  "where_it_goes": "[2-3 sentences about how it performs in the real test]",
+  "consequences": "[2-3 sentences about the final outcome]"
+}`
         }]
       })
     });
