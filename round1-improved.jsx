@@ -7,201 +7,191 @@ const Round1GameV3 = ({ onComplete }) => {
   const contentRef = useRef(null);
 
   const scenario = {
-    title: "Emergency: New EPA Rule Dropped",
-    urgency: "Partner meeting in 15 minutes",
-    situation: "EPA just released new air quality standards. Your client MidAtlantic Manufacturing has 12 coating facilities—8 of them now need ~$40M in retrofits by Jan 2027. CEO is panicking. Partner needs a briefing doc NOW.",
+    title: "Emergency: Data Breach Hits Customer Portal",
+    urgency: "Press briefing in 45 minutes",
+    situation: "A fintech startup detects a breach on its customer portal affecting 128k users. API keys were exposed, payments paused, and customers are posting screenshots on social. The COO needs to brief the CEO and prep holding statements now.",
   };
 
   const lessons = [
     {
       id: 'specifics',
       title: "Context beats vagueness",
-      lesson: "Generic questions → generic answers. Add client details, numbers, and constraints.",
-      
-      badPrompt: "Write a brief about the new EPA air quality rule and how it affects manufacturing companies.",
+      lesson: "Generic questions → generic answers. Add facts, numbers, and current constraints.",
+
+      badPrompt: "Write a brief about a data breach and what to do next.",
       badSnippet: {
         label: "What Joe Got",
-        text: `The EPA has recently updated its air quality standards, introducing stricter limits on volatile organic compounds (VOCs) for manufacturing facilities. Companies will need to evaluate their current emissions levels and determine appropriate compliance pathways.
+        text: `A data breach occurs when unauthorized individuals gain access to sensitive information. Companies should quickly assess what was accessed, notify impacted users, and work with cybersecurity experts to close vulnerabilities.
 
-Key considerations include:
-• Assessment of current emissions across all facilities
-• Review of available control technologies  
-• Timeline for implementation
-• Cost-benefit analysis of various approaches
+Key steps include:
+• Containing the breach
+• Notifying stakeholders
+• Reviewing legal obligations
+• Implementing stronger security measures
 
-Manufacturers should consider engaging with environmental consultants to develop a comprehensive compliance strategy...`,
-        problem: "Generic. Could apply to anyone. No urgency. No decisions."
+Organizations should also consider offering credit monitoring to affected users...`,
+        problem: "Reads like a blog post. No facts about the incident, no urgency, no decisions."
       },
-      
-      goodPrompt: `You're advising MidAtlantic Manufacturing's CEO who just learned about new EPA air quality standards.
 
-Context:
-• 12 coating facilities across 5 states
-• 8 facilities emit >25 tons/year VOCs (currently legal)
-• New rule: 85% VOC reduction required by Jan 2027
-• Initial estimate: $38-42M compliance cost
-• CEO meeting with board in 2 hours
+      goodPrompt: `You're advising the COO of BrightWallet, a fintech startup.
+
+Current facts:
+• Incident: Customer portal breach via exposed API keys
+• Impact: 128,400 users; card payments paused for 6 hours; screenshots circulating on Twitter
+• Risk: Possible PCI compliance violation; regulators notified but no media statement yet
+• Time: CEO press briefing in 45 minutes
 
 Write a 1-page executive brief that:
-1. Explains the rule change (what changed and why it matters)
-2. Our specific exposure (which facilities, timeline pressure)
-3. Three response options with pros/cons/rough costs
-4. Your recommendation with reasoning
+1) Explains what happened with specific impact numbers
+2) Lists immediate containment actions taken (or not)
+3) Outlines 3 options for public response (silence, holding statement, full disclosure) with pros/cons
+4) Ends with your recommendation + why
 
-Format for scanning: section headers, bullets, keep dense.`,
+Format: section headers, bullets, concise but concrete.`,
       goodSnippet: {
         label: "What You Get",
-        text: `EXECUTIVE BRIEF: EPA VOC Standards
-For: MidAtlantic Manufacturing CEO | Board Meeting: Today, 2pm
+        text: `EXECUTIVE BRIEF: CUSTOMER PORTAL BREACH
+For: CEO | Press Briefing: Today, 10:45 AM
 
-WHAT CHANGED
-• EPA dropped VOC limits from 250 ppm to 35 ppm (86% reduction)
-• Takes effect January 2027—only 26 months away
-• 8 of our 12 facilities immediately affected
+WHAT HAPPENED
+• 128,400 user records potentially accessed; API keys exposed for ~3 hours overnight
+• Payments paused at 7:10 AM; restored at 1:05 PM after key rotation
+• Screenshots of error pages on Twitter (≈400 shares); regulator notified 9:20 AM
 
-WHY THIS HURTS  
-• Normal retrofit timeline: 24-30 months (we have 26)
-• Our 8 facilities are big emitters (40-80 tons/year each)
-• Cannot run coating during retrofit (3-4 weeks per facility)
+OPTIONS (PUBLIC RESPONSE)
+1) HOLDING STATEMENT — Acknowledge outage + investigation underway (✓ fast; ✗ invites speculation)
+2) PARTIAL DISCLOSURE — Share scope + mitigation steps (✓ transparent; ✗ more media follow-ups)
+3) FULL DETAIL — Publish timeline + customer actions (✓ trust-building; ✗ legal review needed)
 
-RECOMMENDATION: Full Compliance (Option 1)
-Board needs to approve $40M tonight. Penalties and supply chain disruption cost more than the capital hit.`,
-        benefit: "Specific. Urgent. Actionable. Ready for the board meeting."
+RECOMMENDATION: Option 2 within 30 minutes; offer monitoring to affected users and schedule full update by EOD.`,
+        benefit: "Incident-specific facts, urgency, clear choices the CEO can act on."
       }
     },
     {
       id: 'constraints',
       title: "Constraints drive strategy",
-      lesson: "Generic options lists miss real tradeoffs. Add budget limits, operational constraints, and context.",
-      
-      badPrompt: "What options do we have for responding to this EPA rule?",
+      lesson: "Without real-world limits, you get fantasy plans. Add what time, money, and tools are available.",
+
+      badPrompt: "What are our options for responding to this breach?",
       badSnippet: {
         label: "What Joe Got",
-        text: `There are several potential approaches to address the new EPA regulations:
+        text: `There are several potential approaches to address the breach:
 
-1. Full Compliance
-Install necessary equipment to meet the new standards across all affected facilities.
+1. Investigate fully before saying anything.
+2. Issue a public statement acknowledging the issue.
+3. Offer credit monitoring to users.
+4. Work with cybersecurity firms to improve defenses.
 
-2. Legal Challenge
-Work with industry groups to challenge the rule through administrative or judicial processes.
-
-3. Partial Implementation
-Prioritize compliance at the most critical facilities while exploring options for others.
-
-4. Technology Solutions
-Investigate emerging technologies that might offer more cost-effective compliance pathways.
-
-Each approach has different costs, timelines, and risk profiles that should be carefully evaluated.`,
-        problem: "Everything sounds equally reasonable. No real tradeoffs. Can't make a decision."
+Each approach has benefits and tradeoffs that should be considered.`,
+        problem: "Vague list with no cost, timing, or sequencing. Nothing to prioritize."
       },
-      
-      goodPrompt: `Analyze MidAtlantic's response options to the EPA VOC rule. Consider:
 
-Our constraints:
-• Capital budget this year: $50M (already allocated)
-• Can't shut down more than 2 facilities simultaneously (supply chain)
-• Trade association is organizing legal challenge
-• 3 facilities are in attainment areas, 5 in non-attainment
+      goodPrompt: `Map response options for the breach given these constraints:
 
-Give me 3-4 strategic options beyond just 'comply' or 'sue.' For each:
-• Name it (2-3 words)
-• Core approach
-• Pros (✓) and Cons (✗) with specifics
-• Ballpark cost and timeline
+What we know
+• Engineering can ship a patch in ~24 hours; full forensic report in 5 days
+• Legal clearance for public statements takes 30 minutes minimum
+• Customer support can handle ~1,200 calls/hour; backlog already 600
+• Budget set aside for incident response this month: $120k
+
+Give 3-4 options beyond “wait and see.” For each:
+• Name (2-3 words)
+• Core approach + first 3 steps in next 2 hours
+• Pros (✓) / Cons (✗) with specifics (costs, team load)
+• Time + spend estimate
 • Risk level (Low/Med/High)
 
-End with which you'd recommend and one-sentence why.`,
+End with your recommendation and 1-sentence rationale.`,
       goodSnippet: {
         label: "What You Get",
         text: `STRATEGIC OPTIONS ANALYSIS
 
-Option 1: PARALLEL TRACK
-Start compliance prep while joining legal challenge
-✓ Preserves legal rights without delaying engineering
-✓ If challenge fails, we're ahead of competitors
-✗ Spend $4-6M on engineering before knowing outcome
-Cost: $42M total | Timeline: 26 months | Risk: MEDIUM
+Option 1: HOLD & PATCH
+Freeze new logins; release patch within 24h; minimal public detail
+✓ Low legal risk
+✗ Trust hit grows hourly; support backlog balloons
+Time: 24h | Spend: $40k (forensics) | Risk: MEDIUM
 
-Option 2: CONSOLIDATION PLAY
-Close 3 facilities, shift production to compliant sites
-✓ Only retrofit 5 facilities instead of 8 (~$12M savings)
-✗ 180 job cuts (political/community relations hit)
-✗ Stranded real estate assets (~$15M)
-Cost: $28M + $15M stranded | Timeline: 18 months | Risk: MEDIUM-HIGH
+Option 2: TRANSPARENT PATCH
+Issue holding statement now; outline scope + next update; ship patch in 24h
+✓ Calms press/speculation; shows ownership
+✗ Requires legal + PR + eng synced in 45 min
+Time: 24h | Spend: $65k | Risk: LOW-MEDIUM
 
-RECOMMENDATION: Geofence Strategy
-Prioritizes highest enforcement risk while preserving optionality if legal challenge succeeds.`,
-        benefit: "Real tradeoffs. Actual costs. Clear risks. Can defend a choice."
+Option 3: FULL MAKE-GOOD
+Transparent patch + free monitoring + account protection checklist
+✓ Trust boost, reduces churn risk
+✗ Higher cost; sets precedent for future incidents
+Time: 24h | Spend: $120k | Risk: LOW
+
+RECOMMENDATION: Option 2 to meet the 45-minute briefing, then reassess after forensics.`,
+        benefit: "Concrete steps, costs, and staffing make the tradeoffs real. Leader can decide."
       }
     },
     {
       id: 'role',
       title: "Role shapes relevance",
-      lesson: "Same info, different audiences. Define who needs this and how they'll use it.",
-      
-      badPrompt: "Summarize MidAtlantic's EPA situation for the leadership team.",
+      lesson: "Same facts land differently for each audience. Say who it's for and how they'll use it.",
+
+      badPrompt: "Summarize the breach for the leadership team.",
       badSnippet: {
         label: "What Joe Got",
-        text: `EPA Air Quality Rule Impact Summary
+        text: `Security Incident Summary
 
-The Environmental Protection Agency has introduced new regulations regarding volatile organic compound (VOC) emissions that will have significant implications for MidAtlantic Manufacturing's operations.
+A data breach has occurred impacting customer information. The scope of the incident is being assessed and teams are working to determine the root cause.
 
-Affected Facilities:
-Eight of our twelve coating facilities will need to implement compliance measures. These facilities currently emit VOCs at levels that, while legal under existing rules, will exceed the new standards.
-
-Financial Impact:
-Initial estimates suggest total compliance costs between $38-42 million across all affected facilities. This represents a significant capital expenditure that will need to be planned and budgeted appropriately.
-
-Timeline:
-The compliance deadline is January 2027, providing approximately 26 months for implementation...
-
-Leadership should consider forming a cross-functional task force to develop a detailed compliance strategy.`,
-        problem: "Same generic summary for everyone. CEO and Ops VP need totally different things."
+Next steps include notifying stakeholders, improving security protocols, and coordinating with legal and communications teams.`,
+        problem: "Leadership, engineers, and support teams all need different specifics."
       },
-      
-      goodPrompt: `Create two versions of the EPA situation update—same facts, different audiences:
 
-VERSION 1 - For CEO (Board presentation tonight)
-• Opens with bottom-line impact ($, timeline, risk)
-• 3 options with clear recommendation
-• Max 1 page, dense format
+      goodPrompt: `Create two versions of the breach update—same facts, different audiences:
 
-VERSION 2 - For Ops VP (Needs to brief facility managers tomorrow)
-• Opens with what's actually changing technically
-• Implementation logistics (downtime, staffing, sequencing)
-• What managers need to prepare their teams for
-• Max 2 pages, can be detailed
+VERSION 1 – CEO (press briefing in 45 minutes)
+• Open with bottom-line impact (users, downtime, financial risk)
+• 2-3 response options + your recommendation
+• Max 1 page, bullet-heavy
 
-Use the same EPA facts but frame them for how each person needs to USE the info.`,
+VERSION 2 – Engineering Leads (stabilizing services today)
+• Start with technical root cause and current telemetry
+• Concrete asks for next 4 hours (patch, monitoring, rollback plan)
+• What to document for forensics/PCI
+• Max 2 pages, specific and actionable
+
+Use the same breach facts but tailor for what each audience must do next.`,
       goodSnippet: {
         label: "What You Get",
         text: `VERSION 1: FOR CEO
-EPA VOC Rule — Board Decision Tonight
+Customer Portal Breach — Press Briefing 10:45 AM
 
 BOTTOM LINE
-Need $40M board approval tonight. 8 facilities face Jan 2027 deadline. Delay = $37K/day penalties.
+• 128k users affected; payments paused 5h 55m; no evidence of transfers
+• Options: Holding statement vs partial disclosure vs full detail
+• Recommendation: Partial disclosure now; commit to full update by 6 PM
 
-Board Ask: Approve $40M. Alternative is regulatory exposure + supply chain chaos worth more than the savings.
+ASK
+Approve credit monitoring budget ($60k) + greenlight holding statement in next 20 minutes.
 
 ---
 
-VERSION 2: FOR OPS VP  
-EPA VOC Rule — Facility Manager Brief
+VERSION 2: FOR ENGINEERING LEADS
+Customer Portal Breach — Stabilize Today
 
-WHAT'S CHANGING TECHNICALLY
-• Current: 250 ppm VOC limit (we run 180-280 ppm)
-• New: 35 ppm limit starting Jan 2027
-• Likely solution: Thermal oxidizers at each site
+ROOT CAUSE (CURRENT): API key leaked via misconfigured CI job; keys rotated 9:05 AM
+CURRENT STATE: No active exfil detected post-rotation; payment queue draining slowly
 
-IMPLEMENTATION REALITY
-• Timeline: 26 months total. Install = 3-4 weeks downtime per facility
-• Sequencing: Can only do 2 facilities at once (supply chain)
-• Staffing: Need 2-3 additional operators per site (24/7 monitoring)
-• Energy: +40% natural gas usage per facility
+NEXT 4 HOURS
+• Patch CI job + add secrets scanning (owner: DevOps)
+• Double rate-limit auth endpoints + add anomaly alerts (owner: Backend)
+• Create rollback plan for payments service if error rate >3% (owner: Payments)
 
-NEXT STEPS FOR YOUR TEAM
-Facility managers meeting next week. Bring: site layouts, utility specs, production schedules.`,
-        benefit: "CEO gets decision points. Ops gets implementation reality. Same facts, useful framing."
+LOGGING/FOR FORENSICS
+• Preserve gateway logs 48h
+• Snapshot affected DB tables before patch deploy
+• Tag incident in PagerDuty for postmortem
+
+TEAM COMMS
+Slack updates every 30 minutes; ship patch ETA 4 PM.`,
+        benefit: "Two audiences, two uses: CEO gets the decision, engineers get the tasks. Same facts, tailored actions."
       }
     }
   ];
