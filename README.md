@@ -168,3 +168,73 @@ Issues? Check:
 2. Browser console for errors
 3. Anthropic API status page
 # JoeGame
+
+## Applying a patch (for new contributors)
+If someone shares a patch file (for example `fix.patch`), you can apply it to this repository with the following steps:
+
+1. Save the patch file into the repo root (the same folder that contains `package.json`).
+2. Run `git apply fix.patch` to apply the changes.
+3. Run `git status` to confirm the expected files changed. If something looks wrong, you can undo with `git apply -R fix.patch`.
+4. Install dependencies if needed (`npm install`) and run a quick check (`npm run build`) to ensure the patch works.
+5. Commit the changes once you are satisfied.
+
+If the patch does not apply cleanly, it likely means your branch is out of date. Run `git pull` to get the latest changes, then try applying the patch again.
+
+## Committing your changes (Git basics)
+When you're ready to save your work to the repo:
+
+1. **Check what changed**
+   ```bash
+   git status
+   ```
+
+2. **Stage the files you want to include** (replace `FILE` with actual paths, or use `.` for everything)
+   ```bash
+   git add FILE
+   # or
+   git add .
+   ```
+
+3. **Commit with a descriptive message**
+   ```bash
+   git commit -m "Describe what you changed"
+   ```
+
+4. **Push if you're using a remote** (skip this if you don't have one set up yet)
+   ```bash
+   git push
+   ```
+
+Tip: If Git complains about your name/email, configure them once with:
+```bash
+git config user.name "Your Name"
+git config user.email "you@example.com"
+```
+
+## Committing changes without the command line (GitHub web UI)
+If you prefer not to use terminal commands, you can still commit updates entirely in GitHub:
+
+1. **Open the file to edit in GitHub**
+   - Navigate to the repository on GitHub.
+   - Click the file you want to change, then click the pencil icon (Edit this file).
+
+2. **Make your edits in the browser**
+   - Edit the text directly in the GitHub editor.
+   - Scroll down to the "Commit changes" form.
+
+3. **Describe your change and create the commit**
+   - Enter a short commit message (e.g., "Generalize round 1 examples").
+   - Optionally add a longer description in the text area below.
+   - Choose "Commit directly to the <branch> branch" or create a new branch if you prefer.
+   - Click **Commit changes**.
+
+4. **Uploading new files**
+   - From the repository root, click **Add file → Upload files**.
+   - Drag/drop or select files from your computer.
+   - Add a commit message and click **Commit changes**.
+
+5. **If you need to revert a commit**
+   - Go to the **Commits** tab.
+   - Click the commit you want to undo, then click **Revert** and confirm. This creates a new commit that undoes the changes.
+
+This approach lets you keep working without a local terminal while still creating proper git history in the repo.
