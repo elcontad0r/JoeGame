@@ -7,191 +7,175 @@ const Round1GameV3 = ({ onComplete }) => {
   const contentRef = useRef(null);
 
   const scenario = {
-    title: "Emergency: Data Breach Hits Customer Portal",
-    urgency: "Press briefing in 45 minutes",
-    situation: "A fintech startup detects a breach on its customer portal affecting 128k users. API keys were exposed, payments paused, and customers are posting screenshots on social. The COO needs to brief the CEO and prep holding statements now.",
+    title: "Plan a Saturday Skillshare Day",
+    urgency: "Draft the plan tonight",
+    situation: "Your community center is hosting a relaxed weekend event with DIY classes (budgeting basics, meal prep, bike repair). Four volunteer instructors, 60 RSVPs so far, and you need to publish a plan with roles, timing, and what to bring before people head to bed.",
   };
 
   const lessons = [
     {
       id: 'specifics',
       title: "Context beats vagueness",
-      lesson: "Generic questions → generic answers. Add facts, numbers, and current constraints.",
+      lesson: "Generic asks lead to filler. Share the real details of your situation.",
 
-      badPrompt: "Write a brief about a data breach and what to do next.",
+      badPrompt: "Outline a community event with some activities.",
       badSnippet: {
         label: "What Joe Got",
-        text: `A data breach occurs when unauthorized individuals gain access to sensitive information. Companies should quickly assess what was accessed, notify impacted users, and work with cybersecurity experts to close vulnerabilities.
+        text: `Community events can include workshops, food, and time for people to connect. It's important to pick a venue, schedule activities, and let people know what to expect.
 
 Key steps include:
-• Containing the breach
-• Notifying stakeholders
-• Reviewing legal obligations
-• Implementing stronger security measures
-
-Organizations should also consider offering credit monitoring to affected users...`,
-        problem: "Reads like a blog post. No facts about the incident, no urgency, no decisions."
+• Choose activities
+• Invite participants
+• Provide supplies
+• Share the schedule`,
+        problem: "It could describe any event. Nothing about your people, space, or timing."
       },
 
-      goodPrompt: `You're advising the COO of BrightWallet, a fintech startup.
+      goodPrompt: `You're helping a community center publish Saturday's "Skillshare Day" plan.
 
-Current facts:
-• Incident: Customer portal breach via exposed API keys
-• Impact: 128,400 users; card payments paused for 6 hours; screenshots circulating on Twitter
-• Risk: Possible PCI compliance violation; regulators notified but no media statement yet
-• Time: CEO press briefing in 45 minutes
+Details:
+• Classes: budgeting basics, beginner meal prep, bike repair (45 minutes each)
+• People: 4 volunteer instructors; 60 RSVPs; expecting 20 drop-ins
+• Space: 3 rooms + outdoor patio; coffee/tea available, no stove
+• Timing: event runs 10 AM–1 PM; want a draft schedule before people go to bed tonight
+• Needs: who greets folks, supply list, what attendees should bring or prep
 
-Write a 1-page executive brief that:
-1) Explains what happened with specific impact numbers
-2) Lists immediate containment actions taken (or not)
-3) Outlines 3 options for public response (silence, holding statement, full disclosure) with pros/cons
-4) Ends with your recommendation + why
+Create a 1-page plan that:
+1) Lists the schedule with room assignments and transitions
+2) Names volunteers + what they'll handle (teaching, setup, check-in)
+3) Provides a short “what to bring” note to include in the email/post
+4) Flags anything to confirm Friday night
 
-Format: section headers, bullets, concise but concrete.`,
+Format: headers + bullets; warm, practical tone.`,
       goodSnippet: {
         label: "What You Get",
-        text: `EXECUTIVE BRIEF: CUSTOMER PORTAL BREACH
-For: CEO | Press Briefing: Today, 10:45 AM
+        text: `SATURDAY SKILLSHARE — DRAFT SCHEDULE
+Audience: RSVP list + community Slack | Send tonight
 
-WHAT HAPPENED
-• 128,400 user records potentially accessed; API keys exposed for ~3 hours overnight
-• Payments paused at 7:10 AM; restored at 1:05 PM after key rotation
-• Screenshots of error pages on Twitter (≈400 shares); regulator notified 9:20 AM
+TIMING + ROOMS
+10:00–10:15 — Welcome + coffee (Lobby)
+10:15–11:00 — Budgeting Basics (Room A)
+10:15–11:00 — Bike Repair 101 (Patio)
+11:05–11:50 — Beginner Meal Prep (Room B)
+11:55–12:30 — Ask-Me-Anything with all instructors (Room A)
+12:30–1:00 — Clean-up + share resources
 
-OPTIONS (PUBLIC RESPONSE)
-1) HOLDING STATEMENT — Acknowledge outage + investigation underway (✓ fast; ✗ invites speculation)
-2) PARTIAL DISCLOSURE — Share scope + mitigation steps (✓ transparent; ✗ more media follow-ups)
-3) FULL DETAIL — Publish timeline + customer actions (✓ trust-building; ✗ legal review needed)
+ROLES
+• Check-in + name tags: Maya + Leo
+• Room setup + timers: Priya
+• Instructors: Ana (Budgeting), Devin (Bike), Chris (Meal prep)
 
-RECOMMENDATION: Option 2 within 30 minutes; offer monitoring to affected users and schedule full update by EOD.`,
-        benefit: "Incident-specific facts, urgency, clear choices the CEO can act on."
+WHAT TO BRING
+Comfortable clothes; notebook; bike if you want practice; food storage container for sample meal prep.
+
+FRIDAY NIGHT CHECKS
+Confirm projector in Room A, set out coffee supplies, print 70 name tags.`,
+        benefit: "Uses real details to produce a plan people can actually follow."
       }
     },
     {
       id: 'constraints',
       title: "Constraints drive strategy",
-      lesson: "Without real-world limits, you get fantasy plans. Add what time, money, and tools are available.",
+      lesson: "Real limits steer the plan. Spell out time, space, and budget.",
 
-      badPrompt: "What are our options for responding to this breach?",
+      badPrompt: "What are our options for making this event good?",
       badSnippet: {
         label: "What Joe Got",
-        text: `There are several potential approaches to address the breach:
+        text: `There are several possible ways to make an event successful:
 
-1. Investigate fully before saying anything.
-2. Issue a public statement acknowledging the issue.
-3. Offer credit monitoring to users.
-4. Work with cybersecurity firms to improve defenses.
+1. Promote it more.
+2. Provide refreshments.
+3. Have clear signage.
+4. Ask for feedback afterward.
 
-Each approach has benefits and tradeoffs that should be considered.`,
-        problem: "Vague list with no cost, timing, or sequencing. Nothing to prioritize."
+Each option could help people enjoy the event.`,
+        problem: "True but unhelpful. No sense of what fits your evening or budget."
       },
 
-      goodPrompt: `Map response options for the breach given these constraints:
+      goodPrompt: `Plan the event with these constraints:
 
-What we know
-• Engineering can ship a patch in ~24 hours; full forensic report in 5 days
-• Legal clearance for public statements takes 30 minutes minimum
-• Customer support can handle ~1,200 calls/hour; backlog already 600
-• Budget set aside for incident response this month: $120k
+Facts
+• Budget: $250 for snacks/printing
+• Setup: doors open 9:30 AM; 3 rooms with chairs only; patio has 2 folding tables
+• Volunteers: 4 instructors + 2 helpers; everyone leaves by 1:30 PM
+• Supplies on hand: projector, extension cords, flip charts, markers; no stove/oven
 
-Give 3-4 options beyond “wait and see.” For each:
+Give 3 options for running the morning. For each, include:
 • Name (2-3 words)
-• Core approach + first 3 steps in next 2 hours
-• Pros (✓) / Cons (✗) with specifics (costs, team load)
-• Time + spend estimate
-• Risk level (Low/Med/High)
+• First 3 steps tonight + first 3 steps Saturday morning
+• Pros (✓) / Cons (✗) with costs/time
+• Any supply gaps to solve
 
-End with your recommendation and 1-sentence rationale.`,
+End with the option you recommend and why it fits the constraints.`,
       goodSnippet: {
         label: "What You Get",
-        text: `STRATEGIC OPTIONS ANALYSIS
+        text: `OPTION SET
 
-Option 1: HOLD & PATCH
-Freeze new logins; release patch within 24h; minimal public detail
-✓ Low legal risk
-✗ Trust hit grows hourly; support backlog balloons
-Time: 24h | Spend: $40k (forensics) | Risk: MEDIUM
+Option 1: SIMPLE TRACK
+Tonight: confirm rooms; print 70 name tags; draft one email.
+Saturday: set up chairs at 9:30; coffee at 9:45; 1 helper floats.
+✓ Easiest to run; ✓ lowest cost ($90 coffee/snacks)
+✗ Less hands-on help during classes
 
-Option 2: TRANSPARENT PATCH
-Issue holding statement now; outline scope + next update; ship patch in 24h
-✓ Calms press/speculation; shows ownership
-✗ Requires legal + PR + eng synced in 45 min
-Time: 24h | Spend: $65k | Risk: LOW-MEDIUM
+Option 2: GUIDED
+Tonight: assign greeters; prep short handouts per class; label rooms.
+Saturday: stagger start times by 5 minutes; helpers rotate between rooms.
+✓ Feels organized; ✓ good for newcomers
+✗ $140 printing/snacks; helpers stretched during transitions
 
-Option 3: FULL MAKE-GOOD
-Transparent patch + free monitoring + account protection checklist
-✓ Trust boost, reduces churn risk
-✗ Higher cost; sets precedent for future incidents
-Time: 24h | Spend: $120k | Risk: LOW
+Option 3: RESOURCE-RICH
+Tonight: add QR codes to slides; pre-record quick tips; buy extra markers/tools.
+Saturday: one helper per room + floating host.
+✓ High-quality experience; ✓ reusable materials later
+✗ Uses most of $250 budget; more prep tonight
 
-RECOMMENDATION: Option 2 to meet the 45-minute briefing, then reassess after forensics.`,
-        benefit: "Concrete steps, costs, and staffing make the tradeoffs real. Leader can decide."
+Recommendation: Option 2 — fits budget/time while keeping things smooth for first-timers.`,
+        benefit: "Shows tradeoffs using your actual limits so you can pick confidently."
       }
     },
     {
       id: 'role',
       title: "Role shapes relevance",
-      lesson: "Same facts land differently for each audience. Say who it's for and how they'll use it.",
+      lesson: "People need different cuts of the same info. Say who it's for and what they need to do.",
 
-      badPrompt: "Summarize the breach for the leadership team.",
+      badPrompt: "Summarize the event for everyone.",
       badSnippet: {
         label: "What Joe Got",
-        text: `Security Incident Summary
+        text: `Event Overview
 
-A data breach has occurred impacting customer information. The scope of the incident is being assessed and teams are working to determine the root cause.
+We are hosting a community event. People will attend workshops and enjoy refreshments.
 
-Next steps include notifying stakeholders, improving security protocols, and coordinating with legal and communications teams.`,
-        problem: "Leadership, engineers, and support teams all need different specifics."
+Next steps include finalizing the schedule and making sure people know where to go.`,
+        problem: "Helpers need instructions. Attendees need what to expect. Everybody gets the same vague note."
       },
 
-      goodPrompt: `Create two versions of the breach update—same facts, different audiences:
+      goodPrompt: `Create two versions of the plan — same event facts, different audiences:
 
-VERSION 1 – CEO (press briefing in 45 minutes)
-• Open with bottom-line impact (users, downtime, financial risk)
-• 2-3 response options + your recommendation
-• Max 1 page, bullet-heavy
+VERSION 1 – Attendees (email + post)
+• Friendly intro + what to expect Saturday
+• Start time, room locations, what to bring, childcare/no childcare
+• Note about snacks/coffee + parking/bike racks
+• 150 words, warm tone
 
-VERSION 2 – Engineering Leads (stabilizing services today)
-• Start with technical root cause and current telemetry
-• Concrete asks for next 4 hours (patch, monitoring, rollback plan)
-• What to document for forensics/PCI
-• Max 2 pages, specific and actionable
+VERSION 2 – Volunteers (checklist)
+• Room setup tasks + who is assigned where
+• Timing for check-in table, coffee setup, and cleanup
+• Reminders for safety/comfort (hydration, breaks, accessibility)
+• Bullet-only, no fluff
 
-Use the same breach facts but tailor for what each audience must do next.`,
+Use the same details but tailor for what each group needs to do.`,
       goodSnippet: {
         label: "What You Get",
-        text: `VERSION 1: FOR CEO
-Customer Portal Breach — Press Briefing 10:45 AM
+        text: `VERSION 1: ATTENDEE EMAIL (148 words)
+Hi neighbors! Saturday's Skillshare Day is 10 AM–1 PM. Check in at the lobby for name tags. Budgeting Basics is in Room A, Bike Repair is on the patio (bring your bike if you want practice), and Meal Prep is in Room B. Coffee/tea + light snacks provided. Please bring a notebook and a food container if you'd like leftovers. Parking is free on 3rd St; bike racks by the patio. See you there!
 
-BOTTOM LINE
-• 128k users affected; payments paused 5h 55m; no evidence of transfers
-• Options: Holding statement vs partial disclosure vs full detail
-• Recommendation: Partial disclosure now; commit to full update by 6 PM
-
-ASK
-Approve credit monitoring budget ($60k) + greenlight holding statement in next 20 minutes.
-
----
-
-VERSION 2: FOR ENGINEERING LEADS
-Customer Portal Breach — Stabilize Today
-
-ROOT CAUSE (CURRENT): API key leaked via misconfigured CI job; keys rotated 9:05 AM
-CURRENT STATE: No active exfil detected post-rotation; payment queue draining slowly
-
-NEXT 4 HOURS
-• Patch CI job + add secrets scanning (owner: DevOps)
-• Double rate-limit auth endpoints + add anomaly alerts (owner: Backend)
-• Create rollback plan for payments service if error rate >3% (owner: Payments)
-
-LOGGING/FOR FORENSICS
-• Preserve gateway logs 48h
-• Snapshot affected DB tables before patch deploy
-• Tag incident in PagerDuty for postmortem
-
-TEAM COMMS
-Slack updates every 30 minutes; ship patch ETA 4 PM.`,
-        benefit: "Two audiences, two uses: CEO gets the decision, engineers get the tasks. Same facts, tailored actions."
+VERSION 2: VOLUNTEER CHECKLIST
+ARRIVE 9:30 — set up check-in table (Maya/Leo)
+ROOMS — A: chairs + projector; Patio: 2 tables + bike stand; B: tables + flip charts
+COFFEE — fill urn; set cups/napkins; start at 9:45
+DURING — Priya floats with timer/cleanup; instructors keep sessions to 45 minutes
+CLOSE — wipe tables; stack chairs; pack projector/extension cords; trash out by 1:20 PM`,
+        benefit: "Same facts, two outputs. Each audience sees what they need to do next."
       }
     }
   ];

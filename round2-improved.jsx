@@ -12,9 +12,9 @@ const Round2GameV2 = ({ onComplete }) => {
   });
 
   const scenario = {
-    title: "Plot Twist: Product Recall Brief",
-    urgency: "Customer update due in 90 minutes",
-    situation: "A smart home company halted shipments after 22,000 hubs reported battery overheating after a firmware update. Two minor injuries, trending on social, and retailers want direction. You need a clear communication pack fast."
+    title: "Create a Friendly Welcome Pack",
+    urgency: "Share with members tonight",
+    situation: "Your neighborhood maker club is kicking off monthly meetups. 120 people expressed interest, 45 have RSVPed for the first evening, and two local shops donated supplies. You want a clear, welcoming note that sets expectations and helps volunteers prep."
   };
 
   const [isGenerating, setIsGenerating] = useState(false);
@@ -25,19 +25,19 @@ const Round2GameV2 = ({ onComplete }) => {
       title: "Context",
       options: [
         {
-          id: 'safety',
-          label: "Safety Facts",
-          promptText: "Firmware update triggered overheating in 22,000 smart hubs; 2 minor injuries; shipments paused; retail partners awaiting guidance.",
+          id: 'club-basics',
+          label: "Club Snapshot",
+          promptText: "Monthly maker nights at the community center; 120 interested, 45 RSVPs for kickoff; mix of teens and adults; beginner-friendly.",
         },
         {
-          id: 'customers',
-          label: "Customer Impact",
-          promptText: "8,400 support tickets in 6 hours; refund requests up 3x; social hashtag trending; customers asking if devices are safe to use tonight.",
+          id: 'support',
+          label: "Volunteer Details",
+          promptText: "6 volunteers: 2 greeters, 3 project leads (painting, 3D pens, soldering), 1 cleanup lead; each can prep for 90 minutes Friday night.",
         },
         {
-          id: 'regulators',
-          label: "Regulatory Angle",
-          promptText: "Consumer safety commission alerted; company preparing voluntary recall paperwork; needs to show proactive steps to avoid penalties.",
+          id: 'space-supplies',
+          label: "Space + Supplies",
+          promptText: "3 rooms + hallway tables; outlets available; donated supplies include paints, brushes, filament, safety glasses; snacks budget $150.",
         }
       ]
     },
@@ -45,19 +45,19 @@ const Round2GameV2 = ({ onComplete }) => {
       title: "Format",
       options: [
         {
-          id: 'customer-email',
-          label: "Customer Email/FAQ",
-          promptText: "Email + mini FAQ: short intro, clear safety steps, numbered FAQ bullets. Max 250 words.",
+          id: 'welcome-email',
+          label: "Welcome Email + FAQ",
+          promptText: "Friendly email with 4-5 FAQ bullets: where to park, what to bring, skill level, timing. Max 220 words.",
         },
         {
-          id: 'exec-brief',
-          label: "Executive Brief",
-          promptText: "1-page brief: summary, impact numbers, decision options, recommended path with rationale.",
+          id: 'one-pager',
+          label: "One-Page Plan",
+          promptText: "Single page: schedule, room assignments, supplies list, who is hosting each table.",
         },
         {
-          id: 'social',
-          label: "Social Holding Statement",
-          promptText: "Thread for social channels: 3-4 concise posts acknowledging issue, immediate actions, and where to get updates.",
+          id: 'social-thread',
+          label: "Social Thread",
+          promptText: "Series of 3-4 short posts inviting folks to drop by, with emojis and a link to RSVP.",
         }
       ]
     },
@@ -65,19 +65,19 @@ const Round2GameV2 = ({ onComplete }) => {
       title: "Audience",
       options: [
         {
-          id: 'customers',
-          label: "Concerned Customers",
-          promptText: "Everyday consumers who want to know if their devices are safe and what to do right now.",
+          id: 'attendees',
+          label: "First-Time Attendees",
+          promptText: "People curious about making something simple after work; want to know if it's beginner-friendly and what it costs (it's free).",
         },
         {
-          id: 'support',
-          label: "Support Leads",
-          promptText: "Support managers triaging tickets; need precise steps, scripts, and escalation rules.",
+          id: 'volunteers',
+          label: "Volunteer Crew",
+          promptText: "Greeters + project leads who need clear tasks, timing, and a heads-up on supplies to bring from home.",
         },
         {
-          id: 'retail',
-          label: "Retail Partners",
-          promptText: "Retail buyers and store managers who must pause sales, handle returns, and relay instructions to staff.",
+          id: 'donors',
+          label: "Local Donors",
+          promptText: "Two nearby shops offering supplies; they want to see their support acknowledged and know when to drop off materials.",
         }
       ]
     },
@@ -85,19 +85,19 @@ const Round2GameV2 = ({ onComplete }) => {
       title: "Constraints",
       options: [
         {
-          id: '90-min',
-          label: "90-Min Turnaround",
-          promptText: "Need draft in 90 minutes to brief leadership; no time for new creative assets; rely on text-only guidance.",
-        },
-        {
           id: 'word-cap',
-          label: "100-Word Cap",
-          promptText: "Keep public-facing copy under 100 words so it fits email + social without edits.",
+          label: "200-Word Cap",
+          promptText: "Keep attendee-facing copy under 200 words so people will read it on their phone.",
         },
         {
-          id: 'translation',
-          label: "Ready for Translation",
-          promptText: "Write in short sentences without idioms so translation team can localize quickly tonight.",
+          id: 'warm-tone',
+          label: "Warm + Plain Language",
+          promptText: "Avoid jargon; write like a friendly neighbor inviting people over; short sentences welcome.",
+        },
+        {
+          id: 'printable',
+          label: "Printable Tonight",
+          promptText: "Needs to print cleanly in black-and-white; no links required; simple headers and bullets.",
         }
       ]
     },
@@ -105,19 +105,19 @@ const Round2GameV2 = ({ onComplete }) => {
       title: "Goal",
       options: [
         {
-          id: 'reassure',
-          label: "Reassure + Retain",
-          promptText: "Primary goal: calm customers, prevent churn, and keep devices powered off until patch ships.",
+          id: 'show-up',
+          label: "Boost Show-Ups",
+          promptText: "Primary goal: make people excited to attend and know exactly where/when to arrive.",
         },
         {
-          id: 'equip-support',
-          label: "Equip Support",
-          promptText: "Primary goal: give support leads a script and decision tree to deflect escalations and capture incidents.",
+          id: 'prep-volunteers',
+          label: "Prep Volunteers",
+          promptText: "Primary goal: give volunteers a simple checklist so setup feels calm, not rushed.",
         },
         {
-          id: 'coordinate-retail',
-          label: "Coordinate Retail",
-          promptText: "Primary goal: align retail partners on stop-sale instructions, signage, and how to process returns."
+          id: 'thank-donors',
+          label: "Thank Donors",
+          promptText: "Primary goal: highlight donor support and invite them to stop by for a quick shout-out."
         }
       ]
     }
@@ -203,7 +203,7 @@ Return as JSON:
   };
 
   const buildPrompt = () => {
-    let prompt = "Draft communications for a smart home product recall with overheating issues.\n\n";
+    let prompt = "Draft a warm, practical welcome note for a community maker night.\n\n";
     
     if (selections.context) {
       prompt += `Context: ${ingredients.context.options.find(o => o.id === selections.context).promptText}\n\n`;
@@ -303,7 +303,7 @@ Return as JSON:
         <div className="bg-gray-100 border-2 border-gray-400 rounded-lg p-3">
           <div className="text-xs font-bold text-gray-600 mb-1">TASK</div>
           <p className="text-sm font-semibold text-gray-800">
-            Draft the communication pack for the overheating recall.
+            Draft the welcome pack for the maker night kickoff.
           </p>
         </div>
         
