@@ -398,7 +398,7 @@ const Round3Game = ({ onBack }) => {
           <textarea
             value={userTopic}
             onChange={(e) => setUserTopic(e.target.value)}
-            placeholder="e.g., 'Policy brief on renewable energy subsidies' or 'Messaging strategy for healthcare reform' or 'leave blank for general scenario'"
+            placeholder="e.g., 'Customer onboarding for new CRM rollout' or 'Back-to-school email for parents' or 'leave blank for a surprise scenario'"
             className="w-full h-32 p-4 border-2 border-gray-300 rounded-lg focus:border-purple-500 focus:outline-none text-sm resize-none mb-4"
           />
 

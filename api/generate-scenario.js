@@ -12,37 +12,34 @@ export default async function handler(req, res) {
     const timestamp = new Date().toISOString();
     
     // Build the prompt based on whether user provided a topic
-    const promptContent = userTopic && userTopic.trim() 
+    const promptContent = userTopic && userTopic.trim()
       ? `[Scenario ID: ${randomSeed} | Generated: ${timestamp}]
 
-You are generating a crisis scenario for a public affairs/lobbying training game.
+You are generating a crisis scenario for a cross-industry AI prompting training game.
 
 THE USER IS CURRENTLY WORKING ON: "${userTopic}"
 
-Generate a realistic crisis scenario that is DIRECTLY RELEVANT to their current work. The scenario should feel like something they might actually encounter in their current project.
+Generate a realistic, high-pressure scenario that is DIRECTLY RELEVANT to their current work. Make it feel like something they might actually face this week.
 
-Create a high-pressure scenario with:
+Include:
 1. Time pressure (meeting/deadline in 60-120 minutes)
-2. Specific numbers/facts (dollar amounts, employee counts, facility locations)
-3. Named entities (cities, Congressional committees, agencies)
-4. Clear stakes (jobs, revenue, market position)
-
-The scenario should relate to their stated topic/project but present an unexpected twist or urgent development that requires immediate action.
+2. Concrete facts (numbers, locations, stakeholders)
+3. Named entities (companies, cities, regulators, partners)
+4. Clear stakes (safety, trust, revenue, operations)
 
 VARY THE CRISIS TYPE:
-- Regulatory crisis (new rule, enforcement action, investigation)
-- Legislative threat (bill introduced, amendment proposed, hearing announced)
-- Media/PR crisis (report published, allegations made, viral social media)
-- Stakeholder conflict (activist campaign, union action, community opposition)
-- Legal development (lawsuit filed, court ruling, settlement pressure)
+- Product or safety issue (recall, outage, defect)
+- Media/PR flare-up (viral posts, investigative report, influencer callout)
+- Customer or stakeholder escalation (enterprise client, parents, patients, investors)
+- Compliance or regulatory pressure (new rule, audit notice, investigation)
+- Market shock (competitor move, data leak, pricing backlash)
 
 VARY THE DELIVERABLE:
-- Press statement for media
-- Hill talking points for Congressional meeting
-- Stakeholder brief for investors/board
-- Employee communication for internal town hall
-- Coalition letter to agency/legislators
-- Op-ed draft for executive
+- Customer email/FAQ or holding statement
+- Executive brief with options
+- Stakeholder or investor update
+- Internal ops/support playbook
+- Social thread or press note
 
 Return ONLY valid JSON with no markdown:
 {
@@ -53,35 +50,33 @@ Return ONLY valid JSON with no markdown:
   "sector": "[specific industry]"
 }
 
-Make it feel urgent and directly relevant to their work.`
+Make it urgent and obviously tied to their domain.`
       : `[Scenario ID: ${randomSeed} | Generated: ${timestamp}]
 
-You are generating a UNIQUE crisis scenario for a public affairs/lobbying training game. Generate something DIFFERENT from typical FDA/pharma scenarios.
+You are generating a UNIQUE crisis scenario for a cross-industry AI prompting training game.
 
 VARY THE SCENARIO TYPE - rotate between:
-- Regulatory crisis (new rule, enforcement action, investigation)
-- Legislative threat (bill introduced, amendment proposed, hearing announced)
-- Media/PR crisis (report published, allegations made, viral social media)
-- Market event (competitor action, tech disruption, M&A announcement)
-- Stakeholder conflict (activist campaign, union action, community opposition)
-- Legal development (lawsuit filed, court ruling, settlement pressure)
+- Product or safety issue (recall, outage, defect)
+- Media/PR flare-up (viral posts, investigative report, influencer callout)
+- Customer or stakeholder escalation (enterprise client, parents, patients, investors)
+- Compliance or regulatory pressure (new rule, audit notice, investigation)
+- Market shock (competitor move, data leak, pricing backlash)
 
 VARY THE SECTOR - pick from:
-Telecom, Pharma, Energy (oil/gas/renewables), Fintech, Tech platforms, Manufacturing, Agriculture, Healthcare providers, Transportation, Real estate, Retail, Gaming/entertainment
+Fintech, Education, Consumer electronics, Healthcare providers, Retail/eCommerce, Transportation, Energy, Entertainment/Gaming, Real estate, Telecom, Manufacturing, Food/CPG
 
 VARY THE DELIVERABLE:
-- Press statement for media
-- Hill talking points for Congressional meeting
-- Stakeholder brief for investors/board
-- Employee communication for internal town hall
-- Coalition letter to agency/legislators
-- Op-ed draft for executive
+- Customer email/FAQ or holding statement
+- Executive brief with options
+- Stakeholder or investor update
+- Internal ops/support playbook
+- Social thread or press note
 
 Generate a realistic, high-pressure scenario with:
 1. Time pressure (meeting/deadline in 60-120 minutes)
-2. Specific numbers/facts (dollar amounts, employee counts, facility locations)
-3. Named entities (cities, Congressional committees, agencies)
-4. Clear stakes (jobs, revenue, market position)
+2. Specific numbers/facts (dollar amounts, user counts, locations)
+3. Named entities (cities, regulators, partners)
+4. Clear stakes (safety, trust, revenue, operations)
 
 Return ONLY valid JSON with no markdown:
 {
@@ -95,11 +90,11 @@ Return ONLY valid JSON with no markdown:
 Make each scenario feel distinct and urgent. Vary crisis types.
 
 EXAMPLE VARIETY (don't copy these, use as inspiration):
-- "Breaking: House Committee Announces Surprise Hearing on AI Content Moderation" (Tech)
-- "Emergency: Union Calls Strike at 3 East Coast Facilities" (Manufacturing)
-- "Alert: State AG Opens Investigation into Data Broker Practices" (Fintech)
-- "Urgent: Major Customer Announces Switch to Competitor" (Telecom)
-- "Crisis: Environmental Group Launches Campaign Against Pipeline Project" (Energy)`;
+- "Alert: Smart Thermostats Overheating After Firmware Push" (Consumer electronics)
+- "Emergency: School District CMS Hacked; Parent Data Posted" (Education)
+- "Breaking: Influencer Alleges Contamination in New Protein Drink" (Food/CPG)
+- "Urgent: Enterprise Client Suspends Contract After Outage" (SaaS)
+- "Crisis: Regulator Questions Patient Data Sharing Program" (Healthcare)`;
     
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",

@@ -20,7 +20,7 @@ const App = () => {
             The Prompt Challenge
           </h1>
           <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto">
-            See what breaks. Learn the framework. Write winning prompts.
+            Learn to write clear, accountable AI prompts for any team or domain.
           </p>
         </div>
 
@@ -80,7 +80,7 @@ const App = () => {
             <div className="text-xs font-bold text-orange-600 mb-2 tracking-wide">COMPETE</div>
             <h3 className="text-xl font-bold text-gray-900 mb-2">The Challenge</h3>
             <p className="text-gray-600 text-sm leading-relaxed mb-4">
-              Crisis scenario. Write from scratch. Make the leaderboard.
+              Tackle a fresh scenario. Write from scratch. Make the leaderboard.
             </p>
             <div className="flex items-center gap-2 text-sm">
               <Clock size={14} className="text-gray-400" />
@@ -114,7 +114,7 @@ const App = () => {
               <div>
                 <h3 className="font-bold text-gray-900 mb-1">The Stakes</h3>
                 <p className="text-sm text-gray-600">
-                  Mystery prize for top scorers. Best prompt engineers will be announced firm-wide.
+                  Mystery prize for top scorers. Best prompt engineers will be announced to the group.
                 </p>
               </div>
             </div>

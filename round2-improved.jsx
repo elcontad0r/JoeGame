@@ -12,9 +12,9 @@ const Round2GameV2 = ({ onComplete }) => {
   });
 
   const scenario = {
-    title: "Plot Twist: Client Needs Hill Talking Points",
-    urgency: "Senator's office just called - meeting in 2 hours",
-    situation: "Your MidAtlantic Manufacturing client's CEO is getting pulled into an emergency meeting with Senator Casey's office about the EPA rule. They need crisp talking points for a 15-minute conversation."
+    title: "Plot Twist: Product Recall Brief",
+    urgency: "Customer update due in 90 minutes",
+    situation: "A smart home company halted shipments after 22,000 hubs reported battery overheating after a firmware update. Two minor injuries, trending on social, and retailers want direction. You need a clear communication pack fast."
   };
 
   const [isGenerating, setIsGenerating] = useState(false);
@@ -25,19 +25,19 @@ const Round2GameV2 = ({ onComplete }) => {
       title: "Context",
       options: [
         {
-          id: 'jobs',
-          label: "Jobs & Economic Impact",
-          promptText: "MidAtlantic Manufacturing: 12 facilities across PA/OH/WV, 2,400 direct jobs at risk, $38-42M compliance cost. Frame as workforce and regional economic impact.",
+          id: 'safety',
+          label: "Safety Facts",
+          promptText: "Firmware update triggered overheating in 22,000 smart hubs; 2 minor injuries; shipments paused; retail partners awaiting guidance.",
         },
         {
-          id: 'compliance',
-          label: "Compliance Timeline",
-          promptText: "MidAtlantic Manufacturing: 8 of 12 facilities need major upgrades, requires 24+ months but EPA gives only 15 months. Frame as impossible timeline.",
+          id: 'customers',
+          label: "Customer Impact",
+          promptText: "8,400 support tickets in 6 hours; refund requests up 3x; social hashtag trending; customers asking if devices are safe to use tonight.",
         },
         {
-          id: 'competitive',
-          label: "Regional Competitiveness",
-          promptText: "MidAtlantic Manufacturing competes with facilities in states with more lenient timelines. Frame as unfair competitive disadvantage for PA.",
+          id: 'regulators',
+          label: "Regulatory Angle",
+          promptText: "Consumer safety commission alerted; company preparing voluntary recall paperwork; needs to show proactive steps to avoid penalties.",
         }
       ]
     },
@@ -45,19 +45,19 @@ const Round2GameV2 = ({ onComplete }) => {
       title: "Format",
       options: [
         {
-          id: 'talking-points',
-          label: "Talking Points List",
-          promptText: "Bullet-point talking points: concise statements with data, organized by topic. One page maximum.",
+          id: 'customer-email',
+          label: "Customer Email/FAQ",
+          promptText: "Email + mini FAQ: short intro, clear safety steps, numbered FAQ bullets. Max 250 words.",
         },
         {
-          id: 'qa-prep',
-          label: "Q&A Brief",
-          promptText: "Question-and-answer format: 5-7 anticipated questions with 2-3 sentence responses each.",
+          id: 'exec-brief',
+          label: "Executive Brief",
+          promptText: "1-page brief: summary, impact numbers, decision options, recommended path with rationale.",
         },
         {
-          id: 'memo',
-          label: "Executive Memo",
-          promptText: "Memo format: 2-3 sentence executive summary at top, then key points with section headers.",
+          id: 'social',
+          label: "Social Holding Statement",
+          promptText: "Thread for social channels: 3-4 concise posts acknowledging issue, immediate actions, and where to get updates.",
         }
       ]
     },
@@ -65,19 +65,19 @@ const Round2GameV2 = ({ onComplete }) => {
       title: "Audience",
       options: [
         {
-          id: 'chief-of-staff',
-          label: "Chief of Staff",
-          promptText: "Senator Casey's Chief of Staff - focus on political implications and constituent impact. Understands both policy and politics.",
+          id: 'customers',
+          label: "Concerned Customers",
+          promptText: "Everyday consumers who want to know if their devices are safe and what to do right now.",
         },
         {
-          id: 'leg-director',
-          label: "Legislative Director",
-          promptText: "Legislative Director - focus on policy mechanics, amendment possibilities, and legislative vehicles. Needs technical precision.",
+          id: 'support',
+          label: "Support Leads",
+          promptText: "Support managers triaging tickets; need precise steps, scripts, and escalation rules.",
         },
         {
-          id: 'comms-director',
-          label: "Communications Director",
-          promptText: "Communications Director - focus on messaging frames and public narrative. Needs quotable, clear language.",
+          id: 'retail',
+          label: "Retail Partners",
+          promptText: "Retail buyers and store managers who must pause sales, handle returns, and relay instructions to staff.",
         }
       ]
     },
@@ -85,19 +85,19 @@ const Round2GameV2 = ({ onComplete }) => {
       title: "Constraints",
       options: [
         {
-          id: 'elevator',
-          label: "2-Min Hallway",
-          promptText: "Unplanned hallway stop - CEO has 2 minutes max, standing up. Need 3 crisp points, no nuance.",
+          id: '90-min',
+          label: "90-Min Turnaround",
+          promptText: "Need draft in 90 minutes to brief leadership; no time for new creative assets; rely on text-only guidance.",
         },
         {
-          id: 'sit-down',
-          label: "15-Min Meeting",
-          promptText: "Scheduled 15-minute office meeting - CEO sits down with staffer. Time for discussion but need focus.",
+          id: 'word-cap',
+          label: "100-Word Cap",
+          promptText: "Keep public-facing copy under 100 words so it fits email + social without edits.",
         },
         {
-          id: 'send-ahead',
-          label: "Email Before",
-          promptText: "Send materials 24 hours before meeting. Staff reads in advance, CEO discusses in person later. Can be more detailed.",
+          id: 'translation',
+          label: "Ready for Translation",
+          promptText: "Write in short sentences without idioms so translation team can localize quickly tonight.",
         }
       ]
     },
@@ -105,19 +105,19 @@ const Round2GameV2 = ({ onComplete }) => {
       title: "Goal",
       options: [
         {
-          id: 'delay',
-          label: "Delay Implementation",
-          promptText: "Primary ask: Co-sponsor amendment extending timeline from 15 to 30 months. Justify why current timeline is unworkable.",
+          id: 'reassure',
+          label: "Reassure + Retain",
+          promptText: "Primary goal: calm customers, prevent churn, and keep devices powered off until patch ships.",
         },
         {
-          id: 'funding',
-          label: "Secure Funding",
-          promptText: "Primary ask: Support $500M appropriations for compliance assistance fund. Show how funding enables compliance without job losses.",
+          id: 'equip-support',
+          label: "Equip Support",
+          promptText: "Primary goal: give support leads a script and decision tree to deflect escalations and capture incidents.",
         },
         {
-          id: 'epa-meeting',
-          label: "EPA Access",
-          promptText: "Primary ask: Facilitate meeting with EPA Administrator on regional variance. Position as working within framework, not obstructing.",
+          id: 'coordinate-retail',
+          label: "Coordinate Retail",
+          promptText: "Primary goal: align retail partners on stop-sale instructions, signage, and how to process returns."
         }
       ]
     }
@@ -203,7 +203,7 @@ Return as JSON:
   };
 
   const buildPrompt = () => {
-    let prompt = "Write talking points for a Hill meeting about the EPA air quality rule.\n\n";
+    let prompt = "Draft communications for a smart home product recall with overheating issues.\n\n";
     
     if (selections.context) {
       prompt += `Context: ${ingredients.context.options.find(o => o.id === selections.context).promptText}\n\n`;
@@ -303,7 +303,7 @@ Return as JSON:
         <div className="bg-gray-100 border-2 border-gray-400 rounded-lg p-3">
           <div className="text-xs font-bold text-gray-600 mb-1">TASK</div>
           <p className="text-sm font-semibold text-gray-800">
-            Write talking points for a Hill meeting about the EPA air quality rule.
+            Draft the communication pack for the overheating recall.
           </p>
         </div>
         
@@ -484,23 +484,23 @@ Return as JSON:
         <div className="space-y-3 text-sm">
           <div className="p-3 bg-gray-50 rounded-lg">
             <div className="font-semibold mb-1">Context</div>
-            <div className="text-gray-600">Different framings get different results - jobs vs timeline vs fairness</div>
+            <div className="text-gray-600">Different framings get different results - safety facts vs customer impact vs regulators</div>
           </div>
           <div className="p-3 bg-gray-50 rounded-lg">
             <div className="font-semibold mb-1">Format</div>
-            <div className="text-gray-600">Structure matters - talking points vs Q&A vs memo</div>
+            <div className="text-gray-600">Structure matters - email/FAQ vs executive brief vs social thread</div>
           </div>
           <div className="p-3 bg-gray-50 rounded-lg">
             <div className="font-semibold mb-1">Audience</div>
-            <div className="text-gray-600">Reader shapes content - political vs policy vs messaging</div>
+            <div className="text-gray-600">Reader shapes content - customers vs partners vs internal leads</div>
           </div>
           <div className="p-3 bg-gray-50 rounded-lg">
             <div className="font-semibold mb-1">Constraints</div>
-            <div className="text-gray-600">Real limits drive structure - 2 min vs 15 min vs email</div>
+            <div className="text-gray-600">Real limits drive structure - time caps, word caps, translation needs</div>
           </div>
           <div className="p-3 bg-gray-50 rounded-lg">
             <div className="font-semibold mb-1">Goal</div>
-            <div className="text-gray-600">Clear asks get concrete results - delay vs funding vs access</div>
+            <div className="text-gray-600">Clear asks get concrete results - reassure customers vs equip teams vs coordinate partners</div>
           </div>
         </div>
       </div>
