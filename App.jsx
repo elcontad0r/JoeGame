@@ -17,10 +17,10 @@ const App = () => {
             <span>Compete for a Mystery Prize</span>
           </div>
           <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
-            The Prompt Challenge
+            Learn AI Challenge
           </h1>
           <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto">
-            See what breaks. Learn the framework. Write winning prompts.
+            AI is a weird technology and understanding it can be confusing. This program walks you through the right and wrong way to use AI, then puts you in a friendly game that shows what happens when you prompt well—or not. You might even win a mystery prize.
           </p>
         </div>
 
@@ -80,7 +80,7 @@ const App = () => {
             <div className="text-xs font-bold text-orange-600 mb-2 tracking-wide">COMPETE</div>
             <h3 className="text-xl font-bold text-gray-900 mb-2">The Challenge</h3>
             <p className="text-gray-600 text-sm leading-relaxed mb-4">
-              Crisis scenario. Write from scratch. Make the leaderboard.
+              Tackle a fresh scenario. Write from scratch. Make the leaderboard.
             </p>
             <div className="flex items-center gap-2 text-sm">
               <Clock size={14} className="text-gray-400" />
@@ -114,7 +114,7 @@ const App = () => {
               <div>
                 <h3 className="font-bold text-gray-900 mb-1">The Stakes</h3>
                 <p className="text-sm text-gray-600">
-                  Mystery prize for top scorers. Best prompt engineers will be announced firm-wide.
+                  Mystery prize for top scorers. Best prompt engineers will be announced to the group.
                 </p>
               </div>
             </div>

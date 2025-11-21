@@ -7,201 +7,175 @@ const Round1GameV3 = ({ onComplete }) => {
   const contentRef = useRef(null);
 
   const scenario = {
-    title: "Emergency: New EPA Rule Dropped",
-    urgency: "Partner meeting in 15 minutes",
-    situation: "EPA just released new air quality standards. Your client MidAtlantic Manufacturing has 12 coating facilities—8 of them now need ~$40M in retrofits by Jan 2027. CEO is panicking. Partner needs a briefing doc NOW.",
+    title: "Plan a Saturday Skillshare Day",
+    urgency: "Draft the plan tonight",
+    situation: "Your community center is hosting a relaxed weekend event with DIY classes (budgeting basics, meal prep, bike repair). Four volunteer instructors, 60 RSVPs so far, and you need to publish a plan with roles, timing, and what to bring before people head to bed.",
   };
 
   const lessons = [
     {
       id: 'specifics',
       title: "Context beats vagueness",
-      lesson: "Generic questions → generic answers. Add client details, numbers, and constraints.",
-      
-      badPrompt: "Write a brief about the new EPA air quality rule and how it affects manufacturing companies.",
+      lesson: "Generic asks lead to filler. Share the real details of your situation.",
+
+      badPrompt: "Outline a community event with some activities.",
       badSnippet: {
         label: "What Joe Got",
-        text: `The EPA has recently updated its air quality standards, introducing stricter limits on volatile organic compounds (VOCs) for manufacturing facilities. Companies will need to evaluate their current emissions levels and determine appropriate compliance pathways.
+        text: `Community events can include workshops, food, and time for people to connect. It's important to pick a venue, schedule activities, and let people know what to expect.
 
-Key considerations include:
-• Assessment of current emissions across all facilities
-• Review of available control technologies  
-• Timeline for implementation
-• Cost-benefit analysis of various approaches
-
-Manufacturers should consider engaging with environmental consultants to develop a comprehensive compliance strategy...`,
-        problem: "Generic. Could apply to anyone. No urgency. No decisions."
+Key steps include:
+• Choose activities
+• Invite participants
+• Provide supplies
+• Share the schedule`,
+        problem: "It could describe any event. Nothing about your people, space, or timing."
       },
-      
-      goodPrompt: `You're advising MidAtlantic Manufacturing's CEO who just learned about new EPA air quality standards.
 
-Context:
-• 12 coating facilities across 5 states
-• 8 facilities emit >25 tons/year VOCs (currently legal)
-• New rule: 85% VOC reduction required by Jan 2027
-• Initial estimate: $38-42M compliance cost
-• CEO meeting with board in 2 hours
+      goodPrompt: `You're helping a community center publish Saturday's "Skillshare Day" plan.
 
-Write a 1-page executive brief that:
-1. Explains the rule change (what changed and why it matters)
-2. Our specific exposure (which facilities, timeline pressure)
-3. Three response options with pros/cons/rough costs
-4. Your recommendation with reasoning
+Details:
+• Classes: budgeting basics, beginner meal prep, bike repair (45 minutes each)
+• People: 4 volunteer instructors; 60 RSVPs; expecting 20 drop-ins
+• Space: 3 rooms + outdoor patio; coffee/tea available, no stove
+• Timing: event runs 10 AM–1 PM; want a draft schedule before people go to bed tonight
+• Needs: who greets folks, supply list, what attendees should bring or prep
 
-Format for scanning: section headers, bullets, keep dense.`,
+Create a 1-page plan that:
+1) Lists the schedule with room assignments and transitions
+2) Names volunteers + what they'll handle (teaching, setup, check-in)
+3) Provides a short “what to bring” note to include in the email/post
+4) Flags anything to confirm Friday night
+
+Format: headers + bullets; warm, practical tone.`,
       goodSnippet: {
         label: "What You Get",
-        text: `EXECUTIVE BRIEF: EPA VOC Standards
-For: MidAtlantic Manufacturing CEO | Board Meeting: Today, 2pm
+        text: `SATURDAY SKILLSHARE — DRAFT SCHEDULE
+Audience: RSVP list + community Slack | Send tonight
 
-WHAT CHANGED
-• EPA dropped VOC limits from 250 ppm to 35 ppm (86% reduction)
-• Takes effect January 2027—only 26 months away
-• 8 of our 12 facilities immediately affected
+TIMING + ROOMS
+10:00–10:15 — Welcome + coffee (Lobby)
+10:15–11:00 — Budgeting Basics (Room A)
+10:15–11:00 — Bike Repair 101 (Patio)
+11:05–11:50 — Beginner Meal Prep (Room B)
+11:55–12:30 — Ask-Me-Anything with all instructors (Room A)
+12:30–1:00 — Clean-up + share resources
 
-WHY THIS HURTS  
-• Normal retrofit timeline: 24-30 months (we have 26)
-• Our 8 facilities are big emitters (40-80 tons/year each)
-• Cannot run coating during retrofit (3-4 weeks per facility)
+ROLES
+• Check-in + name tags: Maya + Leo
+• Room setup + timers: Priya
+• Instructors: Ana (Budgeting), Devin (Bike), Chris (Meal prep)
 
-RECOMMENDATION: Full Compliance (Option 1)
-Board needs to approve $40M tonight. Penalties and supply chain disruption cost more than the capital hit.`,
-        benefit: "Specific. Urgent. Actionable. Ready for the board meeting."
+WHAT TO BRING
+Comfortable clothes; notebook; bike if you want practice; food storage container for sample meal prep.
+
+FRIDAY NIGHT CHECKS
+Confirm projector in Room A, set out coffee supplies, print 70 name tags.`,
+        benefit: "Uses real details to produce a plan people can actually follow."
       }
     },
     {
       id: 'constraints',
       title: "Constraints drive strategy",
-      lesson: "Generic options lists miss real tradeoffs. Add budget limits, operational constraints, and context.",
-      
-      badPrompt: "What options do we have for responding to this EPA rule?",
+      lesson: "Real limits steer the plan. Spell out time, space, and budget.",
+
+      badPrompt: "What are our options for making this event good?",
       badSnippet: {
         label: "What Joe Got",
-        text: `There are several potential approaches to address the new EPA regulations:
+        text: `There are several possible ways to make an event successful:
 
-1. Full Compliance
-Install necessary equipment to meet the new standards across all affected facilities.
+1. Promote it more.
+2. Provide refreshments.
+3. Have clear signage.
+4. Ask for feedback afterward.
 
-2. Legal Challenge
-Work with industry groups to challenge the rule through administrative or judicial processes.
-
-3. Partial Implementation
-Prioritize compliance at the most critical facilities while exploring options for others.
-
-4. Technology Solutions
-Investigate emerging technologies that might offer more cost-effective compliance pathways.
-
-Each approach has different costs, timelines, and risk profiles that should be carefully evaluated.`,
-        problem: "Everything sounds equally reasonable. No real tradeoffs. Can't make a decision."
+Each option could help people enjoy the event.`,
+        problem: "True but unhelpful. No sense of what fits your evening or budget."
       },
-      
-      goodPrompt: `Analyze MidAtlantic's response options to the EPA VOC rule. Consider:
 
-Our constraints:
-• Capital budget this year: $50M (already allocated)
-• Can't shut down more than 2 facilities simultaneously (supply chain)
-• Trade association is organizing legal challenge
-• 3 facilities are in attainment areas, 5 in non-attainment
+      goodPrompt: `Plan the event with these constraints:
 
-Give me 3-4 strategic options beyond just 'comply' or 'sue.' For each:
-• Name it (2-3 words)
-• Core approach
-• Pros (✓) and Cons (✗) with specifics
-• Ballpark cost and timeline
-• Risk level (Low/Med/High)
+Facts
+• Budget: $250 for snacks/printing
+• Setup: doors open 9:30 AM; 3 rooms with chairs only; patio has 2 folding tables
+• Volunteers: 4 instructors + 2 helpers; everyone leaves by 1:30 PM
+• Supplies on hand: projector, extension cords, flip charts, markers; no stove/oven
 
-End with which you'd recommend and one-sentence why.`,
+Give 3 options for running the morning. For each, include:
+• Name (2-3 words)
+• First 3 steps tonight + first 3 steps Saturday morning
+• Pros (✓) / Cons (✗) with costs/time
+• Any supply gaps to solve
+
+End with the option you recommend and why it fits the constraints.`,
       goodSnippet: {
         label: "What You Get",
-        text: `STRATEGIC OPTIONS ANALYSIS
+        text: `OPTION SET
 
-Option 1: PARALLEL TRACK
-Start compliance prep while joining legal challenge
-✓ Preserves legal rights without delaying engineering
-✓ If challenge fails, we're ahead of competitors
-✗ Spend $4-6M on engineering before knowing outcome
-Cost: $42M total | Timeline: 26 months | Risk: MEDIUM
+Option 1: SIMPLE TRACK
+Tonight: confirm rooms; print 70 name tags; draft one email.
+Saturday: set up chairs at 9:30; coffee at 9:45; 1 helper floats.
+✓ Easiest to run; ✓ lowest cost ($90 coffee/snacks)
+✗ Less hands-on help during classes
 
-Option 2: CONSOLIDATION PLAY
-Close 3 facilities, shift production to compliant sites
-✓ Only retrofit 5 facilities instead of 8 (~$12M savings)
-✗ 180 job cuts (political/community relations hit)
-✗ Stranded real estate assets (~$15M)
-Cost: $28M + $15M stranded | Timeline: 18 months | Risk: MEDIUM-HIGH
+Option 2: GUIDED
+Tonight: assign greeters; prep short handouts per class; label rooms.
+Saturday: stagger start times by 5 minutes; helpers rotate between rooms.
+✓ Feels organized; ✓ good for newcomers
+✗ $140 printing/snacks; helpers stretched during transitions
 
-RECOMMENDATION: Geofence Strategy
-Prioritizes highest enforcement risk while preserving optionality if legal challenge succeeds.`,
-        benefit: "Real tradeoffs. Actual costs. Clear risks. Can defend a choice."
+Option 3: RESOURCE-RICH
+Tonight: add QR codes to slides; pre-record quick tips; buy extra markers/tools.
+Saturday: one helper per room + floating host.
+✓ High-quality experience; ✓ reusable materials later
+✗ Uses most of $250 budget; more prep tonight
+
+Recommendation: Option 2 — fits budget/time while keeping things smooth for first-timers.`,
+        benefit: "Shows tradeoffs using your actual limits so you can pick confidently."
       }
     },
     {
       id: 'role',
       title: "Role shapes relevance",
-      lesson: "Same info, different audiences. Define who needs this and how they'll use it.",
-      
-      badPrompt: "Summarize MidAtlantic's EPA situation for the leadership team.",
+      lesson: "People need different cuts of the same info. Say who it's for and what they need to do.",
+
+      badPrompt: "Summarize the event for everyone.",
       badSnippet: {
         label: "What Joe Got",
-        text: `EPA Air Quality Rule Impact Summary
+        text: `Event Overview
 
-The Environmental Protection Agency has introduced new regulations regarding volatile organic compound (VOC) emissions that will have significant implications for MidAtlantic Manufacturing's operations.
+We are hosting a community event. People will attend workshops and enjoy refreshments.
 
-Affected Facilities:
-Eight of our twelve coating facilities will need to implement compliance measures. These facilities currently emit VOCs at levels that, while legal under existing rules, will exceed the new standards.
-
-Financial Impact:
-Initial estimates suggest total compliance costs between $38-42 million across all affected facilities. This represents a significant capital expenditure that will need to be planned and budgeted appropriately.
-
-Timeline:
-The compliance deadline is January 2027, providing approximately 26 months for implementation...
-
-Leadership should consider forming a cross-functional task force to develop a detailed compliance strategy.`,
-        problem: "Same generic summary for everyone. CEO and Ops VP need totally different things."
+Next steps include finalizing the schedule and making sure people know where to go.`,
+        problem: "Helpers need instructions. Attendees need what to expect. Everybody gets the same vague note."
       },
-      
-      goodPrompt: `Create two versions of the EPA situation update—same facts, different audiences:
 
-VERSION 1 - For CEO (Board presentation tonight)
-• Opens with bottom-line impact ($, timeline, risk)
-• 3 options with clear recommendation
-• Max 1 page, dense format
+      goodPrompt: `Create two versions of the plan — same event facts, different audiences:
 
-VERSION 2 - For Ops VP (Needs to brief facility managers tomorrow)
-• Opens with what's actually changing technically
-• Implementation logistics (downtime, staffing, sequencing)
-• What managers need to prepare their teams for
-• Max 2 pages, can be detailed
+VERSION 1 – Attendees (email + post)
+• Friendly intro + what to expect Saturday
+• Start time, room locations, what to bring, childcare/no childcare
+• Note about snacks/coffee + parking/bike racks
+• 150 words, warm tone
 
-Use the same EPA facts but frame them for how each person needs to USE the info.`,
+VERSION 2 – Volunteers (checklist)
+• Room setup tasks + who is assigned where
+• Timing for check-in table, coffee setup, and cleanup
+• Reminders for safety/comfort (hydration, breaks, accessibility)
+• Bullet-only, no fluff
+
+Use the same details but tailor for what each group needs to do.`,
       goodSnippet: {
         label: "What You Get",
-        text: `VERSION 1: FOR CEO
-EPA VOC Rule — Board Decision Tonight
+        text: `VERSION 1: ATTENDEE EMAIL (148 words)
+Hi neighbors! Saturday's Skillshare Day is 10 AM–1 PM. Check in at the lobby for name tags. Budgeting Basics is in Room A, Bike Repair is on the patio (bring your bike if you want practice), and Meal Prep is in Room B. Coffee/tea + light snacks provided. Please bring a notebook and a food container if you'd like leftovers. Parking is free on 3rd St; bike racks by the patio. See you there!
 
-BOTTOM LINE
-Need $40M board approval tonight. 8 facilities face Jan 2027 deadline. Delay = $37K/day penalties.
-
-Board Ask: Approve $40M. Alternative is regulatory exposure + supply chain chaos worth more than the savings.
-
----
-
-VERSION 2: FOR OPS VP  
-EPA VOC Rule — Facility Manager Brief
-
-WHAT'S CHANGING TECHNICALLY
-• Current: 250 ppm VOC limit (we run 180-280 ppm)
-• New: 35 ppm limit starting Jan 2027
-• Likely solution: Thermal oxidizers at each site
-
-IMPLEMENTATION REALITY
-• Timeline: 26 months total. Install = 3-4 weeks downtime per facility
-• Sequencing: Can only do 2 facilities at once (supply chain)
-• Staffing: Need 2-3 additional operators per site (24/7 monitoring)
-• Energy: +40% natural gas usage per facility
-
-NEXT STEPS FOR YOUR TEAM
-Facility managers meeting next week. Bring: site layouts, utility specs, production schedules.`,
-        benefit: "CEO gets decision points. Ops gets implementation reality. Same facts, useful framing."
+VERSION 2: VOLUNTEER CHECKLIST
+ARRIVE 9:30 — set up check-in table (Maya/Leo)
+ROOMS — A: chairs + projector; Patio: 2 tables + bike stand; B: tables + flip charts
+COFFEE — fill urn; set cups/napkins; start at 9:45
+DURING — Priya floats with timer/cleanup; instructors keep sessions to 45 minutes
+CLOSE — wipe tables; stack chairs; pack projector/extension cords; trash out by 1:20 PM`,
+        benefit: "Same facts, two outputs. Each audience sees what they need to do next."
       }
     }
   ];

@@ -12,94 +12,66 @@ export default async function handler(req, res) {
     const timestamp = new Date().toISOString();
     
     // Build the prompt based on whether user provided a topic
-    const promptContent = userTopic && userTopic.trim() 
+    const promptContent = userTopic && userTopic.trim()
       ? `[Scenario ID: ${randomSeed} | Generated: ${timestamp}]
 
-You are generating a crisis scenario for a public affairs/lobbying training game.
+You are generating an everyday scenario for a cross-domain AI prompting practice game.
 
 THE USER IS CURRENTLY WORKING ON: "${userTopic}"
 
-Generate a realistic crisis scenario that is DIRECTLY RELEVANT to their current work. The scenario should feel like something they might actually encounter in their current project.
+Create a realistic, low-drama scenario that would help them practice writing clear prompts. Make it feel like a task someone might actually do this week.
 
-Create a high-pressure scenario with:
-1. Time pressure (meeting/deadline in 60-120 minutes)
-2. Specific numbers/facts (dollar amounts, employee counts, facility locations)
-3. Named entities (cities, Congressional committees, agencies)
-4. Clear stakes (jobs, revenue, market position)
-
-The scenario should relate to their stated topic/project but present an unexpected twist or urgent development that requires immediate action.
-
-VARY THE CRISIS TYPE:
-- Regulatory crisis (new rule, enforcement action, investigation)
-- Legislative threat (bill introduced, amendment proposed, hearing announced)
-- Media/PR crisis (report published, allegations made, viral social media)
-- Stakeholder conflict (activist campaign, union action, community opposition)
-- Legal development (lawsuit filed, court ruling, settlement pressure)
-
-VARY THE DELIVERABLE:
-- Press statement for media
-- Hill talking points for Congressional meeting
-- Stakeholder brief for investors/board
-- Employee communication for internal town hall
-- Coalition letter to agency/legislators
-- Op-ed draft for executive
+Include:
+1. A near-term moment (today/tomorrow) but not an emergency
+2. Concrete facts (numbers, locations, people involved)
+3. A specific deliverable to create (guide, message, plan, list, outline)
+4. The domain or setting (e.g., school, workplace, club, household, side project)
 
 Return ONLY valid JSON with no markdown:
 {
-  "title": "Breaking: [Specific Crisis]",
-  "urgency": "[Exact timeframe - e.g. 'Meeting in 75 minutes' or 'Press call at 3pm']",
-  "situation": "[2-3 sentences with CONCRETE details - numbers, locations, entities]",
-  "requirement": "[Specific deliverable type]",
-  "sector": "[specific industry]"
+  "title": "[Friendly scenario title]",
+  "urgency": "[Lightly time-bound, e.g., 'Share tonight' or 'Draft by lunch tomorrow']",
+  "situation": "[2-3 sentences with concrete details: numbers, places, names]",
+  "requirement": "[Specific deliverable type to create]",
+  "sector": "[domain like education, hobby, household, work team, wellness, travel, etc.]"
 }
 
-Make it feel urgent and directly relevant to their work.`
+Keep it practical and approachable.`
       : `[Scenario ID: ${randomSeed} | Generated: ${timestamp}]
 
-You are generating a UNIQUE crisis scenario for a public affairs/lobbying training game. Generate something DIFFERENT from typical FDA/pharma scenarios.
+You are generating a UNIQUE, everyday scenario for an AI prompting practice game.
 
 VARY THE SCENARIO TYPE - rotate between:
-- Regulatory crisis (new rule, enforcement action, investigation)
-- Legislative threat (bill introduced, amendment proposed, hearing announced)
-- Media/PR crisis (report published, allegations made, viral social media)
-- Market event (competitor action, tech disruption, M&A announcement)
-- Stakeholder conflict (activist campaign, union action, community opposition)
-- Legal development (lawsuit filed, court ruling, settlement pressure)
+- Planning something (trip, meetup, meal prep, study plan)
+- Writing a message (invite, update, thank-you, reminder)
+- Teaching/explaining (how-to guide, starter checklist)
+- Organizing people (simple schedule, roles, packing list)
 
-VARY THE SECTOR - pick from:
-Telecom, Pharma, Energy (oil/gas/renewables), Fintech, Tech platforms, Manufacturing, Agriculture, Healthcare providers, Transportation, Real estate, Retail, Gaming/entertainment
+VARY THE DOMAIN - pick from:
+Education, Household/Family, Travel, Workplace projects, Hobby or clubs, Wellness, Personal finance, Creative side projects, Events/celebrations, Volunteering
 
 VARY THE DELIVERABLE:
-- Press statement for media
-- Hill talking points for Congressional meeting
-- Stakeholder brief for investors/board
-- Employee communication for internal town hall
-- Coalition letter to agency/legislators
-- Op-ed draft for executive
+- Short email/text/post with a friendly tone
+- One-page plan or checklist
+- Step-by-step instructions or quickstart guide
+- FAQ or tips list
+- Agenda or schedule
 
-Generate a realistic, high-pressure scenario with:
-1. Time pressure (meeting/deadline in 60-120 minutes)
-2. Specific numbers/facts (dollar amounts, employee counts, facility locations)
-3. Named entities (cities, Congressional committees, agencies)
-4. Clear stakes (jobs, revenue, market position)
+Generate a realistic, low-stress scenario with:
+1. Near-term timing (later today or tomorrow) but not a crisis
+2. Specific facts (counts, times, locations, names)
+3. A clear ask for the AI (what to write/make)
 
 Return ONLY valid JSON with no markdown:
 {
-  "title": "Breaking: [Specific Crisis]",
-  "urgency": "[Exact timeframe - e.g. 'Meeting in 75 minutes' or 'Press call at 3pm']",
-  "situation": "[2-3 sentences with CONCRETE details - numbers, locations, entities]",
-  "requirement": "[Specific deliverable type]",
-  "sector": "[specific industry]"
+  "title": "[Friendly scenario title]",
+  "urgency": "[Lightly time-bound, e.g., 'Post tonight' or 'Draft by 9am tomorrow']",
+  "situation": "[2-3 sentences with concrete details: numbers, places, names]",
+  "requirement": "[Specific deliverable type to create]",
+  "sector": "[domain like education, household, travel, hobby, work, etc.]"
 }
 
-Make each scenario feel distinct and urgent. Vary crisis types.
-
-EXAMPLE VARIETY (don't copy these, use as inspiration):
-- "Breaking: House Committee Announces Surprise Hearing on AI Content Moderation" (Tech)
-- "Emergency: Union Calls Strike at 3 East Coast Facilities" (Manufacturing)
-- "Alert: State AG Opens Investigation into Data Broker Practices" (Fintech)
-- "Urgent: Major Customer Announces Switch to Competitor" (Telecom)
-- "Crisis: Environmental Group Launches Campaign Against Pipeline Project" (Energy)`;
+Make each scenario distinct, approachable, and useful for practice. Avoid emergencies or crisis framing.`;
     
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
