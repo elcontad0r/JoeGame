@@ -13,12 +13,12 @@ const difficultyConfig = {
   easy: {
     label: 'Easy',
     ribbon: 'Level 1 • Guided remix',
-    hero: 'Remix the guided ingredients with a simple brief',
+    hero: 'Remix guided ingredients with a simple brief',
     gradient: 'from-green-50 to-blue-50',
     badgeColor: 'bg-green-100 text-green-800',
     leaderboardTag: 'Easy',
-    instructions: 'We keep the ask simple and give you plenty of hints. Show you can turn starter details into a clean prompt.',
-    playstyle: 'Use the guided ingredients from the tutorials as your building blocks. The scenario is chill and the main job is stitching the pieces together with your words.',
+    instructions: 'Use the starter details and keep the prompt tight and skimmable.',
+    playstyle: 'Pull the right ingredients, snap them together, and keep it short.',
     hintExtras: [
       'Pull 2-3 concrete facts from the scenario into your context.',
       'Say exactly what format you want back. Keep it short.'
@@ -31,8 +31,8 @@ const difficultyConfig = {
     gradient: 'from-orange-50 to-amber-50',
     badgeColor: 'bg-orange-100 text-orange-800',
     leaderboardTag: 'Medium',
-    instructions: 'You still get prompts to click through, but you’ll need to add your own flavor and a couple of specific guardrails.',
-    playstyle: 'Think of this as Round 2 plus your own tweaks. Add a second constraint or tone choice and call out what matters most.',
+    instructions: 'Mix chips with your own edits. Add a guardrail or tone choice.',
+    playstyle: 'Stack chips, then add the missing constraints and tradeoffs.',
     hintExtras: [
       'Name one thing you’re adding beyond the provided details.',
       'Point to what should be prioritized if tradeoffs appear.'
@@ -45,8 +45,8 @@ const difficultyConfig = {
     gradient: 'from-purple-50 to-pink-50',
     badgeColor: 'bg-purple-100 text-purple-800',
     leaderboardTag: 'Hard',
-    instructions: 'Minimal scaffolding. You own the structure, tone, and constraints. Keep it human, specific, and purposeful.',
-    playstyle: 'Start from a blank slate: design the sections you want, define success, and call out any sensitivities. This is the closest to real-world prompting.',
+    instructions: 'No scaffolding. You own the structure, tone, and constraints.',
+    playstyle: 'Design the sections, define success, and call out one risk.',
     hintExtras: [
       'Lay out 2-3 sections in the order you want them.',
       'Call out one risk/sensitivity and how to handle it.'
@@ -54,38 +54,30 @@ const difficultyConfig = {
   }
 };
 
-const ingredientFieldMeta = {
-  context: {
-    title: 'Context',
-    placeholder: 'What background information does Claude need?',
-    hint: "Set the stage. What's happening? What's the company? What's the situation?"
+const chipRules = {
+  easy: {
+    perFieldLimit: 2,
+    minTotalSelections: 4,
+    label: 'Play at least 4 chips (max 2 per category) before you write your goal.'
   },
-  format: {
-    title: 'Format',
-    placeholder: 'What structure should the output have?',
-    hint: 'Be specific about length, style, sections, or structure.'
+  medium: {
+    perFieldLimit: 3,
+    minTotalSelections: 5,
+    label: 'Draft with at least 5 chips (max 3 per category), then layer your own constraints.'
   },
-  audience: {
-    title: 'Audience',
-    placeholder: 'Who will read this and what do they care about?',
-    hint: "Who's this for? What's their perspective? What tone will work?"
-  },
-  constraints: {
-    title: 'Constraints',
-    placeholder: 'What should be avoided or what are the limits?',
-    hint: "What can't you say? What must be avoided? Any requirements or limitations?"
-  },
-  goal: {
-    title: 'Goal',
-    placeholder: 'What should this accomplish?',
-    hint: "What's the desired outcome? What action should readers take? How do you measure success?"
+  hard: {
+    perFieldLimit: 0,
+    minTotalSelections: 0,
+    label: 'No chips here—everything is freeform.'
   }
 };
 
-const IngredientField = ({ field, number, title, placeholder, value, onChange, hint, collapsed, onToggleCollapse, presets = [], onPresetSelect, selectedPreset, difficulty }) => {
+const IngredientField = ({ field, number, title, placeholder, value, onChange, hint, collapsed, onToggleCollapse, presets = [], onPresetSelect, selectedPresets, difficulty, perFieldLimit }) => {
   const isCollapsed = collapsed[field];
   const colors = ingredientColors[field];
   const hasContent = value.trim().length > 0;
+  const selectedIds = selectedPresets?.[field] || [];
+  const remainingSlots = Math.max(perFieldLimit - selectedIds.length, 0);
 
   if (isCollapsed && hasContent) {
     return (
@@ -134,23 +126,36 @@ const IngredientField = ({ field, number, title, placeholder, value, onChange, h
 
       {difficulty !== 'hard' && presets.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-3">
-          {presets.map((preset) => (
-            <button
-              key={preset.id}
-              onClick={() => onPresetSelect(field, preset)}
-              className={`rounded-lg border px-3 py-2 text-left transition-all text-sm ${
-                selectedPreset === preset.id
-                  ? `${colors.bg} ${colors.border} border-2 text-gray-900 shadow-sm`
-                  : 'bg-gray-50 border-gray-200 hover:border-gray-300 text-gray-700'
-              }`}
-            >
-              <div className="font-semibold text-xs mb-1 text-gray-900 flex items-center gap-2">
-                <span className={`${colors.label} px-2 py-0.5 rounded`}>{preset.label}</span>
-                {preset.tone && <span className="text-[10px] uppercase tracking-wide text-gray-500">{preset.tone}</span>}
-              </div>
-              <p className="text-xs text-gray-700 leading-snug">{preset.snippet}</p>
-            </button>
-          ))}
+          {presets.map((preset) => {
+            const isSelected = selectedIds.includes(preset.id);
+            return (
+              <button
+                key={preset.id}
+                onClick={() => onPresetSelect(field, preset)}
+                className={`rounded-lg border px-3 py-2 text-left transition-all text-sm ${
+                  isSelected
+                    ? `${colors.bg} ${colors.border} border-2 text-gray-900 shadow-sm`
+                    : 'bg-gray-50 border-gray-200 hover:border-gray-300 text-gray-700'
+                }`}
+              >
+                <div className="font-semibold text-xs mb-1 text-gray-900 flex items-center gap-2">
+                  <span className={`${colors.label} px-2 py-0.5 rounded`}>{preset.label}</span>
+                  {preset.tone && <span className="text-[10px] uppercase tracking-wide text-gray-500">{preset.tone}</span>}
+                  {isSelected && <span className="text-[10px] text-green-700">Locked</span>}
+                </div>
+                <p className="text-xs text-gray-700 leading-snug">{preset.snippet}</p>
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      {difficulty !== 'hard' && perFieldLimit > 0 && (
+        <div className="text-xs text-gray-500 mb-2 flex items-center gap-2">
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-100 rounded-full border border-gray-200">
+            {remainingSlots} slot{remainingSlots === 1 ? '' : 's'} left in this category
+          </span>
+          {selectedIds.length > 0 && <span className="text-gray-400">Tap a new chip to stack more detail.</span>}
         </div>
       )}
 
@@ -264,8 +269,9 @@ const highlightQuotes = (text) => {
 };
 
 const Round3Game = ({ onBack, difficulty = 'easy' }) => {
-  const [selectedDifficulty, setSelectedDifficulty] = useState(difficulty);
+  const selectedDifficulty = difficulty;
   const config = difficultyConfig[selectedDifficulty] || difficultyConfig.easy;
+  const chipRule = chipRules[selectedDifficulty] || chipRules.easy;
   const [stage, setStage] = useState('topic-input');
   const [userTopic, setUserTopic] = useState('');
   const [scenario, setScenario] = useState(null);
@@ -275,11 +281,11 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
   const [promptConstraints, setPromptConstraints] = useState('');
   const [promptGoal, setPromptGoal] = useState('');
   const [selectedPresets, setSelectedPresets] = useState({
-    context: null,
-    format: null,
-    audience: null,
-    constraints: null,
-    goal: null
+    context: [],
+    format: [],
+    audience: [],
+    constraints: [],
+    goal: []
   });
   const [collapsed, setCollapsed] = useState({
     context: false,
@@ -332,41 +338,55 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
       easy: {
         context: [
           {
-            id: 'scenario-facts',
-            label: 'Scenario facts',
-            snippet: scenarioContext
+            id: 'setting-people',
+            label: 'Setting + people',
+            snippet: scenarioContext.split('. ').slice(0, 1).join('. ') || scenarioContext
           },
           {
-            id: 'deliverable-reminder',
-            label: "What we're making",
-            snippet: deliverable,
-            tone: 'Round 2 remix'
+            id: 'headline-ask',
+            label: 'Headline ask',
+            snippet: deliverable
+          },
+          {
+            id: 'timing',
+            label: 'Timing',
+            snippet: urgency
           }
         ],
         format: [
           {
-            id: 'simple-steps',
+            id: 'steps-bullets',
             label: 'Steps + bullets',
-            snippet: `Short intro then 3-4 bullets with headers. Keep it skimmable. ${urgency}`,
+            snippet: `Short intro, then 3-4 bullets with headers. Keep it skimmable. ${urgency}`,
             tone: 'easy'
           },
           {
-            id: 'template',
+            id: 'mini-template',
             label: 'Mini template',
             snippet: 'Greeting → key info → 3 bullets → closing ask. Keep sentences under 18 words.',
             tone: 'Round 2 remix'
+          },
+          {
+            id: 'checklist',
+            label: 'Checklist',
+            snippet: 'Checklist with owners + due times. Close with one reminder line.'
           }
         ],
         audience: [
           {
-            id: 'direct-audience',
+            id: 'speak-to-readers',
             label: 'Speak to readers',
             snippet: audienceHint
           },
           {
             id: 'what-they-need',
-            label: 'What they need to know',
-            snippet: 'Call out what they worry about (time, cost, effort) and the one decision they must make.'
+            label: 'What they need',
+            snippet: 'Call out what they worry about (time, cost, effort). Highlight the one decision they owe you.'
+          },
+          {
+            id: 'tone',
+            label: 'Tone',
+            snippet: 'Plain, calm voice. Avoid hype; aim for clarity first.'
           }
         ],
         constraints: [
@@ -378,21 +398,15 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
           {
             id: 'format-guardrails',
             label: 'Formatting',
-            snippet: 'Use headers + bullets; make it paste-ready for chat/email with no extra commentary.'
-          }
-        ],
-        goal: [
-          {
-            id: 'success-check',
-            label: 'Define success',
-            snippet: `Goal: readers quickly understand ${deliverable.toLowerCase()} and take the next action without asking follow-ups.`
+            snippet: 'Headers + bullets; paste-ready for chat/email. No analysis around it.'
           },
           {
-            id: 'cta',
-            label: 'Clear call-to-action',
-            snippet: 'End with one action + deadline and mention what happens after they respond.'
+            id: 'scope',
+            label: 'Stay scoped',
+            snippet: 'Stick to the scenario facts; no new promises or offers.'
           }
-        ]
+        ],
+        goal: []
       },
       medium: {
         context: [
@@ -405,7 +419,12 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
           {
             id: 'evidence',
             label: 'Evidence + facts',
-            snippet: `${scenarioContext} Include any numbers, names, or locations that make this credible.`
+            snippet: `${scenarioContext} Include numbers, names, or locations that make this credible.`
+          },
+          {
+            id: 'constraints-teaser',
+            label: 'Fixed limits',
+            snippet: `Budget/time limits: ${urgency} Keep to the real constraints.`
           }
         ],
         format: [
@@ -417,47 +436,51 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
           },
           {
             id: 'two-column',
-            label: 'Two-column read',
-            snippet: 'Use bullets that pair "Need" → "Answer" so readers can skim. Close with a one-line summary.',
+            label: 'Need → Answer',
+            snippet: 'Bullets that pair "Need" → "Answer" so readers can skim fast. End with a one-line summary.',
             tone: 'structured'
+          },
+          {
+            id: 'timeline',
+            label: 'Timeline cut',
+            snippet: 'Start with when things happen, then who owns them, then the ask.'
           }
         ],
         audience: [
           {
             id: 'audience-lens',
             label: 'Audience lens',
-            snippet: `${audienceHint} Mirror their terms and be explicit about what you need from them.`
+            snippet: `${audienceHint} Be explicit about what you need from them.`
           },
           {
             id: 'secondary-readers',
             label: 'Secondary readers',
             snippet: 'Assume this will be forwarded. Add one sentence that helps a new reader catch up fast.'
+          },
+          {
+            id: 'voice',
+            label: 'Voice',
+            snippet: 'Direct, specific, confident. One sentence that sets the tone.'
           }
         ],
         constraints: [
           {
             id: 'avoid-fluff',
             label: 'Avoid fluff',
-            snippet: 'No metaphors or marketing spin. Prioritize clarity over persuasion. Keep acronyms defined once.'
+            snippet: 'No metaphors or marketing spin. Prioritize clarity over persuasion. Define acronyms once.'
           },
           {
             id: 'ready-to-send',
             label: 'Ready to send',
-            snippet: 'Return only the final copy. No analysis. Format so it pastes cleanly into chat/email.'
-          }
-        ],
-        goal: [
-          {
-            id: 'success-metric',
-            label: 'Success metric',
-            snippet: `Outcome: readers can act on ${deliverable.toLowerCase()} within the ${urgency.toLowerCase()}. Measure success by responses/attendance.`
+            snippet: 'Return only the final copy. Format so it pastes cleanly into chat/email.'
           },
           {
-            id: 'next-step',
-            label: 'Next step',
-            snippet: 'End with the one decision and the timestamp/owner for follow-up. Include a line about what happens if they ignore it.'
+            id: 'tradeoffs',
+            label: 'Tradeoffs',
+            snippet: 'Call out one tradeoff and what wins if things conflict.'
           }
-        ]
+        ],
+        goal: []
       },
       hard: {
         context: [],
@@ -489,6 +512,13 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
     const currentValue = ingredientValues[field] || '';
     if (!setter || !preset?.snippet) return;
 
+    const currentSelections = selectedPresets[field] || [];
+    const limit = chipRule.perFieldLimit || 0;
+    if (limit > 0 && !currentSelections.includes(preset.id) && currentSelections.length >= limit) {
+      alert(`You already locked ${limit} chip${limit === 1 ? '' : 's'} for ${field}. Clear a slot by editing the text, or switch fields.`);
+      return;
+    }
+
     const alreadyIncluded = currentValue.toLowerCase().includes(preset.snippet.toLowerCase());
     const updatedValue = alreadyIncluded
       ? currentValue
@@ -497,33 +527,34 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
         : preset.snippet;
 
     setter(updatedValue);
-    setSelectedPresets(prev => ({ ...prev, [field]: preset.id }));
+    if (!currentSelections.includes(preset.id)) {
+      setSelectedPresets(prev => ({ ...prev, [field]: [...currentSelections, preset.id] }));
+    }
   };
 
   useEffect(() => {
-    if (selectedDifficulty === 'hard') {
-      setSelectedPresets({
-        context: null,
-        format: null,
-        audience: null,
-        constraints: null,
-        goal: null
-      });
-    }
+    setSelectedPresets({
+      context: [],
+      format: [],
+      audience: [],
+      constraints: [],
+      goal: []
+    });
   }, [selectedDifficulty]);
 
   useEffect(() => {
     setSelectedPresets({
-      context: null,
-      format: null,
-      audience: null,
-      constraints: null,
-      goal: null
+      context: [],
+      format: [],
+      audience: [],
+      constraints: [],
+      goal: []
     });
   }, [scenario]);
 
-  const requiredFields = difficultyFieldOrder[selectedDifficulty] || difficultyFieldOrder.easy;
-  const allFieldsFilled = requiredFields.every((field) => ingredientValues[field]);
+  const chipsPlayed = Object.values(selectedPresets).reduce((sum, list) => sum + (list?.length || 0), 0);
+  const baseFieldsFilled = promptContext && promptFormat && promptAudience && promptConstraints && promptGoal;
+  const readyToGenerate = baseFieldsFilled && chipsPlayed >= (chipRule.minTotalSelections || 0);
 
   useEffect(() => {
     loadLeaderboard();
@@ -618,7 +649,7 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
   };
 
   const handleGenerate = async () => {
-    if (!allFieldsFilled) return;
+    if (!readyToGenerate) return;
     
     setStage('generating');
     setIsGenerating(true);
@@ -819,20 +850,6 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
 
   const renderWritePrompt = () => {
     const activePresets = ingredientPresets[selectedDifficulty] || ingredientPresets.easy;
-    const difficultyCopy = {
-      easy: {
-        title: 'Easy',
-        description: 'Use suggested ingredient chips to remix Round 2 and get unstuck fast.'
-      },
-      medium: {
-        title: 'Medium',
-        description: 'Still get scaffolding, but add your own spin by combining chips.'
-      },
-      hard: {
-        title: 'Hard',
-        description: 'No chips, no hints—freeform drafting for leaderboard glory.'
-      }
-    };
 
     const fieldsToRender = difficultyFieldOrder[selectedDifficulty] || difficultyFieldOrder.easy;
     const mediumHintList = (config.hintExtras || []).slice(0, 2);
@@ -859,19 +876,92 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
         </div>
 
         {/* Instructions */}
-        {selectedDifficulty === 'easy' && (
-          <div className="bg-white rounded-lg border border-gray-200 p-5 mb-6 shadow-sm">
-            <h2 className="text-lg font-bold text-gray-900 mb-2">3-part quick build</h2>
-            <p className="text-sm text-gray-700">{config.instructions}</p>
-            <p className="text-xs text-gray-500 mt-2">Drop a couple of preset chips, keep it short, and move on.</p>
+        <div className="bg-gradient-to-r from-purple-50 to-orange-50 rounded-lg p-6 mb-6 border border-purple-200">
+          <h2 className="text-xl font-bold text-gray-900 mb-3">Build Your Prompt</h2>
+          <div className="grid sm:grid-cols-2 gap-3 text-sm text-gray-800 mb-4">
+            <div className="bg-white/60 rounded-lg p-3 border border-purple-100">
+              <p className="font-semibold text-purple-900 mb-1">Level style</p>
+              <p className="leading-snug">{config.playstyle}</p>
+            </div>
+            <div className="bg-white/60 rounded-lg p-3 border border-orange-100">
+              <p className="font-semibold text-orange-900 mb-1">Keep in mind</p>
+              <ul className="list-disc list-inside space-y-1">
+                <li>{config.instructions}</li>
+                <li>Keep it scannable; avoid filler words.</li>
+              </ul>
+            </div>
           </div>
-        )}
+          <div className="bg-white rounded-lg p-4 border border-dashed border-purple-300 mb-4">
+            <div className="flex flex-wrap items-center gap-3 mb-2">
+              <span className="text-sm font-semibold text-purple-900">Chip draft</span>
+              <span className="text-xs bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full font-bold">
+                {Math.min(chipsPlayed, chipRule.minTotalSelections || 0)} / {chipRule.minTotalSelections || 0} needed
+              </span>
+              {chipRule.perFieldLimit > 0 && (
+                <span className="text-xs text-gray-600 bg-gray-100 px-2 py-0.5 rounded-full">
+                  Max {chipRule.perFieldLimit} per category
+                </span>
+              )}
+            </div>
+            <p className="text-sm text-gray-700 mb-2">{chipRule.label}</p>
+            {chipRule.minTotalSelections > 0 && (
+              <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                <div
+                  className="bg-purple-500 h-2 transition-all"
+                  style={{ width: `${Math.min(100, Math.round((chipsPlayed / chipRule.minTotalSelections) * 100))}%` }}
+                ></div>
+              </div>
+            )}
+          </div>
+          <button
+            onClick={() => setShowHints(!showHints)}
+            className="text-purple-600 hover:text-purple-700 font-semibold text-sm flex items-center gap-2"
+          >
+            <Lightbulb size={16} />
+            {showHints ? 'Hide' : 'Show'} helpful questions
+          </button>
+        </div>
 
-        {selectedDifficulty === 'medium' && (
-          <>
-            <div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-lg p-6 mb-4 border border-orange-200">
-              <h2 className="text-xl font-bold text-gray-900 mb-2">Add your own twist</h2>
-              <p className="text-sm text-gray-700">Blend presets with 1-2 custom guardrails so the output stays on track.</p>
+        <div className="bg-white rounded-lg border-2 border-gray-200 p-5 mb-6">
+          <div className="flex items-center gap-2 mb-3">
+            <CheckCircle className="text-green-600" size={18} />
+            <p className="font-semibold text-gray-900">Task block</p>
+          </div>
+          <div className="grid sm:grid-cols-2 gap-3 text-sm text-gray-800">
+            <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+              <p className="text-xs uppercase font-bold text-green-800 mb-1">Deliverable</p>
+              <p className="leading-snug">{scenario?.requirement || 'Spell out what you need written or outlined.'}</p>
+            </div>
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+              <p className="text-xs uppercase font-bold text-blue-800 mb-1">Timing</p>
+              <p className="leading-snug">{scenario?.urgency || 'Note when this is due and why the timing matters.'}</p>
+            </div>
+            <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
+              <p className="text-xs uppercase font-bold text-purple-800 mb-1">Audience</p>
+              <p className="leading-snug">{scenario?.sector ? `Write for folks in ${scenario.sector}.` : 'Call out who will read this.'}</p>
+            </div>
+            <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
+              <p className="text-xs uppercase font-bold text-orange-800 mb-1">Must include</p>
+              <p className="leading-snug">{scenario?.focus || 'Include the key facts from the scenario without adding extras.'}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Hints section */}
+        {showHints && (
+          <div className="bg-white rounded-lg border-2 border-gray-200 p-6 mb-6">
+            <h3 className="font-bold text-gray-900 mb-4">Questions to guide you:</h3>
+            <div className="grid gap-4">
+              {allHints.map((hint, idx) => (
+                <div key={idx} className="border-l-4 border-purple-300 pl-4">
+                  <p className="font-semibold text-purple-900 mb-2">{hint.category}</p>
+                  <ul className="space-y-1">
+                    {hint.questions.map((q, qIdx) => (
+                      <li key={qIdx} className="text-sm text-gray-600">• {q}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
             </div>
             <div className="bg-white rounded-lg border border-amber-200 p-4 mb-6">
               <div className="flex items-center gap-2 mb-2 text-amber-700 font-semibold text-sm">
@@ -922,64 +1012,96 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
           </>
         )}
 
-        <div className="bg-white rounded-lg border-2 border-gray-200 p-5 mb-6">
-          <div className="flex flex-col sm:flex-row gap-3">
-            {['easy', 'medium', 'hard'].map((level) => (
-              <button
-                key={level}
-                onClick={() => setSelectedDifficulty(level)}
-                className={`flex-1 rounded-lg border-2 p-4 text-left transition-all ${
-                  selectedDifficulty === level
-                    ? 'border-orange-400 bg-orange-50 shadow-sm'
-                    : 'border-gray-200 bg-gray-50 hover:border-gray-300'
-                }`}
-              >
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-sm font-bold text-gray-900">{difficultyCopy[level].title}</span>
-                  <span className={`text-xs font-semibold ${selectedDifficulty === level ? 'text-orange-700' : 'text-gray-500'}`}>
-                    {selectedDifficulty === level ? 'Selected' : 'Try it'}
-                  </span>
-                </div>
-                <p className="text-xs text-gray-700 leading-snug">{difficultyCopy[level].description}</p>
-              </button>
-            ))}
-          </div>
-
-          <p className="text-xs text-gray-600 mt-3">
-            {selectedDifficulty === 'easy' && 'Only the essentials show here. Tap chips to drop in starter snippets fast.'}
-            {selectedDifficulty === 'medium' && 'Use chips as a base, then add a custom constraint or tone line to round it out.'}
-            {selectedDifficulty === 'hard' && 'Hard mode leaves textareas blank so you write every ingredient from scratch.'}
-          </p>
-        </div>
-
         {/* Ingredient fields */}
         <div className="mb-6">
-          {fieldsToRender.map((fieldKey, index) => {
-            const meta = ingredientFieldMeta[fieldKey];
+          <IngredientField
+            field="context"
+            number={1}
+            title="Context"
+            placeholder="What background information does Claude need?"
+            hint="Set the stage. What's happening? What's the company? What's the situation?"
+            value={promptContext}
+            onChange={setPromptContext}
+            presets={activePresets?.context || []}
+            onPresetSelect={applyPresetToField}
+            selectedPresets={selectedPresets}
+            difficulty={selectedDifficulty}
+            collapsed={collapsed}
+            onToggleCollapse={toggleCollapse}
+            perFieldLimit={chipRule.perFieldLimit}
+          />
 
-            return (
-              <IngredientField
-                key={fieldKey}
-                field={fieldKey}
-                number={index + 1}
-                title={meta.title}
-                placeholder={meta.placeholder}
-                hint={meta.hint}
-                value={ingredientValues[fieldKey]}
-                onChange={ingredientSetters[fieldKey]}
-                presets={activePresets?.[fieldKey] || []}
-                onPresetSelect={applyPresetToField}
-                selectedPreset={selectedPresets[fieldKey]}
-                difficulty={selectedDifficulty}
-                collapsed={collapsed}
-                onToggleCollapse={toggleCollapse}
-              />
-            );
-          })}
+          <IngredientField
+            field="format"
+            number={2}
+            title="Format"
+            placeholder="What structure should the output have?"
+            hint="Be specific about length, style, sections, or structure."
+            value={promptFormat}
+            onChange={setPromptFormat}
+            presets={activePresets?.format || []}
+            onPresetSelect={applyPresetToField}
+            selectedPresets={selectedPresets}
+            difficulty={selectedDifficulty}
+            collapsed={collapsed}
+            onToggleCollapse={toggleCollapse}
+            perFieldLimit={chipRule.perFieldLimit}
+          />
+
+          <IngredientField
+            field="audience"
+            number={3}
+            title="Audience"
+            placeholder="Who will read this and what do they care about?"
+            hint="Who's this for? What's their perspective? What tone will work?"
+            value={promptAudience}
+            onChange={setPromptAudience}
+            presets={activePresets?.audience || []}
+            onPresetSelect={applyPresetToField}
+            selectedPresets={selectedPresets}
+            difficulty={selectedDifficulty}
+            collapsed={collapsed}
+            onToggleCollapse={toggleCollapse}
+            perFieldLimit={chipRule.perFieldLimit}
+          />
+
+          <IngredientField
+            field="constraints"
+            number={4}
+            title="Constraints"
+            placeholder="What should be avoided or what are the limits?"
+            hint="What can't you say? What must be avoided? Any requirements or limitations?"
+            value={promptConstraints}
+            onChange={setPromptConstraints}
+            presets={activePresets?.constraints || []}
+            onPresetSelect={applyPresetToField}
+            selectedPresets={selectedPresets}
+            difficulty={selectedDifficulty}
+            collapsed={collapsed}
+            onToggleCollapse={toggleCollapse}
+            perFieldLimit={chipRule.perFieldLimit}
+          />
+
+          <IngredientField
+            field="goal"
+            number={5}
+            title="Goal"
+            placeholder="What should this accomplish?"
+            hint="What's the desired outcome? What action should readers take? How do you measure success?"
+            value={promptGoal}
+            onChange={setPromptGoal}
+            presets={activePresets?.goal || []}
+            onPresetSelect={applyPresetToField}
+            selectedPresets={selectedPresets}
+            difficulty={selectedDifficulty}
+            collapsed={collapsed}
+            onToggleCollapse={toggleCollapse}
+            perFieldLimit={chipRule.perFieldLimit}
+          />
         </div>
 
         {/* Preview */}
-        {allFieldsFilled && (
+        {baseFieldsFilled && (
           <div className="bg-white rounded-lg border-2 border-purple-200 p-6 mb-6">
             <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
               <Sparkles className="text-purple-600" size={20} />
@@ -992,6 +1114,9 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
         )}
 
         {/* Generate button */}
+        {!readyToGenerate && chipRule.minTotalSelections > 0 && (
+          <p className="text-xs text-orange-700 mb-2">Play at least {chipRule.minTotalSelections} chips and fill each ingredient before generating.</p>
+        )}
         <div className="flex gap-3">
           <button
             onClick={() => setStage('scenario')}
@@ -1001,9 +1126,9 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
           </button>
           <button
             onClick={handleGenerate}
-            disabled={!allFieldsFilled}
+            disabled={!readyToGenerate}
             className={`flex-1 py-4 rounded-lg font-bold text-lg transition-colors flex items-center justify-center gap-2 ${
-              allFieldsFilled
+              readyToGenerate
                 ? 'bg-purple-600 text-white hover:bg-purple-700'
                 : 'bg-gray-300 text-gray-500 cursor-not-allowed'
             }`}
