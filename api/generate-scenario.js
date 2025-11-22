@@ -3,7 +3,15 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
-  
+
+  if (!process.env.ANTHROPIC_API_KEY) {
+    console.error('Missing ANTHROPIC_API_KEY for scenario generation');
+    return res.status(500).json({
+      error: 'Failed to generate scenario',
+      message: 'Server configuration error. Please try again later.'
+    });
+  }
+
   try {
     const { userTopic, difficulty = 'easy' } = req.body;
     const difficultyLevel = ['easy', 'medium', 'hard'].includes((difficulty || '').toLowerCase())
@@ -115,12 +123,10 @@ Keep it practical, non-emergency, and useful for learning.`;
     res.status(200).json({ scenario });
   } catch (error) {
     console.error('Error generating scenario:', error);
-    console.error('API Key present:', !!process.env.ANTHROPIC_API_KEY);
     console.error('Error details:', error.message);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Failed to generate scenario',
-      message: error.message,
-      hasApiKey: !!process.env.ANTHROPIC_API_KEY
+      message: error.message
     });
   }
 }
