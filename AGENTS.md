@@ -14,12 +14,14 @@ This file applies to the entire repo. Prioritize keeping the "guided path → sc
 
 ## API & environment
 - Serverless functions live under `/api`; keep prompts configurable in those files and respect the Anthropic API key env var documented in the README.
+- Avoid exposing the presence or absence of environment variables in client responses or logs; sanitize outputs that mention configuration status.
 
 ## Testing/build
 - Run `npm run build` before committing when possible. Keep changes small and isolate concerns per branch to avoid merge conflicts (especially in `App.jsx` and `round*-improved.jsx`).
 
 ## Copy & tone
 - Keep user-facing copy friendly and beginner-oriented; prefer short sentences and clear time estimates ("5 min", "7–9 min").
+- When renaming round files (e.g., round 3 variants), update README instructions and any in-app UX copy to match the new filenames.
 
 ## Files to avoid heavy churn
 - `App.jsx` (routing/entry experience) and `/api/*` (live prompts) should see minimal unrelated refactors; propose structural changes in PR descriptions first.
