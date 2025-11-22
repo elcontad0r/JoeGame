@@ -15,9 +15,9 @@ export default async function handler(req, res) {
     : 'easy';
 
   const difficultyGuidance = {
-    easy: `EASY expectations: reward clean remixing of the starter ingredients. One audience, one goal, straightforward constraints. Prioritize clarity over length and avoid punishing brevity if essentials are covered.`,
-    medium: `MEDIUM expectations: look for how the player layered their own guidance on top of the starter details. A second constraint or nuance should be named, and the output should be guided into 2 parts or a clear structure.`,
-    hard: `HARD expectations: the player sets the guardrails. Expect explicit sections/ordering, tone, and sensitivities they define. Look for priorities, risks to avoid, and how they direct tradeoffs without being handheld.`
+    easy: `EASY expectations: reward clear basics. One audience, one goal, straightforward constraints. Prioritize clarity over length and avoid punishing brevity if essentials are covered.`,
+    medium: `MEDIUM expectations: look for balance between two audiences or constraints. The prompt should name the tradeoff, structure the output into 2 parts, and still include concrete facts.`,
+    hard: `HARD expectations: expect sequencing, tradeoffs, and safeguards. Look for explicit priorities, risks to avoid, evidence/sources to include or avoid, and how to reconcile constraints in the output.`
   };
 
   try {

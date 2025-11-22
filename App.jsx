@@ -20,7 +20,7 @@ const App = () => {
             Learn AI Challenge
           </h1>
           <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto">
-            Learn how to talk to AI the easy way. Start with quick demos, then move through guided, remix, and freeform levels that make you think—without the stress. Friendly, fast, and there’s a mystery prize.
+            Learn how to talk to AI the easy way. We’ll show quick examples of what works, then you’ll practice across easy, medium, and hard levels. Friendly, fast, and there’s a mystery prize.
           </p>
         </div>
 
@@ -67,9 +67,9 @@ const App = () => {
               </div>
               <div className="flex-1">
                 <div className="text-xs font-bold text-green-700 mb-1 tracking-wide">Level 1</div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Guided remix</h3>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">Low-stakes warm-up</h3>
                 <p className="text-gray-600 text-sm leading-relaxed mb-3">
-                  Take an easy scenario and remix the guided ingredients. Practice turning hints into a solid prompt.
+                  Friendly, everyday scenario with one clear deliverable. Perfect first score.
                 </p>
                 <div className="flex items-center gap-2 text-sm text-gray-500">
                   <Clock size={14} />
@@ -93,9 +93,9 @@ const App = () => {
               </div>
               <div className="flex-1">
                 <div className="text-xs font-bold text-orange-700 mb-1 tracking-wide">Level 2</div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Blend options + your voice</h3>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">Add moving parts</h3>
                 <p className="text-gray-600 text-sm leading-relaxed mb-3">
-                  Mix the guided approach with your own twists. Expect a couple of knobs to tune without feeling heavy.
+                  Two audiences or constraints to juggle. Write a prompt that keeps them balanced.
                 </p>
                 <div className="flex items-center gap-2 text-sm text-gray-500">
                   <Clock size={14} />
@@ -119,9 +119,9 @@ const App = () => {
               </div>
               <div className="flex-1">
                 <div className="text-xs font-bold text-purple-700 mb-1 tracking-wide">Level 3</div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Freeform flow</h3>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">Complex, timed challenge</h3>
                 <p className="text-gray-600 text-sm leading-relaxed mb-3">
-                  A flexible brief where you set the guardrails. Bring the lessons together and let your prompt style shine.
+                  Multi-step output with conflicting constraints and tradeoffs. Show full prompt craft.
                 </p>
                 <div className="flex items-center gap-2 text-sm text-gray-500">
                   <Clock size={14} />
