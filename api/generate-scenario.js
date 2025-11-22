@@ -1,3 +1,5 @@
+import { getAnthropicModel } from './anthropic-config.js';
+
 // Vercel serverless function for generating scenarios
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -5,6 +7,7 @@ export default async function handler(req, res) {
   }
   
   try {
+    const model = getAnthropicModel();
     const { userTopic, difficulty = 'easy' } = req.body;
     const difficultyLevel = ['easy', 'medium', 'hard'].includes((difficulty || '').toLowerCase())
       ? difficulty.toLowerCase()
@@ -89,7 +92,7 @@ Keep it practical, non-emergency, and useful for learning.`;
         "anthropic-version": "2023-06-01"
       },
       body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
+        model,
         max_tokens: 500,
         temperature: 1.0,
         messages: [{
