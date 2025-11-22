@@ -4,6 +4,7 @@ import { AlertCircle, ArrowRight, Clock, CheckCircle, Zap, RefreshCw } from 'luc
 const Round2GameV2 = ({ onComplete }) => {
   const [stage, setStage] = useState('scenario');
   const [selections, setSelections] = useState({
+    task: null,
     context: null,
     format: null,
     audience: null,
@@ -21,6 +22,26 @@ const Round2GameV2 = ({ onComplete }) => {
   const [output, setOutput] = useState('');
 
   const ingredients = {
+    task: {
+      title: "Task",
+      options: [
+        {
+          id: 'welcome-pack',
+          label: "Draft the welcome pack",
+          promptText: "Create the full welcome packet for this specific kickoff night—clear schedule, roles, and FAQs.",
+        },
+        {
+          id: 'list-ideas',
+          label: "Brainstorm ideas",
+          promptText: "Just share high-level ideas for running events like this in the future.",
+        },
+        {
+          id: 'promo',
+          label: "Promo post",
+          promptText: "Write marketing copy to hype the maker club broadly, not the Saturday plan.",
+        }
+      ]
+    },
     context: {
       title: "Context",
       options: [
@@ -28,6 +49,11 @@ const Round2GameV2 = ({ onComplete }) => {
           id: 'club-basics',
           label: "Club Snapshot",
           promptText: "Monthly maker nights at the community center; 120 interested, 45 RSVPs for kickoff; mix of teens and adults; beginner-friendly.",
+        },
+        {
+          id: 'buzz',
+          label: "Feel-Good Backstory",
+          promptText: "Emphasize how excited the club is about creativity and community without logistics.",
         },
         {
           id: 'support',
@@ -58,6 +84,11 @@ const Round2GameV2 = ({ onComplete }) => {
           id: 'social-thread',
           label: "Social Thread",
           promptText: "Series of 3-4 short posts inviting folks to drop by, with emojis and a link to RSVP.",
+        },
+        {
+          id: 'open-ended',
+          label: "Loose brain-dump",
+          promptText: "Unstructured brainstorming doc—no clear headers or deliverable.",
         }
       ]
     },
@@ -78,6 +109,11 @@ const Round2GameV2 = ({ onComplete }) => {
           id: 'donors',
           label: "Local Donors",
           promptText: "Two nearby shops offering supplies; they want to see their support acknowledged and know when to drop off materials.",
+        },
+        {
+          id: 'everyone-online',
+          label: "Everyone online",
+          promptText: "Assume the output is for a broad internet audience instead of the people attending.",
         }
       ]
     },
@@ -98,6 +134,11 @@ const Round2GameV2 = ({ onComplete }) => {
           id: 'printable',
           label: "Printable Tonight",
           promptText: "Needs to print cleanly in black-and-white; no links required; simple headers and bullets.",
+        },
+        {
+          id: 'no-constraints',
+          label: "No limits, impress me",
+          promptText: "Say there are no constraints—let the AI make assumptions about timing, budget, and audience.",
         }
       ]
     },
@@ -118,6 +159,11 @@ const Round2GameV2 = ({ onComplete }) => {
           id: 'thank-donors',
           label: "Thank Donors",
           promptText: "Primary goal: highlight donor support and invite them to stop by for a quick shout-out."
+        },
+        {
+          id: 'go-viral',
+          label: "Go viral",
+          promptText: "Primary goal: make the content catchy for social media, even if it ignores logistics."
         }
       ]
     }
@@ -203,7 +249,11 @@ Return as JSON:
   };
 
   const buildPrompt = () => {
-    let prompt = "Draft a warm, practical welcome note for a community maker night.\n\n";
+    let prompt = "";
+
+    if (selections.task) {
+      prompt += `Task: ${ingredients.task.options.find(o => o.id === selections.task).promptText}\n\n`;
+    }
     
     if (selections.context) {
       prompt += `Context: ${ingredients.context.options.find(o => o.id === selections.context).promptText}\n\n`;
@@ -243,13 +293,13 @@ Return as JSON:
         </div>
       </div>
 
-      <div className="bg-gradient-to-br from-purple-500 to-blue-600 rounded-lg shadow-xl p-6 text-white">
-        <h3 className="text-xl font-bold mb-3">Now You Build One</h3>
-        <p className="text-base mb-5 text-purple-50">
-          Pick 5 ingredients and watch how your choices shape the output. No right answer—just see what happens.
-        </p>
-        <button
-          onClick={() => setStage('builder')}
+        <div className="bg-gradient-to-br from-purple-500 to-blue-600 rounded-lg shadow-xl p-6 text-white">
+          <h3 className="text-xl font-bold mb-3">Now You Build One</h3>
+          <p className="text-base mb-5 text-purple-50">
+          Pick 6 ingredients and watch how your choices shape the output. No right answer—just see what happens.
+          </p>
+          <button
+            onClick={() => setStage('builder')}
           className="bg-white text-purple-600 px-8 py-3 rounded-lg font-bold hover:bg-purple-50 transition-colors inline-flex items-center gap-2"
         >
           Start Building <ArrowRight size={20} />
@@ -290,6 +340,7 @@ Return as JSON:
 
   const renderPrompt = () => {
     const colors = {
+      task: 'bg-gray-50 border-gray-300',
       context: 'bg-orange-50 border-orange-300',
       format: 'bg-yellow-50 border-yellow-300',
       audience: 'bg-green-50 border-green-300',
@@ -297,17 +348,12 @@ Return as JSON:
       goal: 'bg-purple-50 border-purple-300'
     };
 
+    const orderedKeys = ['task', 'context', 'format', 'audience', 'constraints', 'goal'];
+
     return (
       <div className="space-y-3">
-        {/* Task - always at top, visually distinct */}
-        <div className="bg-gray-100 border-2 border-gray-400 rounded-lg p-3">
-          <div className="text-xs font-bold text-gray-600 mb-1">TASK</div>
-          <p className="text-sm font-semibold text-gray-800">
-            Draft the welcome pack for the maker night kickoff.
-          </p>
-        </div>
-        
-        {Object.entries(selections).map(([key, value]) => {
+        {orderedKeys.map((key) => {
+          const value = selections[key];
           if (!value) return null;
           const option = ingredients[key].options.find(o => o.id === value);
           return (
@@ -352,12 +398,12 @@ Return as JSON:
             <Zap className="text-purple-600" size={20} />
             <div>
               <h2 className="font-bold">Prompt Builder</h2>
-              <p className="text-xs text-gray-600">{selectedCount}/5 selected</p>
+              <p className="text-xs text-gray-600">{selectedCount}/{Object.keys(selections).length} selected</p>
             </div>
           </div>
           <button
             onClick={() => {
-              setSelections({ context: null, format: null, audience: null, constraints: null, goal: null });
+              setSelections({ task: null, context: null, format: null, audience: null, constraints: null, goal: null });
               setOutput('');
             }}
             className="text-sm text-gray-600 hover:text-gray-900 flex items-center gap-1"
@@ -371,6 +417,7 @@ Return as JSON:
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           {/* Left: Ingredients */}
           <div className="space-y-4">
+            <IngredientCard ingredientKey="task" data={ingredients.task} />
             <IngredientCard ingredientKey="context" data={ingredients.context} />
             <IngredientCard ingredientKey="format" data={ingredients.format} />
             <IngredientCard ingredientKey="audience" data={ingredients.audience} />
@@ -480,8 +527,12 @@ Return as JSON:
       </div>
 
       <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-        <h3 className="text-xl font-bold mb-4">The 5 Ingredients:</h3>
+        <h3 className="text-xl font-bold mb-4">The 6 Ingredients:</h3>
         <div className="space-y-3 text-sm">
+          <div className="p-3 bg-gray-50 rounded-lg">
+            <div className="font-semibold mb-1">Task</div>
+            <div className="text-gray-600">Start with the exact deliverable you need before adding color</div>
+          </div>
           <div className="p-3 bg-gray-50 rounded-lg">
             <div className="font-semibold mb-1">Context</div>
             <div className="text-gray-600">Different framings get different results - safety facts vs customer impact vs regulators</div>
