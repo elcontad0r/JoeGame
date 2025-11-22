@@ -1,205 +1,56 @@
 import React, { useState } from 'react';
 import { AlertCircle, ArrowRight, Clock, CheckCircle, Zap, RefreshCw } from 'lucide-react';
+import OptionCard from './rounds/common/OptionCard';
+import ScenarioHero from './rounds/common/ScenarioHero';
+import { round2Config } from './rounds/common/lessonConfig';
 
 const Round2GameV2 = ({ onComplete }) => {
   const [stage, setStage] = useState('scenario');
-  const [selections, setSelections] = useState({
-    task: null,
-    context: null,
-    format: null,
-    audience: null,
-    constraints: null,
-    goal: null
-  });
-
-  const scenario = {
-    title: "Create a Friendly Welcome Pack",
-    urgency: "Share with members tonight",
-    situation: "Your neighborhood maker club is kicking off monthly meetups. 120 people expressed interest, 45 have RSVPed for the first evening, and two local shops donated supplies. You want a clear, welcoming note that sets expectations and helps volunteers prep."
-  };
+  const initialSelections = Object.keys(round2Config.ingredients).reduce(
+    (acc, key) => ({
+      ...acc,
+      [key]: null
+    }),
+    {}
+  );
+  const [selections, setSelections] = useState(initialSelections);
 
   const [isGenerating, setIsGenerating] = useState(false);
   const [output, setOutput] = useState('');
 
-  const ingredients = {
-    task: {
-      title: "Task",
-      options: [
-        {
-          id: 'welcome-pack',
-          label: "Draft the welcome pack",
-          promptText: "Create the full welcome packet for this specific kickoff night—clear schedule, roles, and FAQs.",
-        },
-        {
-          id: 'list-ideas',
-          label: "Brainstorm ideas",
-          promptText: "Just share high-level ideas for running events like this in the future.",
-        },
-        {
-          id: 'promo',
-          label: "Promo post",
-          promptText: "Write marketing copy to hype the maker club broadly, not the Saturday plan.",
-        }
-      ]
-    },
-    context: {
-      title: "Context",
-      options: [
-        {
-          id: 'club-basics',
-          label: "Club Snapshot",
-          promptText: "Monthly maker nights at the community center; 120 interested, 45 RSVPs for kickoff; mix of teens and adults; beginner-friendly.",
-        },
-        {
-          id: 'buzz',
-          label: "Feel-Good Backstory",
-          promptText: "Emphasize how excited the club is about creativity and community without logistics.",
-        },
-        {
-          id: 'support',
-          label: "Volunteer Details",
-          promptText: "6 volunteers: 2 greeters, 3 project leads (painting, 3D pens, soldering), 1 cleanup lead; each can prep for 90 minutes Friday night.",
-        },
-        {
-          id: 'space-supplies',
-          label: "Space + Supplies",
-          promptText: "3 rooms + hallway tables; outlets available; donated supplies include paints, brushes, filament, safety glasses; snacks budget $150.",
-        }
-      ]
-    },
-    format: {
-      title: "Format",
-      options: [
-        {
-          id: 'welcome-email',
-          label: "Welcome Email + FAQ",
-          promptText: "Friendly email with 4-5 FAQ bullets: where to park, what to bring, skill level, timing. Max 220 words.",
-        },
-        {
-          id: 'one-pager',
-          label: "One-Page Plan",
-          promptText: "Single page: schedule, room assignments, supplies list, who is hosting each table.",
-        },
-        {
-          id: 'social-thread',
-          label: "Social Thread",
-          promptText: "Series of 3-4 short posts inviting folks to drop by, with emojis and a link to RSVP.",
-        },
-        {
-          id: 'open-ended',
-          label: "Loose brain-dump",
-          promptText: "Unstructured brainstorming doc—no clear headers or deliverable.",
-        }
-      ]
-    },
-    audience: {
-      title: "Audience",
-      options: [
-        {
-          id: 'attendees',
-          label: "First-Time Attendees",
-          promptText: "People curious about making something simple after work; want to know if it's beginner-friendly and what it costs (it's free).",
-        },
-        {
-          id: 'volunteers',
-          label: "Volunteer Crew",
-          promptText: "Greeters + project leads who need clear tasks, timing, and a heads-up on supplies to bring from home.",
-        },
-        {
-          id: 'donors',
-          label: "Local Donors",
-          promptText: "Two nearby shops offering supplies; they want to see their support acknowledged and know when to drop off materials.",
-        },
-        {
-          id: 'everyone-online',
-          label: "Everyone online",
-          promptText: "Assume the output is for a broad internet audience instead of the people attending.",
-        }
-      ]
-    },
-    constraints: {
-      title: "Constraints",
-      options: [
-        {
-          id: 'word-cap',
-          label: "200-Word Cap",
-          promptText: "Keep attendee-facing copy under 200 words so people will read it on their phone.",
-        },
-        {
-          id: 'warm-tone',
-          label: "Warm + Plain Language",
-          promptText: "Avoid jargon; write like a friendly neighbor inviting people over; short sentences welcome.",
-        },
-        {
-          id: 'printable',
-          label: "Printable Tonight",
-          promptText: "Needs to print cleanly in black-and-white; no links required; simple headers and bullets.",
-        },
-        {
-          id: 'no-constraints',
-          label: "No limits, impress me",
-          promptText: "Say there are no constraints—let the AI make assumptions about timing, budget, and audience.",
-        }
-      ]
-    },
-    goal: {
-      title: "Goal",
-      options: [
-        {
-          id: 'show-up',
-          label: "Boost Show-Ups",
-          promptText: "Primary goal: make people excited to attend and know exactly where/when to arrive.",
-        },
-        {
-          id: 'prep-volunteers',
-          label: "Prep Volunteers",
-          promptText: "Primary goal: give volunteers a simple checklist so setup feels calm, not rushed.",
-        },
-        {
-          id: 'thank-donors',
-          label: "Thank Donors",
-          promptText: "Primary goal: highlight donor support and invite them to stop by for a quick shout-out."
-        },
-        {
-          id: 'go-viral',
-          label: "Go viral",
-          promptText: "Primary goal: make the content catchy for social media, even if it ignores logistics."
-        }
-      ]
-    }
-  };
+  const ingredients = round2Config.ingredients;
 
   // Simple markdown to HTML converter
   const markdownToHtml = (markdown) => {
     let html = markdown;
-    
+
     // Headers (do these first)
     html = html.replace(/^### (.+)$/gm, '<h3 class="text-lg font-bold mt-4 mb-2">$1</h3>');
     html = html.replace(/^## (.+)$/gm, '<h2 class="text-xl font-bold mt-5 mb-3">$1</h2>');
     html = html.replace(/^# (.+)$/gm, '<h1 class="text-2xl font-bold mt-6 mb-3">$1</h1>');
-    
+
     // Bold and italic
     html = html.replace(/\*\*(.+?)\*\*/g, '<strong class="font-semibold">$1</strong>');
     html = html.replace(/\*(.+?)\*/g, '<em class="italic">$1</em>');
     html = html.replace(/__(.+?)__/g, '<strong class="font-semibold">$1</strong>');
-    
+
     // Lists - handle both * and -
     html = html.replace(/^[\*\-] (.+)$/gm, '<li class="ml-4">$1</li>');
     html = html.replace(/(<li class="ml-4">.*<\/li>\n?)+/g, '<ul class="list-disc list-inside space-y-1 mb-3">$&</ul>');
-    
+
     // Paragraphs - split on double newlines
     html = html.replace(/\n\n/g, '</p><p class="mb-3">');
     html = '<p class="mb-3">' + html + '</p>';
-    
+
     // Clean up empty paragraphs
     html = html.replace(/<p class="mb-3"><\/p>/g, '');
-    
+
     return html;
   };
 
   const generateWithClaude = async () => {
     setIsGenerating(true);
-    
+
     const basePrompt = buildPrompt();
     const prompt = `${basePrompt}
 
@@ -213,7 +64,7 @@ Return as JSON:
 {
   "content": "your markdown content here"
 }`;
-  
+
     try {
       const response = await fetch("/api/generate-content", {
         method: "POST",
@@ -226,13 +77,12 @@ Return as JSON:
       }
 
       const data = await response.json();
-      
-      let parsed;
+
       try {
         let outputText = data.output.trim();
         outputText = outputText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-        parsed = JSON.parse(outputText);
-        
+        const parsed = JSON.parse(outputText);
+
         // Convert markdown to HTML
         const htmlContent = markdownToHtml(parsed.content);
         setOutput(htmlContent);
@@ -251,87 +101,52 @@ Return as JSON:
   const buildPrompt = () => {
     let prompt = "";
 
-    if (selections.task) {
-      prompt += `Task: ${ingredients.task.options.find(o => o.id === selections.task).promptText}\n\n`;
-    }
-    
-    if (selections.context) {
-      prompt += `Context: ${ingredients.context.options.find(o => o.id === selections.context).promptText}\n\n`;
-    }
-    if (selections.format) {
-      prompt += `Format: ${ingredients.format.options.find(o => o.id === selections.format).promptText}\n\n`;
-    }
-    if (selections.audience) {
-      prompt += `Audience: ${ingredients.audience.options.find(o => o.id === selections.audience).promptText}\n\n`;
-    }
-    if (selections.constraints) {
-      prompt += `Constraints: ${ingredients.constraints.options.find(o => o.id === selections.constraints).promptText}\n\n`;
-    }
-    if (selections.goal) {
-      prompt += `Goal: ${ingredients.goal.options.find(o => o.id === selections.goal).promptText}`;
-    }
-    
+    Object.keys(selections).forEach((key) => {
+      const selectedId = selections[key];
+      if (selectedId) {
+        const option = ingredients[key].options.find((o) => o.id === selectedId);
+        prompt += `${ingredients[key].title}: ${option.promptText}\n\n`;
+      }
+    });
+
     return prompt;
   };
 
-  const allSelected = Object.values(selections).every(v => v !== null);
-  const selectedCount = Object.values(selections).filter(v => v !== null).length;
+  const allSelected = Object.values(selections).every((v) => v !== null);
+  const selectedCount = Object.values(selections).filter((v) => v !== null).length;
 
   const renderScenario = () => (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6">
-      <div className="bg-white rounded-lg shadow-xl p-8 mb-6">
-        <div className="flex items-start gap-4 mb-6">
-          <AlertCircle className="text-purple-500 flex-shrink-0 mt-1" size={28} />
-          <div>
-            <h2 className="text-2xl font-bold text-purple-900 mb-2">{scenario.title}</h2>
-            <div className="flex items-center gap-2 text-purple-700 font-semibold mb-4">
-              <Clock size={18} />
-              <span>{scenario.urgency}</span>
-            </div>
-            <p className="text-gray-700 text-lg leading-relaxed">{scenario.situation}</p>
-          </div>
-        </div>
-      </div>
-
-        <div className="bg-gradient-to-br from-purple-500 to-blue-600 rounded-lg shadow-xl p-6 text-white">
-          <h3 className="text-xl font-bold mb-3">Now You Build One</h3>
-          <p className="text-base mb-5 text-purple-50">
-          Pick 6 ingredients and watch how your choices shape the output. No right answer—just see what happens.
-          </p>
-          <button
-            onClick={() => setStage('builder')}
-          className="bg-white text-purple-600 px-8 py-3 rounded-lg font-bold hover:bg-purple-50 transition-colors inline-flex items-center gap-2"
-        >
-          Start Building <ArrowRight size={20} />
-        </button>
-      </div>
-    </div>
+    <ScenarioHero
+      scenario={round2Config.scenario}
+      actionTitle={round2Config.hero.actionTitle}
+      actionCopy={round2Config.hero.actionCopy}
+      actionLabel={round2Config.hero.actionLabel}
+      onAction={() => setStage('builder')}
+      accentColorClass={round2Config.hero.accentColorClass}
+      gradientFrom={round2Config.hero.gradientFrom}
+      gradientTo={round2Config.hero.gradientTo}
+      buttonClassName="bg-white text-purple-600 hover:bg-purple-50"
+    />
   );
 
   const IngredientCard = ({ ingredientKey, data }) => {
     const selected = selections[ingredientKey];
-    
+
     return (
       <div className="bg-white rounded-lg border-2 border-gray-200 p-4">
         <h4 className="font-bold text-gray-900 mb-3">{data.title}</h4>
         <div className="space-y-2">
           {data.options.map((option) => (
-            <button
+            <OptionCard
               key={option.id}
-              onClick={() => setSelections({ ...selections, [ingredientKey]: option.id })}
-              className={`w-full text-left p-3 rounded-lg border-2 transition-all ${
-                selected === option.id
-                  ? 'border-purple-500 bg-purple-50'
-                  : 'border-gray-200 hover:border-gray-300'
-              }`}
-            >
-              <div className="flex items-start justify-between gap-2">
-                <span className="font-medium text-sm">{option.label}</span>
-                {selected === option.id && (
-                  <CheckCircle size={18} className="text-purple-600 flex-shrink-0" />
-                )}
-              </div>
-            </button>
+              label={option.label}
+              selected={selected === option.id}
+              onSelect={() => setSelections({ ...selections, [ingredientKey]: option.id })}
+              selectedClasses="border-purple-500 bg-purple-50"
+              badgeClassName="bg-purple-100 text-purple-700"
+              selectedHintClassName="hidden"
+              unselectedClasses="border-gray-200 hover:border-gray-300"
+            />
           ))}
         </div>
       </div>
@@ -355,7 +170,7 @@ Return as JSON:
         {orderedKeys.map((key) => {
           const value = selections[key];
           if (!value) return null;
-          const option = ingredients[key].options.find(o => o.id === value);
+          const option = ingredients[key].options.find((o) => o.id === value);
           return (
             <div key={key} className={`${colors[key]} border-2 rounded-lg p-3`}>
               <div className="text-xs font-bold text-gray-700 mb-1">{ingredients[key].title.toUpperCase()}</div>
@@ -363,7 +178,7 @@ Return as JSON:
             </div>
           );
         })}
-        
+
         {selectedCount === 0 && (
           <div className="bg-gray-50 border-2 border-gray-200 rounded-lg p-8 text-center">
             <p className="text-sm text-gray-500">Select ingredients to build your prompt</p>
@@ -382,12 +197,12 @@ Return as JSON:
             <AlertCircle className="text-purple-500 flex-shrink-0 mt-1" size={24} />
             <div>
               <div className="text-xs font-bold text-purple-700 mb-2 uppercase tracking-wide">Scenario</div>
-              <h3 className="text-lg font-bold text-purple-900 mb-1">{scenario.title}</h3>
+              <h3 className="text-lg font-bold text-purple-900 mb-1">{round2Config.scenario.title}</h3>
               <div className="flex items-center gap-2 text-purple-700 text-sm font-semibold mb-2">
                 <Clock size={16} />
-                <span>{scenario.urgency}</span>
+                <span>{round2Config.scenario.urgency}</span>
               </div>
-              <p className="text-gray-700 text-sm leading-relaxed">{scenario.situation}</p>
+              <p className="text-gray-700 text-sm leading-relaxed">{round2Config.scenario.situation}</p>
             </div>
           </div>
         </div>
@@ -403,7 +218,7 @@ Return as JSON:
           </div>
           <button
             onClick={() => {
-              setSelections({ task: null, context: null, format: null, audience: null, constraints: null, goal: null });
+              setSelections(initialSelections);
               setOutput('');
             }}
             className="text-sm text-gray-600 hover:text-gray-900 flex items-center gap-1"
@@ -417,12 +232,9 @@ Return as JSON:
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           {/* Left: Ingredients */}
           <div className="space-y-4">
-            <IngredientCard ingredientKey="task" data={ingredients.task} />
-            <IngredientCard ingredientKey="context" data={ingredients.context} />
-            <IngredientCard ingredientKey="format" data={ingredients.format} />
-            <IngredientCard ingredientKey="audience" data={ingredients.audience} />
-            <IngredientCard ingredientKey="constraints" data={ingredients.constraints} />
-            <IngredientCard ingredientKey="goal" data={ingredients.goal} />
+            {Object.keys(ingredients).map((key) => (
+              <IngredientCard key={key} ingredientKey={key} data={ingredients[key]} />
+            ))}
           </div>
 
           {/* Right: Prompt (sticky on desktop) */}
@@ -459,7 +271,7 @@ Return as JSON:
             </div>
 
             <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 max-h-[500px] overflow-y-auto">
-              <div 
+              <div
                 className="text-gray-800 leading-relaxed prose prose-sm max-w-none"
                 dangerouslySetInnerHTML={{ __html: output }}
               />
@@ -581,10 +393,10 @@ Return as JSON:
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8">
       <div className="max-w-6xl mx-auto mb-8 px-4 text-center">
         <div className="inline-block bg-purple-100 text-purple-800 px-4 py-1 rounded-full text-sm font-semibold mb-4">
-          Round 2 of 3
+          {round2Config.stageLabel}
         </div>
-        <h1 className="text-4xl font-bold mb-2">Build Your Prompt</h1>
-        <p className="text-gray-600">See how strategic choices shape output</p>
+        <h1 className="text-4xl font-bold mb-2">{round2Config.headline}</h1>
+        <p className="text-gray-600">{round2Config.subheadline}</p>
       </div>
 
       {stage === 'scenario' && renderScenario()}
