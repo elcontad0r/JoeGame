@@ -36,7 +36,7 @@ const Round1GameV3 = ({ onComplete }) => {
             <div className="space-y-2">
               <h3 className="text-2xl font-bold text-gray-900">Test the building blocks</h3>
               <p className="text-gray-700 text-sm sm:text-base">
-                Choose the option you’d try. We’ll call out what to notice about each pick.
+                Tap one per row, then skim the note that appears. Faster trying, less reading.
               </p>
             </div>
           </div>
@@ -70,7 +70,7 @@ const Round1GameV3 = ({ onComplete }) => {
         <div className="bg-gradient-to-r from-green-500/10 via-blue-500/10 to-purple-500/10 border border-green-200 rounded-xl p-6 mt-6 text-center shadow-inner">
           <h4 className="text-xl font-bold text-gray-900 mb-2">Ready to write?</h4>
           <p className="text-gray-700 text-sm mb-5">
-            {allChosen ? 'Solid picks. Remember them as you build.' : 'Lock in one per row to unlock the next step.'}
+            {allChosen ? 'Use these picks as guardrails in your own draft.' : 'Lock in one per row to unlock the next step.'}
           </p>
           <button
             onClick={() => setStage('complete')}

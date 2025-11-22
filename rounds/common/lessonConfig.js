@@ -1,11 +1,11 @@
 export const round1Config = {
   stageLabel: 'Round 1 of 3',
-  headline: 'Learn the ropes fast',
-  subheadline: 'Pick the moves that make AI replies clear and useful.',
+  headline: 'Learn by trying, not reading',
+  subheadline: 'Tap quick options and see how each one changes the reply.',
   hero: {
-    actionTitle: 'Start with the essentials',
-    actionCopy: 'Grab the best ingredients in one screen. We’ll highlight what matters most so you can keep moving.',
-    actionLabel: 'Begin the run',
+    actionTitle: 'Experiment in a few clicks',
+    actionCopy: 'Jump in, pick a path, and watch the notes react. No long explanations—just try and see.',
+    actionLabel: 'Start experimenting',
     gradientFrom: 'from-blue-500',
     gradientTo: 'to-purple-600',
     accentColorClass: 'text-red-500'
@@ -14,121 +14,120 @@ export const round1Config = {
     title: 'Plan a Saturday Skillshare Day',
     urgency: 'Draft the plan tonight',
     situation:
-      'Weekend DIY classes with four volunteers and 60 RSVPs. Publish a simple plan with rooms, timing, and supplies before everyone goes to bed.'
+      'Weekend DIY classes with four volunteers and 60 RSVPs. Share a one-screen plan with rooms, timing, and supplies before everyone heads to bed.'
   },
   sections: [
     {
       id: 'task',
       title: 'Task first, then details',
-      summary: 'State the exact job before adding color.',
-      helper: 'Compare a precise ask vs. softer framings.',
+      summary: 'Pick the task style and see how specific it feels.',
+      helper: 'Try each one—the note shows what changes.',
       options: [
         {
           id: 'task-clear',
           label: 'Draft the full Skillshare Day plan',
-          description: 'Ask for the plan you actually need, not a loose brainstorm.',
+          description: 'Direct ask that should trigger a real plan.',
           stance: 'best',
-          learning:
-            'Notice how a direct task produces an outline and timings instead of generic advice.'
+          learning: 'See how a clear task produces outline and timing fast.'
         },
         {
           id: 'task-vague',
           label: 'Share some ideas for this event',
-          description: 'Sounds fine, but you’ll just get a generic list of tips.',
+          description: 'Soft ask that tends to invite generic tips.',
           stance: 'avoid',
-          learning: 'See how broad wording keeps the AI at the 10,000-foot view.'
+          learning: 'Watch how broad wording stays high-level.'
         },
         {
           id: 'task-hype',
           label: 'Write marketing copy to hype the club',
-          description: 'Fun, but it ignores the Saturday logistics you actually need.',
+          description: 'Hype-first angle that skips logistics.',
           stance: 'avoid',
-          learning: 'Check how hype-first framing shifts output away from logistics.'
+          learning: 'Notice how hype framing drifts away from planning.'
         }
       ]
     },
     {
       id: 'context',
       title: 'Context beats vagueness',
-      summary: 'Share the real details of your situation.',
-      helper: 'Try rich details vs. softer blurbs.',
+      summary: 'Toggle how much context you give.',
+      helper: 'Pick one and see how the note shifts the plan.',
       options: [
         {
           id: 'context-specific',
           label: 'Name the classes, rooms, RSVPs, and timing',
-          description: 'The output will match your headcount and spaces.',
+          description: 'Grounds the plan in real numbers.',
           stance: 'best',
-          learning: 'Watch how specific context pulls in realistic room and timing choices.'
+          learning: 'See how specifics pull in rooms and timing fast.'
         },
         {
           id: 'context-late',
           label: 'Just say it is a “community event”',
-          description: 'Not obviously wrong, but it hides the facts that change the plan.',
+          description: 'Fuzzy framing that hides the size.',
           stance: 'avoid',
-          learning: 'Notice how vague context keeps the AI guessing about size and space.'
+          learning: 'Notice how vague context keeps the AI guessing.'
         },
         {
           id: 'context-random',
           label: 'Talk about club values and mission',
-          description: 'Nice background, yet it won’t help assign rooms or timing.',
+          description: 'Mission fluff without logistics.',
           stance: 'avoid',
-          learning: 'See how mission talk steers the reply toward inspiration instead of logistics.'
+          learning: 'Watch how mission talk drifts from logistics.'
         }
       ]
     },
     {
       id: 'constraints',
       title: 'Constraints drive strategy',
-      summary: 'Time, space, and budget steer the plan.',
-      helper: 'Flip between limits and no limits to see what changes.',
+      summary: 'Flip limits on and off.',
+      helper: 'Try them and see how the plan tightens or drifts.',
       options: [
         {
           id: 'constraints-clear',
           label: 'Share budget, setup time, supplies on hand',
-          description: 'The plan will fit how much money and time you actually have.',
+          description: 'Keeps the plan honest to money and time.',
           stance: 'best',
-          learning: 'Check how real limits force tradeoffs in timing and supplies.'
+          learning: 'See how real limits force tradeoffs.'
         },
         {
           id: 'constraints-none',
           label: 'Tell it “be creative, no limits”',
-          description: 'Feels empowering, but invites ideas you can’t execute tomorrow.',
+          description: 'Invites big ideas that may not fit tonight.',
           stance: 'avoid',
-          learning: 'Notice how “no limits” invites ideas you may not execute overnight.'
+          learning: 'Watch how “no limits” drifts away from what’s doable.'
         },
         {
           id: 'constraints-soft',
           label: 'Only mention it’s happening “soon”',
-          description: 'Too fuzzy to inform the schedule or shopping list.',
+          description: 'Fuzzy timing without clear tradeoffs.',
           stance: 'avoid',
-          learning: 'See how fuzzy timing leads to filler instead of schedules.'
+          learning: 'Notice how fuzzy timing leads to filler.'
         }
       ]
     },
     {
       id: 'audience',
       title: 'Role shapes relevance',
-      summary: 'Tell the AI who will use the output and how.',
-      helper: 'Try different audiences to see how tone shifts.',
+      summary: 'Pick who this is for.',
+      helper: 'Flip audiences to see tone and details shift.',
       options: [
         {
           id: 'audience-split',
           label: 'Separate notes for attendees and volunteers',
           description: 'Keeps instructions clear for each group.',
           stance: 'best',
-          learning: 'Notice how splitting audiences sharpens instructions for each group.'
+          learning: 'Notice how splitting audiences sharpens instructions.'
         },
         {
           id: 'audience-everyone',
           label: 'One message for “everyone involved”',
-          description: 'Looks efficient, but it blurs what helpers must do.',
+          description: 'Looks efficient, but blurs what helpers do.',
           stance: 'avoid',
-          learning: 'See how one-size-fits-all language gets fuzzy on who does what.'
+          learning: 'See how one-size-fits-all gets fuzzy on who does what.'
         },
         {
           id: 'audience-lead',
           label: 'Write only for leadership',
-          description: 'Useful later, but skips the people running Saturday.',
+          description: 'Useful later, but skips the Saturday crew.',
           stance: 'avoid',
           learning: 'Watch how leadership-only framing leaves helpers without steps.'
         }
@@ -157,12 +156,12 @@ export const round1Config = {
 
 export const round2Config = {
   stageLabel: 'Round 2 of 3',
-  headline: 'Build Your Prompt',
-  subheadline: 'See how strategic choices shape output',
+  headline: 'Build by mixing and seeing',
+  subheadline: 'Combine ingredients, regenerate, and spot how the tone shifts.',
   hero: {
-    actionTitle: 'Now You Build One',
-    actionCopy: 'Pick 6 ingredients and watch how your choices shape the output. No right answer—compare how each path feels.',
-    actionLabel: 'Start Building',
+    actionTitle: 'Mix a prompt in real time',
+    actionCopy: 'Pick six ingredients, hit generate, and tweak to see the draft react. Keep swapping until it feels right.',
+    actionLabel: 'Try the builder',
     gradientFrom: 'from-purple-500',
     gradientTo: 'to-blue-600',
     accentColorClass: 'text-purple-500'
