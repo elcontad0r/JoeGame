@@ -34,9 +34,9 @@ const Round1GameV3 = ({ onComplete }) => {
           <div className="flex items-start gap-3 mb-4">
             <Lightbulb className="text-blue-600" size={22} />
             <div className="space-y-2">
-              <h3 className="text-2xl font-bold text-gray-900">Pick your ingredients fast</h3>
+              <h3 className="text-2xl font-bold text-gray-900">Test the building blocks</h3>
               <p className="text-gray-700 text-sm sm:text-base">
-                Tap one option in each row. Hover to peek at why it helps.
+                Choose the option you’d try. We’ll call out what to notice about each pick.
               </p>
             </div>
           </div>
