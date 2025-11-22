@@ -54,6 +54,34 @@ const difficultyConfig = {
   }
 };
 
+const ingredientFieldMeta = {
+  context: {
+    title: 'Context',
+    placeholder: 'What background information does Claude need?',
+    hint: "Set the stage. What's happening? What's the company? What's the situation?"
+  },
+  format: {
+    title: 'Format',
+    placeholder: 'What structure should the output have?',
+    hint: 'Be specific about length, style, sections, or structure.'
+  },
+  audience: {
+    title: 'Audience',
+    placeholder: 'Who will read this and what do they care about?',
+    hint: "Who's this for? What's their perspective? What tone will work?"
+  },
+  constraints: {
+    title: 'Constraints',
+    placeholder: 'What should be avoided or what are the limits?',
+    hint: "What can't you say? What must be avoided? Any requirements or limitations?"
+  },
+  goal: {
+    title: 'Goal',
+    placeholder: 'What should this accomplish?',
+    hint: "What's the desired outcome? What action should readers take? How do you measure success?"
+  }
+};
+
 const IngredientField = ({ field, number, title, placeholder, value, onChange, hint, collapsed, onToggleCollapse, presets = [], onPresetSelect, selectedPreset, difficulty }) => {
   const isCollapsed = collapsed[field];
   const colors = ingredientColors[field];
@@ -285,6 +313,12 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
     goal: setPromptGoal
   };
 
+  const difficultyFieldOrder = {
+    easy: ['context', 'audience', 'goal'],
+    medium: ['context', 'format', 'audience', 'goal'],
+    hard: ['context', 'format', 'audience', 'constraints', 'goal']
+  };
+
   const ingredientPresets = useMemo(() => {
     const scenarioContext = scenario?.situation || 'Use concrete scenario facts (names, timing, numbers).';
     const deliverable = scenario?.requirement || 'Spell out the deliverable and success criteria.';
@@ -488,7 +522,8 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
     });
   }, [scenario]);
 
-  const allFieldsFilled = promptContext && promptFormat && promptAudience && promptConstraints && promptGoal;
+  const requiredFields = difficultyFieldOrder[selectedDifficulty] || difficultyFieldOrder.easy;
+  const allFieldsFilled = requiredFields.every((field) => ingredientValues[field]);
 
   useEffect(() => {
     loadLeaderboard();
@@ -799,6 +834,9 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
       }
     };
 
+    const fieldsToRender = difficultyFieldOrder[selectedDifficulty] || difficultyFieldOrder.easy;
+    const mediumHintList = (config.hintExtras || []).slice(0, 2);
+
     return (
       <div className="max-w-4xl mx-auto p-6">
         {/* Scenario reminder */}
@@ -821,37 +859,67 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
         </div>
 
         {/* Instructions */}
-        <div className="bg-gradient-to-r from-purple-50 to-orange-50 rounded-lg p-6 mb-6 border border-purple-200">
-          <h2 className="text-xl font-bold text-gray-900 mb-3">Build Your Prompt</h2>
-          <p className="text-gray-700 mb-4">
-            This is the {config.label.toLowerCase()} level. {config.instructions}
-          </p>
-          <button
-            onClick={() => setShowHints(!showHints)}
-            className="text-purple-600 hover:text-purple-700 font-semibold text-sm flex items-center gap-2"
-          >
-            <Lightbulb size={16} />
-            {showHints ? 'Hide' : 'Show'} helpful questions
-          </button>
-        </div>
-
-        {/* Hints section */}
-        {showHints && (
-          <div className="bg-white rounded-lg border-2 border-gray-200 p-6 mb-6">
-            <h3 className="font-bold text-gray-900 mb-4">Questions to guide you:</h3>
-            <div className="grid gap-4">
-              {allHints.map((hint, idx) => (
-                <div key={idx} className="border-l-4 border-purple-300 pl-4">
-                  <p className="font-semibold text-purple-900 mb-2">{hint.category}</p>
-                  <ul className="space-y-1">
-                    {hint.questions.map((q, qIdx) => (
-                      <li key={qIdx} className="text-sm text-gray-600">• {q}</li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
+        {selectedDifficulty === 'easy' && (
+          <div className="bg-white rounded-lg border border-gray-200 p-5 mb-6 shadow-sm">
+            <h2 className="text-lg font-bold text-gray-900 mb-2">3-part quick build</h2>
+            <p className="text-sm text-gray-700">{config.instructions}</p>
+            <p className="text-xs text-gray-500 mt-2">Drop a couple of preset chips, keep it short, and move on.</p>
           </div>
+        )}
+
+        {selectedDifficulty === 'medium' && (
+          <>
+            <div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-lg p-6 mb-4 border border-orange-200">
+              <h2 className="text-xl font-bold text-gray-900 mb-2">Add your own twist</h2>
+              <p className="text-sm text-gray-700">Blend presets with 1-2 custom guardrails so the output stays on track.</p>
+            </div>
+            <div className="bg-white rounded-lg border border-amber-200 p-4 mb-6">
+              <div className="flex items-center gap-2 mb-2 text-amber-700 font-semibold text-sm">
+                <Lightbulb size={16} /> Quick nudges
+              </div>
+              <ul className="list-disc pl-5 space-y-1 text-sm text-gray-700">
+                {(mediumHintList.length > 0 ? mediumHintList : ['Call out one priority to balance tradeoffs.', 'Add a format or tone detail that matters for the audience.']).map((hint, idx) => (
+                  <li key={idx}>{hint}</li>
+                ))}
+              </ul>
+            </div>
+          </>
+        )}
+
+        {selectedDifficulty === 'hard' && (
+          <>
+            <div className="bg-gradient-to-r from-purple-50 to-orange-50 rounded-lg p-6 mb-6 border border-purple-200">
+              <h2 className="text-xl font-bold text-gray-900 mb-3">Build Your Prompt</h2>
+              <p className="text-gray-700 mb-4">
+                This is the {config.label.toLowerCase()} level. {config.instructions}
+              </p>
+              <button
+                onClick={() => setShowHints(!showHints)}
+                className="text-purple-600 hover:text-purple-700 font-semibold text-sm flex items-center gap-2"
+              >
+                <Lightbulb size={16} />
+                {showHints ? 'Hide' : 'Show'} helpful questions
+              </button>
+            </div>
+
+            {showHints && (
+              <div className="bg-white rounded-lg border-2 border-gray-200 p-6 mb-6">
+                <h3 className="font-bold text-gray-900 mb-4">Questions to guide you:</h3>
+                <div className="grid gap-4">
+                  {allHints.map((hint, idx) => (
+                    <div key={idx} className="border-l-4 border-purple-300 pl-4">
+                      <p className="font-semibold text-purple-900 mb-2">{hint.category}</p>
+                      <ul className="space-y-1">
+                        {hint.questions.map((q, qIdx) => (
+                          <li key={qIdx} className="text-sm text-gray-600">• {q}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
         )}
 
         <div className="bg-white rounded-lg border-2 border-gray-200 p-5 mb-6">
@@ -878,93 +946,36 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
           </div>
 
           <p className="text-xs text-gray-600 mt-3">
-            {selectedDifficulty !== 'hard'
-              ? 'Tap chips under each ingredient to drop preset snippets into your text. Add, edit, or stack them however you like.'
-              : 'Hard mode leaves textareas blank so you write every ingredient from scratch.'}
+            {selectedDifficulty === 'easy' && 'Only the essentials show here. Tap chips to drop in starter snippets fast.'}
+            {selectedDifficulty === 'medium' && 'Use chips as a base, then add a custom constraint or tone line to round it out.'}
+            {selectedDifficulty === 'hard' && 'Hard mode leaves textareas blank so you write every ingredient from scratch.'}
           </p>
         </div>
 
         {/* Ingredient fields */}
         <div className="mb-6">
-          <IngredientField
-            field="context"
-            number={1}
-            title="Context"
-            placeholder="What background information does Claude need?"
-            hint="Set the stage. What's happening? What's the company? What's the situation?"
-            value={promptContext}
-            onChange={setPromptContext}
-            presets={activePresets?.context || []}
-            onPresetSelect={applyPresetToField}
-            selectedPreset={selectedPresets.context}
-            difficulty={selectedDifficulty}
-            collapsed={collapsed}
-            onToggleCollapse={toggleCollapse}
-          />
+          {fieldsToRender.map((fieldKey, index) => {
+            const meta = ingredientFieldMeta[fieldKey];
 
-          <IngredientField
-            field="format"
-            number={2}
-            title="Format"
-            placeholder="What structure should the output have?"
-            hint="Be specific about length, style, sections, or structure."
-            value={promptFormat}
-            onChange={setPromptFormat}
-            presets={activePresets?.format || []}
-            onPresetSelect={applyPresetToField}
-            selectedPreset={selectedPresets.format}
-            difficulty={selectedDifficulty}
-            collapsed={collapsed}
-            onToggleCollapse={toggleCollapse}
-          />
-
-          <IngredientField
-            field="audience"
-            number={3}
-            title="Audience"
-            placeholder="Who will read this and what do they care about?"
-            hint="Who's this for? What's their perspective? What tone will work?"
-            value={promptAudience}
-            onChange={setPromptAudience}
-            presets={activePresets?.audience || []}
-            onPresetSelect={applyPresetToField}
-            selectedPreset={selectedPresets.audience}
-            difficulty={selectedDifficulty}
-            collapsed={collapsed}
-            onToggleCollapse={toggleCollapse}
-          />
-
-          <IngredientField
-            field="constraints"
-            number={4}
-            title="Constraints"
-            placeholder="What should be avoided or what are the limits?"
-            hint="What can't you say? What must be avoided? Any requirements or limitations?"
-            value={promptConstraints}
-            onChange={setPromptConstraints}
-            presets={activePresets?.constraints || []}
-            onPresetSelect={applyPresetToField}
-            selectedPreset={selectedPresets.constraints}
-            difficulty={selectedDifficulty}
-            collapsed={collapsed}
-            onToggleCollapse={toggleCollapse}
-          />
-
-          <IngredientField
-            field="goal"
-            number={5}
-            title="Goal"
-            placeholder="What should this accomplish?"
-            hint="What's the desired outcome? What action should readers take? How do you measure success?"
-            value={promptGoal}
-            onChange={setPromptGoal}
-            presets={activePresets?.goal || []}
-            onPresetSelect={applyPresetToField}
-            selectedPreset={selectedPresets.goal}
-            difficulty={selectedDifficulty}
-            collapsed={collapsed}
-            onToggleCollapse={toggleCollapse}
-          />
+            return (
+              <IngredientField
+                key={fieldKey}
+                field={fieldKey}
+                number={index + 1}
+                title={meta.title}
+                placeholder={meta.placeholder}
+                hint={meta.hint}
+                value={ingredientValues[fieldKey]}
+                onChange={ingredientSetters[fieldKey]}
+                presets={activePresets?.[fieldKey] || []}
+                onPresetSelect={applyPresetToField}
+                selectedPreset={selectedPresets[fieldKey]}
+                difficulty={selectedDifficulty}
+                collapsed={collapsed}
+                onToggleCollapse={toggleCollapse}
+              />
+            );
+          })}
         </div>
 
         {/* Preview */}
