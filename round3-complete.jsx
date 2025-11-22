@@ -54,10 +54,30 @@ const difficultyConfig = {
   }
 };
 
-const IngredientField = ({ field, number, title, placeholder, value, onChange, hint, collapsed, onToggleCollapse, presets = [], onPresetSelect, selectedPreset, difficulty }) => {
+const chipRules = {
+  easy: {
+    perFieldLimit: 2,
+    minTotalSelections: 4,
+    label: 'Play at least 4 chips (max 2 per category) before you write your goal.'
+  },
+  medium: {
+    perFieldLimit: 3,
+    minTotalSelections: 5,
+    label: 'Draft with at least 5 chips (max 3 per category), then layer your own constraints.'
+  },
+  hard: {
+    perFieldLimit: 0,
+    minTotalSelections: 0,
+    label: 'No chips here—everything is freeform.'
+  }
+};
+
+const IngredientField = ({ field, number, title, placeholder, value, onChange, hint, collapsed, onToggleCollapse, presets = [], onPresetSelect, selectedPresets, difficulty, perFieldLimit }) => {
   const isCollapsed = collapsed[field];
   const colors = ingredientColors[field];
   const hasContent = value.trim().length > 0;
+  const selectedIds = selectedPresets?.[field] || [];
+  const remainingSlots = Math.max(perFieldLimit - selectedIds.length, 0);
 
   if (isCollapsed && hasContent) {
     return (
@@ -106,23 +126,36 @@ const IngredientField = ({ field, number, title, placeholder, value, onChange, h
 
       {difficulty !== 'hard' && presets.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-3">
-          {presets.map((preset) => (
-            <button
-              key={preset.id}
-              onClick={() => onPresetSelect(field, preset)}
-              className={`rounded-lg border px-3 py-2 text-left transition-all text-sm ${
-                selectedPreset === preset.id
-                  ? `${colors.bg} ${colors.border} border-2 text-gray-900 shadow-sm`
-                  : 'bg-gray-50 border-gray-200 hover:border-gray-300 text-gray-700'
-              }`}
-            >
-              <div className="font-semibold text-xs mb-1 text-gray-900 flex items-center gap-2">
-                <span className={`${colors.label} px-2 py-0.5 rounded`}>{preset.label}</span>
-                {preset.tone && <span className="text-[10px] uppercase tracking-wide text-gray-500">{preset.tone}</span>}
-              </div>
-              <p className="text-xs text-gray-700 leading-snug">{preset.snippet}</p>
-            </button>
-          ))}
+          {presets.map((preset) => {
+            const isSelected = selectedIds.includes(preset.id);
+            return (
+              <button
+                key={preset.id}
+                onClick={() => onPresetSelect(field, preset)}
+                className={`rounded-lg border px-3 py-2 text-left transition-all text-sm ${
+                  isSelected
+                    ? `${colors.bg} ${colors.border} border-2 text-gray-900 shadow-sm`
+                    : 'bg-gray-50 border-gray-200 hover:border-gray-300 text-gray-700'
+                }`}
+              >
+                <div className="font-semibold text-xs mb-1 text-gray-900 flex items-center gap-2">
+                  <span className={`${colors.label} px-2 py-0.5 rounded`}>{preset.label}</span>
+                  {preset.tone && <span className="text-[10px] uppercase tracking-wide text-gray-500">{preset.tone}</span>}
+                  {isSelected && <span className="text-[10px] text-green-700">Locked</span>}
+                </div>
+                <p className="text-xs text-gray-700 leading-snug">{preset.snippet}</p>
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      {difficulty !== 'hard' && perFieldLimit > 0 && (
+        <div className="text-xs text-gray-500 mb-2 flex items-center gap-2">
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-100 rounded-full border border-gray-200">
+            {remainingSlots} slot{remainingSlots === 1 ? '' : 's'} left in this category
+          </span>
+          {selectedIds.length > 0 && <span className="text-gray-400">Tap a new chip to stack more detail.</span>}
         </div>
       )}
 
@@ -238,6 +271,7 @@ const highlightQuotes = (text) => {
 const Round3Game = ({ onBack, difficulty = 'easy' }) => {
   const selectedDifficulty = difficulty;
   const config = difficultyConfig[selectedDifficulty] || difficultyConfig.easy;
+  const chipRule = chipRules[selectedDifficulty] || chipRules.easy;
   const [stage, setStage] = useState('topic-input');
   const [userTopic, setUserTopic] = useState('');
   const [scenario, setScenario] = useState(null);
@@ -247,11 +281,11 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
   const [promptConstraints, setPromptConstraints] = useState('');
   const [promptGoal, setPromptGoal] = useState('');
   const [selectedPresets, setSelectedPresets] = useState({
-    context: null,
-    format: null,
-    audience: null,
-    constraints: null,
-    goal: null
+    context: [],
+    format: [],
+    audience: [],
+    constraints: [],
+    goal: []
   });
   const [collapsed, setCollapsed] = useState({
     context: false,
@@ -472,6 +506,13 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
     const currentValue = ingredientValues[field] || '';
     if (!setter || !preset?.snippet) return;
 
+    const currentSelections = selectedPresets[field] || [];
+    const limit = chipRule.perFieldLimit || 0;
+    if (limit > 0 && !currentSelections.includes(preset.id) && currentSelections.length >= limit) {
+      alert(`You already locked ${limit} chip${limit === 1 ? '' : 's'} for ${field}. Clear a slot by editing the text, or switch fields.`);
+      return;
+    }
+
     const alreadyIncluded = currentValue.toLowerCase().includes(preset.snippet.toLowerCase());
     const updatedValue = alreadyIncluded
       ? currentValue
@@ -480,32 +521,34 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
         : preset.snippet;
 
     setter(updatedValue);
-    setSelectedPresets(prev => ({ ...prev, [field]: preset.id }));
+    if (!currentSelections.includes(preset.id)) {
+      setSelectedPresets(prev => ({ ...prev, [field]: [...currentSelections, preset.id] }));
+    }
   };
 
   useEffect(() => {
-    if (selectedDifficulty === 'hard') {
-      setSelectedPresets({
-        context: null,
-        format: null,
-        audience: null,
-        constraints: null,
-        goal: null
-      });
-    }
+    setSelectedPresets({
+      context: [],
+      format: [],
+      audience: [],
+      constraints: [],
+      goal: []
+    });
   }, [selectedDifficulty]);
 
   useEffect(() => {
     setSelectedPresets({
-      context: null,
-      format: null,
-      audience: null,
-      constraints: null,
-      goal: null
+      context: [],
+      format: [],
+      audience: [],
+      constraints: [],
+      goal: []
     });
   }, [scenario]);
 
-  const allFieldsFilled = promptContext && promptFormat && promptAudience && promptConstraints && promptGoal;
+  const chipsPlayed = Object.values(selectedPresets).reduce((sum, list) => sum + (list?.length || 0), 0);
+  const baseFieldsFilled = promptContext && promptFormat && promptAudience && promptConstraints && promptGoal;
+  const readyToGenerate = baseFieldsFilled && chipsPlayed >= (chipRule.minTotalSelections || 0);
 
   useEffect(() => {
     loadLeaderboard();
@@ -600,7 +643,7 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
   };
 
   const handleGenerate = async () => {
-    if (!allFieldsFilled) return;
+    if (!readyToGenerate) return;
     
     setStage('generating');
     setIsGenerating(true);
@@ -839,6 +882,28 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
               </ul>
             </div>
           </div>
+          <div className="bg-white rounded-lg p-4 border border-dashed border-purple-300 mb-4">
+            <div className="flex flex-wrap items-center gap-3 mb-2">
+              <span className="text-sm font-semibold text-purple-900">Chip draft</span>
+              <span className="text-xs bg-purple-100 text-purple-800 px-2 py-0.5 rounded-full font-bold">
+                {Math.min(chipsPlayed, chipRule.minTotalSelections || 0)} / {chipRule.minTotalSelections || 0} needed
+              </span>
+              {chipRule.perFieldLimit > 0 && (
+                <span className="text-xs text-gray-600 bg-gray-100 px-2 py-0.5 rounded-full">
+                  Max {chipRule.perFieldLimit} per category
+                </span>
+              )}
+            </div>
+            <p className="text-sm text-gray-700 mb-2">{chipRule.label}</p>
+            {chipRule.minTotalSelections > 0 && (
+              <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                <div
+                  className="bg-purple-500 h-2 transition-all"
+                  style={{ width: `${Math.min(100, Math.round((chipsPlayed / chipRule.minTotalSelections) * 100))}%` }}
+                ></div>
+              </div>
+            )}
+          </div>
           <button
             onClick={() => setShowHints(!showHints)}
             className="text-purple-600 hover:text-purple-700 font-semibold text-sm flex items-center gap-2"
@@ -904,10 +969,11 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
             onChange={setPromptContext}
             presets={activePresets?.context || []}
             onPresetSelect={applyPresetToField}
-            selectedPreset={selectedPresets.context}
+            selectedPresets={selectedPresets}
             difficulty={selectedDifficulty}
             collapsed={collapsed}
             onToggleCollapse={toggleCollapse}
+            perFieldLimit={chipRule.perFieldLimit}
           />
 
           <IngredientField
@@ -920,10 +986,11 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
             onChange={setPromptFormat}
             presets={activePresets?.format || []}
             onPresetSelect={applyPresetToField}
-            selectedPreset={selectedPresets.format}
+            selectedPresets={selectedPresets}
             difficulty={selectedDifficulty}
             collapsed={collapsed}
             onToggleCollapse={toggleCollapse}
+            perFieldLimit={chipRule.perFieldLimit}
           />
 
           <IngredientField
@@ -936,10 +1003,11 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
             onChange={setPromptAudience}
             presets={activePresets?.audience || []}
             onPresetSelect={applyPresetToField}
-            selectedPreset={selectedPresets.audience}
+            selectedPresets={selectedPresets}
             difficulty={selectedDifficulty}
             collapsed={collapsed}
             onToggleCollapse={toggleCollapse}
+            perFieldLimit={chipRule.perFieldLimit}
           />
 
           <IngredientField
@@ -952,10 +1020,11 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
             onChange={setPromptConstraints}
             presets={activePresets?.constraints || []}
             onPresetSelect={applyPresetToField}
-            selectedPreset={selectedPresets.constraints}
+            selectedPresets={selectedPresets}
             difficulty={selectedDifficulty}
             collapsed={collapsed}
             onToggleCollapse={toggleCollapse}
+            perFieldLimit={chipRule.perFieldLimit}
           />
 
           <IngredientField
@@ -968,15 +1037,16 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
             onChange={setPromptGoal}
             presets={activePresets?.goal || []}
             onPresetSelect={applyPresetToField}
-            selectedPreset={selectedPresets.goal}
+            selectedPresets={selectedPresets}
             difficulty={selectedDifficulty}
             collapsed={collapsed}
             onToggleCollapse={toggleCollapse}
+            perFieldLimit={chipRule.perFieldLimit}
           />
         </div>
 
         {/* Preview */}
-        {allFieldsFilled && (
+        {baseFieldsFilled && (
           <div className="bg-white rounded-lg border-2 border-purple-200 p-6 mb-6">
             <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
               <Sparkles className="text-purple-600" size={20} />
@@ -989,6 +1059,9 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
         )}
 
         {/* Generate button */}
+        {!readyToGenerate && chipRule.minTotalSelections > 0 && (
+          <p className="text-xs text-orange-700 mb-2">Play at least {chipRule.minTotalSelections} chips and fill each ingredient before generating.</p>
+        )}
         <div className="flex gap-3">
           <button
             onClick={() => setStage('scenario')}
@@ -998,9 +1071,9 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
           </button>
           <button
             onClick={handleGenerate}
-            disabled={!allFieldsFilled}
+            disabled={!readyToGenerate}
             className={`flex-1 py-4 rounded-lg font-bold text-lg transition-colors flex items-center justify-center gap-2 ${
-              allFieldsFilled
+              readyToGenerate
                 ? 'bg-purple-600 text-white hover:bg-purple-700'
                 : 'bg-gray-300 text-gray-500 cursor-not-allowed'
             }`}
