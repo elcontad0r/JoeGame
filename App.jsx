@@ -20,7 +20,7 @@ const App = () => {
             Learn AI Challenge
           </h1>
           <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto">
-            AI is a weird technology and understanding it can be confusing. This program walks you through the right and wrong way to use AI, then puts you in a friendly game that shows what happens when you prompt well—or not. You might even win a mystery prize.
+            Learn how to talk to AI the easy way. We’ll show quick examples of what works, then you’ll practice across easy, medium, and hard levels. Friendly, fast, and there’s a mystery prize.
           </p>
         </div>
 
@@ -50,11 +50,6 @@ const App = () => {
             </div>
           </div>
 
-          <div className="text-center">
-            <p className="text-xs uppercase tracking-[0.3em] text-orange-600 font-semibold">Scored Levels</p>
-            <h3 className="text-3xl font-bold text-gray-900">Easy → Medium → Hard</h3>
-            <p className="text-sm text-gray-600 max-w-2xl">Start with a low-stakes practice round, then climb to tougher, multi-step scenarios that demand sharper prompting.</p>
-          </div>
         </div>
 
         {/* Scored levels */}
@@ -146,9 +141,9 @@ const App = () => {
                 <Award className="text-purple-600" size={20} />
               </div>
               <div>
-                <h3 className="font-bold text-gray-900 mb-1">How Scoring Works</h3>
+                <h3 className="font-bold text-gray-900 mb-1">How the Challenge Works</h3>
                 <p className="text-sm text-gray-600">
-                  Complete Rounds 1-2 to learn. Round 3 score determines your leaderboard rank. Top performers win.
+                  Take two short tutorials, then try three scored levels. Each run gives you feedback so you can see how better prompts change the results.
                 </p>
               </div>
             </div>
@@ -160,9 +155,9 @@ const App = () => {
                 <Trophy className="text-orange-600" size={20} />
               </div>
               <div>
-                <h3 className="font-bold text-gray-900 mb-1">The Stakes</h3>
+                <h3 className="font-bold text-gray-900 mb-1">What to Expect</h3>
                 <p className="text-sm text-gray-600">
-                  Mystery prize for top scorers. Best prompt engineers will be announced to the group.
+                  Scenarios stay approachable—think planning events, writing updates, helping friends. Do your best, compare scores, and a mystery prize awaits the top spot.
                 </p>
               </div>
             </div>

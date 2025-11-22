@@ -15,13 +15,13 @@ export default async function handler(req, res) {
     const timestamp = new Date().toISOString();
 
     const difficultyTemplates = {
-      easy: `Create an EASY scenario that feels like a normal task someone might do this week. Keep it light and friendly.
+      easy: `Create an EASY scenario that is relaxed and starter-friendly. The goal is to let someone remix guided ingredients.
 
 Include:
-- One audience
-- One specific deliverable (email, short plan, checklist, FAQ, invite)
-- 2-3 concrete facts (names, times, places, counts)
+- One clear audience and one main deliverable (email, short plan, checklist, FAQ, invite)
+- 2-3 concrete facts (names, times, places, counts) that can be copied directly into a prompt
 - Light urgency (today/tomorrow) but no stress or emergency
+- A hint about tone or style that the player can reinforce
 
 Return ONLY valid JSON with no markdown:
 {
@@ -33,42 +33,40 @@ Return ONLY valid JSON with no markdown:
   "focus": "[1-2 words summarizing what matters most]",
   "difficulty": "easy"
 }`,
-      medium: `Create a MEDIUM scenario that introduces a little complexity without becoming a crisis.
+      medium: `Create a MEDIUM scenario that stays approachable but invites the player to add their own twists.
 
 Include:
-- Either two audiences OR two constraints to balance
-- A deliverable with 2 parts (e.g., short note + bullet plan, summary + checklist)
-- 3-4 concrete facts (numbers, roles, timing)
-- A tradeoff to manage (e.g., speed vs detail, tone vs brevity)
+- A primary audience plus an optional second stakeholder or constraint to acknowledge
+- A deliverable that benefits from 2 parts (e.g., short note + bullet plan, summary + checklist)
+- 3-4 concrete facts (numbers, roles, timing) and room for the player to add one more detail
 - Light urgency (today/tomorrow) without drama
 
 Return ONLY valid JSON with no markdown:
 {
-  "title": "[Scenario title with both needs visible]",
+  "title": "[Scenario title with the add-on visible]",
   "urgency": "[Lightly time-bound]",
-  "situation": "[2-3 sentences with specifics and the balancing act]",
+  "situation": "[2-3 sentences with specifics and a small nuance to address]",
   "requirement": "[Deliverable that includes 2 parts or sections]",
   "sector": "[domain like education, workplace, travel, hobby, community]",
-  "focus": "[What needs balancing]",
+  "focus": "[What needs a little extra customization]",
   "difficulty": "medium"
 }`,
-      hard: `Create a HARD scenario that is still approachable but requires a more advanced prompt.
+      hard: `Create a HARD scenario that is still human and non-urgent but expects the player to design the guardrails.
 
 Include:
-- Multiple steps or sections in the final output
-- Conflicting constraints (e.g., short length but must cite 2 sources; reassuring tone but firm action items)
-- 4-5 concrete facts (stakeholders, numbers, timelines, channels)
-- A small risk or sensitivity to address while avoiding crisis framing
-- Clear success criteria
+- A flexible deliverable that can be structured multiple ways (you do NOT need to predefine the sections)
+- 3-4 concrete facts (stakeholders, numbers, timelines, channels) plus one subtle sensitivity to respect
+- A clear outcome to aim for, but leave room for the player to define tone, order, and any extra constraints
+- No crises or emergencies
 
 Return ONLY valid JSON with no markdown:
 {
-  "title": "[Scenario title showing stakes without drama]",
+  "title": "[Scenario title showing a relatable challenge]",
   "urgency": "[Time-bound but not dire]",
-  "situation": "[2-3 sentences with concrete details and the tension to manage]",
-  "requirement": "[Multi-step or multi-section deliverable]",
+  "situation": "[2-3 sentences with concrete details and a nuance to respect]",
+  "requirement": "[Open brief with a clear outcome but flexible structure]",
   "sector": "[domain like workplace, community, creative, family, hobby, travel, wellness]",
-  "focus": "[What to optimize for and protect]",
+  "focus": "[What to achieve while staying considerate]",
   "difficulty": "hard"
 }`
     };
