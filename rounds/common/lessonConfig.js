@@ -1,10 +1,10 @@
 export const round1Config = {
   stageLabel: 'Round 1 of 3',
   headline: 'Learn by trying, not reading',
-  subheadline: 'Tap quick options and see how each one changes the reply.',
+  subheadline: 'Tap different prompts and notice how each one nudges the reply.',
   hero: {
     actionTitle: 'Experiment in a few clicks',
-    actionCopy: 'Jump in, pick a path, and watch the notes react. No long explanations—just try and see.',
+    actionCopy: 'Pick a path, see the reaction, and keep moving. The notes teach you faster than any explainer.',
     actionLabel: 'Start experimenting',
     gradientFrom: 'from-blue-500',
     gradientTo: 'to-purple-600',
@@ -19,117 +19,117 @@ export const round1Config = {
   sections: [
     {
       id: 'task',
-      title: 'Task first, then details',
-      summary: 'Pick the task style and see how specific it feels.',
-      helper: 'Try each one—the note shows what changes.',
+      title: 'State the job plainly',
+      summary: 'How you name the task sets the whole response.',
+      helper: 'Tap one option and skim what shifted.',
       options: [
         {
           id: 'task-clear',
           label: 'Draft the full Skillshare Day plan',
-          description: 'Direct ask that should trigger a real plan.',
+          description: 'Plain ask that points straight at the deliverable.',
           stance: 'best',
-          learning: 'See how a clear task produces outline and timing fast.'
+          learning: 'Did it jump into outlining the night instead of talking about the club?'
         },
         {
           id: 'task-vague',
           label: 'Share some ideas for this event',
-          description: 'Soft ask that tends to invite generic tips.',
+          description: 'Loose ask that leaves room for interpretation.',
           stance: 'avoid',
-          learning: 'Watch how broad wording stays high-level.'
+          learning: 'Does it stay fuzzy on timing because you never asked for a plan?'
         },
         {
           id: 'task-hype',
           label: 'Write marketing copy to hype the club',
-          description: 'Hype-first angle that skips logistics.',
+          description: 'Hype-first angle that puts energy before logistics.',
           stance: 'avoid',
-          learning: 'Notice how hype framing drifts away from planning.'
+          learning: 'Does the tone shift to hype instead of setting a schedule?'
         }
       ]
     },
     {
       id: 'context',
-      title: 'Context beats vagueness',
-      summary: 'Toggle how much context you give.',
-      helper: 'Pick one and see how the note shifts the plan.',
+      title: 'Feed it the setting',
+      summary: 'Context is the backbone; see how much you need.',
+      helper: 'Switch options to see what details the AI decides to include.',
       options: [
         {
           id: 'context-specific',
           label: 'Name the classes, rooms, RSVPs, and timing',
-          description: 'Grounds the plan in real numbers.',
+          description: 'Grounded snapshot with numbers and locations.',
           stance: 'best',
-          learning: 'See how specifics pull in rooms and timing fast.'
+          learning: 'Do the rooms, headcount, and timing now show up automatically?'
         },
         {
           id: 'context-late',
           label: 'Just say it is a “community event”',
-          description: 'Fuzzy framing that hides the size.',
+          description: 'Soft framing that leaves size and shape unclear.',
           stance: 'avoid',
-          learning: 'Notice how vague context keeps the AI guessing.'
+          learning: 'Does it stay generic because it never learned who is coming?'
         },
         {
           id: 'context-random',
           label: 'Talk about club values and mission',
           description: 'Mission fluff without logistics.',
           stance: 'avoid',
-          learning: 'Watch how mission talk drifts from logistics.'
+          learning: 'Does it wander into values instead of giving room setups?'
         }
       ]
     },
     {
       id: 'constraints',
-      title: 'Constraints drive strategy',
-      summary: 'Flip limits on and off.',
-      helper: 'Try them and see how the plan tightens or drifts.',
+      title: 'Set the limits',
+      summary: 'Constraints steer what the AI prioritizes.',
+      helper: 'Toggle a limit and check how strict the response feels.',
       options: [
         {
           id: 'constraints-clear',
           label: 'Share budget, setup time, supplies on hand',
-          description: 'Keeps the plan honest to money and time.',
+          description: 'Money, time, and materials up front.',
           stance: 'best',
-          learning: 'See how real limits force tradeoffs.'
+          learning: 'Do budgets and prep windows show up as real tradeoffs?'
         },
         {
           id: 'constraints-none',
           label: 'Tell it “be creative, no limits”',
-          description: 'Invites big ideas that may not fit tonight.',
+          description: 'Open brief with no boundaries.',
           stance: 'avoid',
-          learning: 'Watch how “no limits” drifts away from what’s doable.'
+          learning: 'Does it start inventing extras you cannot pull off tonight?'
         },
         {
           id: 'constraints-soft',
           label: 'Only mention it’s happening “soon”',
-          description: 'Fuzzy timing without clear tradeoffs.',
+          description: 'Timing hint without hard numbers.',
           stance: 'avoid',
-          learning: 'Notice how fuzzy timing leads to filler.'
+          learning: 'Does it fill space with filler because timing stayed vague?'
         }
       ]
     },
     {
       id: 'audience',
-      title: 'Role shapes relevance',
-      summary: 'Pick who this is for.',
-      helper: 'Flip audiences to see tone and details shift.',
+      title: 'Point it at the right reader',
+      summary: 'Tone and detail change with the audience.',
+      helper: 'Flip audiences to see tone and instructions move around.',
       options: [
         {
           id: 'audience-split',
           label: 'Separate notes for attendees and volunteers',
-          description: 'Keeps instructions clear for each group.',
+          description: 'Two-reader approach: guests and helpers.',
           stance: 'best',
-          learning: 'Notice how splitting audiences sharpens instructions.'
+          learning: 'Do guests and volunteers now get distinct, clearer steps?'
         },
         {
           id: 'audience-everyone',
           label: 'One message for “everyone involved”',
-          description: 'Looks efficient, but blurs what helpers do.',
+          description: 'Single message that tries to cover all.',
           stance: 'avoid',
-          learning: 'See how one-size-fits-all gets fuzzy on who does what.'
+          learning: 'Does it blur who does what because the audience was merged?'
         },
         {
           id: 'audience-lead',
           label: 'Write only for leadership',
-          description: 'Useful later, but skips the Saturday crew.',
+          description: 'Leadership-only view.',
           stance: 'avoid',
-          learning: 'Watch how leadership-only framing leaves helpers without steps.'
+          learning: 'Does the plan ignore volunteers because it assumed only leads would read it?'
         }
       ]
     }
@@ -160,7 +160,7 @@ export const round2Config = {
   subheadline: 'Combine ingredients, regenerate, and spot how the tone shifts.',
   hero: {
     actionTitle: 'Mix a prompt in real time',
-    actionCopy: 'Pick six ingredients, hit generate, and tweak to see the draft react. Keep swapping until it feels right.',
+    actionCopy: 'Pick six ingredients, hit generate, and watch the draft react. Swap pieces to see different directions.',
     actionLabel: 'Try the builder',
     gradientFrom: 'from-purple-500',
     gradientTo: 'to-blue-600',
@@ -180,8 +180,8 @@ export const round2Config = {
           id: 'welcome-pack',
           label: 'Draft the welcome pack',
           promptText: 'Create the full welcome packet for this specific kickoff night—clear schedule, roles, and FAQs.',
-          description: 'Structured ask that should yield a ready-to-send packet.',
-          learning: 'See how a concrete deliverable triggers headings and schedules.'
+          description: 'Structured ask; see if it produces a ready-to-send packet.',
+          learning: 'Watch whether a concrete deliverable triggers headings and schedules.'
         },
         {
           id: 'list-ideas',
@@ -194,7 +194,7 @@ export const round2Config = {
           id: 'promo',
           label: 'Promo post',
           promptText: 'Write marketing copy to hype the maker club broadly, not the Saturday plan.',
-          description: 'Hype-first angle that de-emphasizes on-the-ground prep.',
+          description: 'Hype-first angle; check how it trades logistics for excitement.',
           learning: 'Compare how a promo ask swaps practical details for excitement.'
         }
       ]
@@ -207,8 +207,8 @@ export const round2Config = {
           label: 'Club Snapshot',
           promptText:
             'Monthly maker nights at the community center; 120 interested, 45 RSVPs for kickoff; mix of teens and adults; beginner-friendly.',
-          description: 'Baseline facts that should anchor the plan.',
-          learning: 'See how solid numbers lead to more realistic timing and space calls.'
+          description: 'Baseline facts to anchor the plan.',
+          learning: 'Notice if solid numbers lead to more realistic timing and space calls.'
         },
         {
           id: 'buzz',
@@ -222,7 +222,7 @@ export const round2Config = {
           label: 'Volunteer Details',
           promptText:
             '6 volunteers: 2 greeters, 3 project leads (painting, 3D pens, soldering), 1 cleanup lead; each can prep for 90 minutes Friday night.',
-          description: 'Exact roles and prep time that enable a concrete schedule.',
+          description: 'Exact roles and prep time to fuel a concrete schedule.',
           learning: 'Watch how volunteer info turns into checklists and assignments.'
         },
         {
@@ -230,7 +230,7 @@ export const round2Config = {
           label: 'Space + Supplies',
           promptText:
             '3 rooms + hallway tables; outlets available; donated supplies include paints, brushes, filament, safety glasses; snacks budget $150.',
-          description: 'Constraints that should shape layouts and shopping lists.',
+          description: 'Space and supplies that should shape layouts and shopping lists.',
           learning: 'Compare how room and supply details change the plan versus no constraints.'
         }
       ]
@@ -242,7 +242,7 @@ export const round2Config = {
           id: 'welcome-email',
           label: 'Welcome Email + FAQ',
           promptText: 'Friendly email with 4-5 FAQ bullets: where to park, what to bring, skill level, timing. Max 220 words.',
-          description: 'Concise message that should read well on phones.',
+          description: 'Concise message built for phones.',
           learning: 'See how the AI trims detail to fit a short, helpful email.'
         },
         {

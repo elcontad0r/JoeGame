@@ -27,6 +27,18 @@ const Round1GameV3 = ({ onComplete }) => {
 
   const renderLessons = () => {
     const allChosen = round1Config.sections.every((section) => selections[section.id]);
+    const chosenDetails = round1Config.sections
+      .map((section) => {
+        const selectedId = selections[section.id];
+        const option = section.options.find((o) => o.id === selectedId);
+        if (!option) return null;
+        return {
+          sectionTitle: section.title,
+          label: option.label,
+          learning: option.learning
+        };
+      })
+      .filter(Boolean);
 
     return (
       <div className="max-w-5xl mx-auto px-4 sm:px-6">
@@ -36,7 +48,7 @@ const Round1GameV3 = ({ onComplete }) => {
             <div className="space-y-2">
               <h3 className="text-2xl font-bold text-gray-900">Test the building blocks</h3>
               <p className="text-gray-700 text-sm sm:text-base">
-                Tap one per row, then skim the note that appears. Faster trying, less reading.
+                Tap one per row and read the short note that pops up. The learning comes from the reaction, not guessing the right pick.
               </p>
             </div>
           </div>
@@ -67,10 +79,37 @@ const Round1GameV3 = ({ onComplete }) => {
           ))}
         </div>
 
+        {allChosen && (
+          <div className="bg-white rounded-xl shadow border border-green-200 p-6 mt-6">
+            <div className="flex items-start gap-2 mb-3">
+              <Lightbulb className="text-green-600 mt-0.5" size={20} />
+              <div>
+                <h4 className="text-lg font-bold text-gray-900">What you just noticed</h4>
+                <p className="text-sm text-gray-700">
+                  Each selection surfaced a different reaction. Use these quick notes to explain what changed.
+                </p>
+              </div>
+            </div>
+            <div className="grid sm:grid-cols-2 gap-3">
+              {chosenDetails.map((item) => (
+                <div key={item.label} className="border border-green-100 rounded-lg p-3 bg-green-50/60">
+                  <div className="text-xs font-semibold text-green-700 uppercase tracking-wide mb-1">
+                    {item.sectionTitle}
+                  </div>
+                  <div className="font-semibold text-gray-900">{item.label}</div>
+                  <div className="text-sm text-gray-700 mt-1">{item.learning}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div className="bg-gradient-to-r from-green-500/10 via-blue-500/10 to-purple-500/10 border border-green-200 rounded-xl p-6 mt-6 text-center shadow-inner">
           <h4 className="text-xl font-bold text-gray-900 mb-2">Ready to write?</h4>
           <p className="text-gray-700 text-sm mb-5">
-            {allChosen ? 'Use these picks as guardrails in your own draft.' : 'Lock in one per row to unlock the next step.'}
+            {allChosen
+              ? 'Bring the takeaways above into your first draft and rerun the test if it feels off.'
+              : 'Lock in one per row to see what changes, then continue.'}
           </p>
           <button
             onClick={() => setStage('complete')}
