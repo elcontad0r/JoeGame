@@ -154,16 +154,6 @@ const Round1GameV3 = ({ onComplete }) => {
   );
 
   const renderLessons = () => {
-    const stanceStyles = {
-      best: 'border-green-400 bg-green-50 text-green-900',
-      avoid: 'border-red-200 bg-white text-gray-800'
-    };
-
-    const stanceBadges = {
-      best: 'bg-green-100 text-green-700',
-      avoid: 'bg-orange-100 text-orange-700'
-    };
-
     const allChosen = sections.every((section) => selections[section.id]);
 
     return (
@@ -174,12 +164,12 @@ const Round1GameV3 = ({ onComplete }) => {
             <div>
               <h3 className="text-2xl font-bold text-gray-900 mb-1">Pick the ingredients</h3>
               <p className="text-gray-700 text-sm sm:text-base">
-                Choose one option per row. The good ones aren’t always obvious—look for the picks that keep the plan actionable for Saturday.
+                Choose one option per row. Don’t worry about guessing the “right” one—just follow what feels most useful for getting Saturday planned.
               </p>
             </div>
           </div>
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-900">
-            We’ll highlight the solid moves. Hover over anything that feels harmless—some options sound fine but lead to vague outputs.
+            Hover over anything that feels harmless—some options sound fine but lead to vague outputs. You’ll see a quick nudge after you pick.
           </div>
         </div>
 
@@ -207,16 +197,25 @@ const Round1GameV3 = ({ onComplete }) => {
                       key={option.id}
                       onClick={() => setSelections({ ...selections, [section.id]: option.id })}
                       className={`text-left rounded-lg border-2 p-4 transition-all h-full flex flex-col gap-2 hover:-translate-y-0.5 ${
-                        isSelected ? stanceStyles[option.stance] : 'border-gray-200 bg-white text-gray-900'
+                        isSelected ? 'border-blue-400 bg-blue-50 text-gray-900 shadow-sm' : 'border-gray-200 bg-white text-gray-900'
                       }`}
                     >
                       <div className="flex items-center justify-between gap-2">
                         <span className="font-semibold text-sm">{option.label}</span>
-                        <span className={`px-2 py-1 rounded-full text-[11px] font-bold ${stanceBadges[option.stance]}`}>
-                          {option.stance === 'best' ? 'Solid' : 'Looks fine, but…'}
-                        </span>
+                        {isSelected && (
+                          <span className="px-2 py-1 rounded-full text-[11px] font-semibold bg-blue-100 text-blue-700">
+                            Locked
+                          </span>
+                        )}
                       </div>
                       <p className="text-sm text-gray-700 leading-relaxed">{option.description}</p>
+                      {isSelected && (
+                        <p className="text-xs text-blue-800 bg-blue-50 border border-blue-100 rounded-md p-2">
+                          {option.stance === 'best'
+                            ? 'This keeps the AI focused on the job instead of wandering into fluff.'
+                            : 'This can feel safe, but it usually produces vague responses. Try to ground it in the work you need.'}
+                        </p>
+                      )}
                     </button>
                   );
                 })}
