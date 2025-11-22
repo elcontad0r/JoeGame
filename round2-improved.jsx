@@ -12,9 +12,9 @@ const Round2GameV2 = ({ onComplete }) => {
   });
 
   const scenario = {
-    title: "Plot Twist: Client Needs Hill Talking Points",
-    urgency: "Senator's office just called - meeting in 2 hours",
-    situation: "Your MidAtlantic Manufacturing client's CEO is getting pulled into an emergency meeting with Senator Casey's office about the EPA rule. They need crisp talking points for a 15-minute conversation."
+    title: "Create a Friendly Welcome Pack",
+    urgency: "Share with members tonight",
+    situation: "Your neighborhood maker club is kicking off monthly meetups. 120 people expressed interest, 45 have RSVPed for the first evening, and two local shops donated supplies. You want a clear, welcoming note that sets expectations and helps volunteers prep."
   };
 
   const [isGenerating, setIsGenerating] = useState(false);
@@ -25,19 +25,19 @@ const Round2GameV2 = ({ onComplete }) => {
       title: "Context",
       options: [
         {
-          id: 'jobs',
-          label: "Jobs & Economic Impact",
-          promptText: "MidAtlantic Manufacturing: 12 facilities across PA/OH/WV, 2,400 direct jobs at risk, $38-42M compliance cost. Frame as workforce and regional economic impact.",
+          id: 'club-basics',
+          label: "Club Snapshot",
+          promptText: "Monthly maker nights at the community center; 120 interested, 45 RSVPs for kickoff; mix of teens and adults; beginner-friendly.",
         },
         {
-          id: 'compliance',
-          label: "Compliance Timeline",
-          promptText: "MidAtlantic Manufacturing: 8 of 12 facilities need major upgrades, requires 24+ months but EPA gives only 15 months. Frame as impossible timeline.",
+          id: 'support',
+          label: "Volunteer Details",
+          promptText: "6 volunteers: 2 greeters, 3 project leads (painting, 3D pens, soldering), 1 cleanup lead; each can prep for 90 minutes Friday night.",
         },
         {
-          id: 'competitive',
-          label: "Regional Competitiveness",
-          promptText: "MidAtlantic Manufacturing competes with facilities in states with more lenient timelines. Frame as unfair competitive disadvantage for PA.",
+          id: 'space-supplies',
+          label: "Space + Supplies",
+          promptText: "3 rooms + hallway tables; outlets available; donated supplies include paints, brushes, filament, safety glasses; snacks budget $150.",
         }
       ]
     },
@@ -45,19 +45,19 @@ const Round2GameV2 = ({ onComplete }) => {
       title: "Format",
       options: [
         {
-          id: 'talking-points',
-          label: "Talking Points List",
-          promptText: "Bullet-point talking points: concise statements with data, organized by topic. One page maximum.",
+          id: 'welcome-email',
+          label: "Welcome Email + FAQ",
+          promptText: "Friendly email with 4-5 FAQ bullets: where to park, what to bring, skill level, timing. Max 220 words.",
         },
         {
-          id: 'qa-prep',
-          label: "Q&A Brief",
-          promptText: "Question-and-answer format: 5-7 anticipated questions with 2-3 sentence responses each.",
+          id: 'one-pager',
+          label: "One-Page Plan",
+          promptText: "Single page: schedule, room assignments, supplies list, who is hosting each table.",
         },
         {
-          id: 'memo',
-          label: "Executive Memo",
-          promptText: "Memo format: 2-3 sentence executive summary at top, then key points with section headers.",
+          id: 'social-thread',
+          label: "Social Thread",
+          promptText: "Series of 3-4 short posts inviting folks to drop by, with emojis and a link to RSVP.",
         }
       ]
     },
@@ -65,19 +65,19 @@ const Round2GameV2 = ({ onComplete }) => {
       title: "Audience",
       options: [
         {
-          id: 'chief-of-staff',
-          label: "Chief of Staff",
-          promptText: "Senator Casey's Chief of Staff - focus on political implications and constituent impact. Understands both policy and politics.",
+          id: 'attendees',
+          label: "First-Time Attendees",
+          promptText: "People curious about making something simple after work; want to know if it's beginner-friendly and what it costs (it's free).",
         },
         {
-          id: 'leg-director',
-          label: "Legislative Director",
-          promptText: "Legislative Director - focus on policy mechanics, amendment possibilities, and legislative vehicles. Needs technical precision.",
+          id: 'volunteers',
+          label: "Volunteer Crew",
+          promptText: "Greeters + project leads who need clear tasks, timing, and a heads-up on supplies to bring from home.",
         },
         {
-          id: 'comms-director',
-          label: "Communications Director",
-          promptText: "Communications Director - focus on messaging frames and public narrative. Needs quotable, clear language.",
+          id: 'donors',
+          label: "Local Donors",
+          promptText: "Two nearby shops offering supplies; they want to see their support acknowledged and know when to drop off materials.",
         }
       ]
     },
@@ -85,19 +85,19 @@ const Round2GameV2 = ({ onComplete }) => {
       title: "Constraints",
       options: [
         {
-          id: 'elevator',
-          label: "2-Min Hallway",
-          promptText: "Unplanned hallway stop - CEO has 2 minutes max, standing up. Need 3 crisp points, no nuance.",
+          id: 'word-cap',
+          label: "200-Word Cap",
+          promptText: "Keep attendee-facing copy under 200 words so people will read it on their phone.",
         },
         {
-          id: 'sit-down',
-          label: "15-Min Meeting",
-          promptText: "Scheduled 15-minute office meeting - CEO sits down with staffer. Time for discussion but need focus.",
+          id: 'warm-tone',
+          label: "Warm + Plain Language",
+          promptText: "Avoid jargon; write like a friendly neighbor inviting people over; short sentences welcome.",
         },
         {
-          id: 'send-ahead',
-          label: "Email Before",
-          promptText: "Send materials 24 hours before meeting. Staff reads in advance, CEO discusses in person later. Can be more detailed.",
+          id: 'printable',
+          label: "Printable Tonight",
+          promptText: "Needs to print cleanly in black-and-white; no links required; simple headers and bullets.",
         }
       ]
     },
@@ -105,19 +105,19 @@ const Round2GameV2 = ({ onComplete }) => {
       title: "Goal",
       options: [
         {
-          id: 'delay',
-          label: "Delay Implementation",
-          promptText: "Primary ask: Co-sponsor amendment extending timeline from 15 to 30 months. Justify why current timeline is unworkable.",
+          id: 'show-up',
+          label: "Boost Show-Ups",
+          promptText: "Primary goal: make people excited to attend and know exactly where/when to arrive.",
         },
         {
-          id: 'funding',
-          label: "Secure Funding",
-          promptText: "Primary ask: Support $500M appropriations for compliance assistance fund. Show how funding enables compliance without job losses.",
+          id: 'prep-volunteers',
+          label: "Prep Volunteers",
+          promptText: "Primary goal: give volunteers a simple checklist so setup feels calm, not rushed.",
         },
         {
-          id: 'epa-meeting',
-          label: "EPA Access",
-          promptText: "Primary ask: Facilitate meeting with EPA Administrator on regional variance. Position as working within framework, not obstructing.",
+          id: 'thank-donors',
+          label: "Thank Donors",
+          promptText: "Primary goal: highlight donor support and invite them to stop by for a quick shout-out."
         }
       ]
     }
@@ -203,7 +203,7 @@ Return as JSON:
   };
 
   const buildPrompt = () => {
-    let prompt = "Write talking points for a Hill meeting about the EPA air quality rule.\n\n";
+    let prompt = "Draft a warm, practical welcome note for a community maker night.\n\n";
     
     if (selections.context) {
       prompt += `Context: ${ingredients.context.options.find(o => o.id === selections.context).promptText}\n\n`;
@@ -303,7 +303,7 @@ Return as JSON:
         <div className="bg-gray-100 border-2 border-gray-400 rounded-lg p-3">
           <div className="text-xs font-bold text-gray-600 mb-1">TASK</div>
           <p className="text-sm font-semibold text-gray-800">
-            Write talking points for a Hill meeting about the EPA air quality rule.
+            Draft the welcome pack for the maker night kickoff.
           </p>
         </div>
         
@@ -484,23 +484,23 @@ Return as JSON:
         <div className="space-y-3 text-sm">
           <div className="p-3 bg-gray-50 rounded-lg">
             <div className="font-semibold mb-1">Context</div>
-            <div className="text-gray-600">Different framings get different results - jobs vs timeline vs fairness</div>
+            <div className="text-gray-600">Different framings get different results - safety facts vs customer impact vs regulators</div>
           </div>
           <div className="p-3 bg-gray-50 rounded-lg">
             <div className="font-semibold mb-1">Format</div>
-            <div className="text-gray-600">Structure matters - talking points vs Q&A vs memo</div>
+            <div className="text-gray-600">Structure matters - email/FAQ vs executive brief vs social thread</div>
           </div>
           <div className="p-3 bg-gray-50 rounded-lg">
             <div className="font-semibold mb-1">Audience</div>
-            <div className="text-gray-600">Reader shapes content - political vs policy vs messaging</div>
+            <div className="text-gray-600">Reader shapes content - customers vs partners vs internal leads</div>
           </div>
           <div className="p-3 bg-gray-50 rounded-lg">
             <div className="font-semibold mb-1">Constraints</div>
-            <div className="text-gray-600">Real limits drive structure - 2 min vs 15 min vs email</div>
+            <div className="text-gray-600">Real limits drive structure - time caps, word caps, translation needs</div>
           </div>
           <div className="p-3 bg-gray-50 rounded-lg">
             <div className="font-semibold mb-1">Goal</div>
-            <div className="text-gray-600">Clear asks get concrete results - delay vs funding vs access</div>
+            <div className="text-gray-600">Clear asks get concrete results - reassure customers vs equip teams vs coordinate partners</div>
           </div>
         </div>
       </div>
