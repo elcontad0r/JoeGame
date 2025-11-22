@@ -1,3 +1,5 @@
+import { getAnthropicModel } from './anthropic-config.js';
+
 // Vercel serverless function for simulating real-world results
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -11,6 +13,8 @@ export default async function handler(req, res) {
   }
 
   try {
+    const model = getAnthropicModel();
+
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
@@ -19,7 +23,7 @@ export default async function handler(req, res) {
         "anthropic-version": "2023-06-01"
       },
       body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
+        model,
         max_tokens: 1200,
         temperature: 0.7,
         messages: [{
