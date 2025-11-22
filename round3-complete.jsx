@@ -13,12 +13,12 @@ const difficultyConfig = {
   easy: {
     label: 'Easy',
     ribbon: 'Level 1 • Guided remix',
-    hero: 'Remix the guided ingredients with a simple brief',
+    hero: 'Remix guided ingredients with a simple brief',
     gradient: 'from-green-50 to-blue-50',
     badgeColor: 'bg-green-100 text-green-800',
     leaderboardTag: 'Easy',
-    instructions: 'We keep the ask simple and give you plenty of hints. Show you can turn starter details into a clean prompt.',
-    playstyle: 'Use the guided ingredients from the tutorials as your building blocks. The scenario is chill and the main job is stitching the pieces together with your words.',
+    instructions: 'Use the starter details and keep the prompt tight and skimmable.',
+    playstyle: 'Pull the right ingredients, snap them together, and keep it short.',
     hintExtras: [
       'Pull 2-3 concrete facts from the scenario into your context.',
       'Say exactly what format you want back. Keep it short.'
@@ -31,8 +31,8 @@ const difficultyConfig = {
     gradient: 'from-orange-50 to-amber-50',
     badgeColor: 'bg-orange-100 text-orange-800',
     leaderboardTag: 'Medium',
-    instructions: 'You still get prompts to click through, but you’ll need to add your own flavor and a couple of specific guardrails.',
-    playstyle: 'Think of this as Round 2 plus your own tweaks. Add a second constraint or tone choice and call out what matters most.',
+    instructions: 'Mix chips with your own edits. Add a guardrail or tone choice.',
+    playstyle: 'Stack chips, then add the missing constraints and tradeoffs.',
     hintExtras: [
       'Name one thing you’re adding beyond the provided details.',
       'Point to what should be prioritized if tradeoffs appear.'
@@ -45,8 +45,8 @@ const difficultyConfig = {
     gradient: 'from-purple-50 to-pink-50',
     badgeColor: 'bg-purple-100 text-purple-800',
     leaderboardTag: 'Hard',
-    instructions: 'Minimal scaffolding. You own the structure, tone, and constraints. Keep it human, specific, and purposeful.',
-    playstyle: 'Start from a blank slate: design the sections you want, define success, and call out any sensitivities. This is the closest to real-world prompting.',
+    instructions: 'No scaffolding. You own the structure, tone, and constraints.',
+    playstyle: 'Design the sections, define success, and call out one risk.',
     hintExtras: [
       'Lay out 2-3 sections in the order you want them.',
       'Call out one risk/sensitivity and how to handle it.'
@@ -236,7 +236,7 @@ const highlightQuotes = (text) => {
 };
 
 const Round3Game = ({ onBack, difficulty = 'easy' }) => {
-  const [selectedDifficulty, setSelectedDifficulty] = useState(difficulty);
+  const selectedDifficulty = difficulty;
   const config = difficultyConfig[selectedDifficulty] || difficultyConfig.easy;
   const [stage, setStage] = useState('topic-input');
   const [userTopic, setUserTopic] = useState('');
@@ -298,41 +298,55 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
       easy: {
         context: [
           {
-            id: 'scenario-facts',
-            label: 'Scenario facts',
-            snippet: scenarioContext
+            id: 'setting-people',
+            label: 'Setting + people',
+            snippet: scenarioContext.split('. ').slice(0, 1).join('. ') || scenarioContext
           },
           {
-            id: 'deliverable-reminder',
-            label: "What we're making",
-            snippet: deliverable,
-            tone: 'Round 2 remix'
+            id: 'headline-ask',
+            label: 'Headline ask',
+            snippet: deliverable
+          },
+          {
+            id: 'timing',
+            label: 'Timing',
+            snippet: urgency
           }
         ],
         format: [
           {
-            id: 'simple-steps',
+            id: 'steps-bullets',
             label: 'Steps + bullets',
-            snippet: `Short intro then 3-4 bullets with headers. Keep it skimmable. ${urgency}`,
+            snippet: `Short intro, then 3-4 bullets with headers. Keep it skimmable. ${urgency}`,
             tone: 'easy'
           },
           {
-            id: 'template',
+            id: 'mini-template',
             label: 'Mini template',
             snippet: 'Greeting → key info → 3 bullets → closing ask. Keep sentences under 18 words.',
             tone: 'Round 2 remix'
+          },
+          {
+            id: 'checklist',
+            label: 'Checklist',
+            snippet: 'Checklist with owners + due times. Close with one reminder line.'
           }
         ],
         audience: [
           {
-            id: 'direct-audience',
+            id: 'speak-to-readers',
             label: 'Speak to readers',
             snippet: audienceHint
           },
           {
             id: 'what-they-need',
-            label: 'What they need to know',
-            snippet: 'Call out what they worry about (time, cost, effort) and the one decision they must make.'
+            label: 'What they need',
+            snippet: 'Call out what they worry about (time, cost, effort). Highlight the one decision they owe you.'
+          },
+          {
+            id: 'tone',
+            label: 'Tone',
+            snippet: 'Plain, calm voice. Avoid hype; aim for clarity first.'
           }
         ],
         constraints: [
@@ -344,21 +358,15 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
           {
             id: 'format-guardrails',
             label: 'Formatting',
-            snippet: 'Use headers + bullets; make it paste-ready for chat/email with no extra commentary.'
-          }
-        ],
-        goal: [
-          {
-            id: 'success-check',
-            label: 'Define success',
-            snippet: `Goal: readers quickly understand ${deliverable.toLowerCase()} and take the next action without asking follow-ups.`
+            snippet: 'Headers + bullets; paste-ready for chat/email. No analysis around it.'
           },
           {
-            id: 'cta',
-            label: 'Clear call-to-action',
-            snippet: 'End with one action + deadline and mention what happens after they respond.'
+            id: 'scope',
+            label: 'Stay scoped',
+            snippet: 'Stick to the scenario facts; no new promises or offers.'
           }
-        ]
+        ],
+        goal: []
       },
       medium: {
         context: [
@@ -371,7 +379,12 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
           {
             id: 'evidence',
             label: 'Evidence + facts',
-            snippet: `${scenarioContext} Include any numbers, names, or locations that make this credible.`
+            snippet: `${scenarioContext} Include numbers, names, or locations that make this credible.`
+          },
+          {
+            id: 'constraints-teaser',
+            label: 'Fixed limits',
+            snippet: `Budget/time limits: ${urgency} Keep to the real constraints.`
           }
         ],
         format: [
@@ -383,47 +396,51 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
           },
           {
             id: 'two-column',
-            label: 'Two-column read',
-            snippet: 'Use bullets that pair "Need" → "Answer" so readers can skim. Close with a one-line summary.',
+            label: 'Need → Answer',
+            snippet: 'Bullets that pair "Need" → "Answer" so readers can skim fast. End with a one-line summary.',
             tone: 'structured'
+          },
+          {
+            id: 'timeline',
+            label: 'Timeline cut',
+            snippet: 'Start with when things happen, then who owns them, then the ask.'
           }
         ],
         audience: [
           {
             id: 'audience-lens',
             label: 'Audience lens',
-            snippet: `${audienceHint} Mirror their terms and be explicit about what you need from them.`
+            snippet: `${audienceHint} Be explicit about what you need from them.`
           },
           {
             id: 'secondary-readers',
             label: 'Secondary readers',
             snippet: 'Assume this will be forwarded. Add one sentence that helps a new reader catch up fast.'
+          },
+          {
+            id: 'voice',
+            label: 'Voice',
+            snippet: 'Direct, specific, confident. One sentence that sets the tone.'
           }
         ],
         constraints: [
           {
             id: 'avoid-fluff',
             label: 'Avoid fluff',
-            snippet: 'No metaphors or marketing spin. Prioritize clarity over persuasion. Keep acronyms defined once.'
+            snippet: 'No metaphors or marketing spin. Prioritize clarity over persuasion. Define acronyms once.'
           },
           {
             id: 'ready-to-send',
             label: 'Ready to send',
-            snippet: 'Return only the final copy. No analysis. Format so it pastes cleanly into chat/email.'
-          }
-        ],
-        goal: [
-          {
-            id: 'success-metric',
-            label: 'Success metric',
-            snippet: `Outcome: readers can act on ${deliverable.toLowerCase()} within the ${urgency.toLowerCase()}. Measure success by responses/attendance.`
+            snippet: 'Return only the final copy. Format so it pastes cleanly into chat/email.'
           },
           {
-            id: 'next-step',
-            label: 'Next step',
-            snippet: 'End with the one decision and the timestamp/owner for follow-up. Include a line about what happens if they ignore it.'
+            id: 'tradeoffs',
+            label: 'Tradeoffs',
+            snippet: 'Call out one tradeoff and what wins if things conflict.'
           }
-        ]
+        ],
+        goal: []
       },
       hard: {
         context: [],
@@ -784,20 +801,6 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
 
   const renderWritePrompt = () => {
     const activePresets = ingredientPresets[selectedDifficulty] || ingredientPresets.easy;
-    const difficultyCopy = {
-      easy: {
-        title: 'Easy',
-        description: 'Use suggested ingredient chips to remix Round 2 and get unstuck fast.'
-      },
-      medium: {
-        title: 'Medium',
-        description: 'Still get scaffolding, but add your own spin by combining chips.'
-      },
-      hard: {
-        title: 'Hard',
-        description: 'No chips, no hints—freeform drafting for leaderboard glory.'
-      }
-    };
 
     return (
       <div className="max-w-4xl mx-auto p-6">
@@ -823,9 +826,19 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
         {/* Instructions */}
         <div className="bg-gradient-to-r from-purple-50 to-orange-50 rounded-lg p-6 mb-6 border border-purple-200">
           <h2 className="text-xl font-bold text-gray-900 mb-3">Build Your Prompt</h2>
-          <p className="text-gray-700 mb-4">
-            This is the {config.label.toLowerCase()} level. {config.instructions}
-          </p>
+          <div className="grid sm:grid-cols-2 gap-3 text-sm text-gray-800 mb-4">
+            <div className="bg-white/60 rounded-lg p-3 border border-purple-100">
+              <p className="font-semibold text-purple-900 mb-1">Level style</p>
+              <p className="leading-snug">{config.playstyle}</p>
+            </div>
+            <div className="bg-white/60 rounded-lg p-3 border border-orange-100">
+              <p className="font-semibold text-orange-900 mb-1">Keep in mind</p>
+              <ul className="list-disc list-inside space-y-1">
+                <li>{config.instructions}</li>
+                <li>Keep it scannable; avoid filler words.</li>
+              </ul>
+            </div>
+          </div>
           <button
             onClick={() => setShowHints(!showHints)}
             className="text-purple-600 hover:text-purple-700 font-semibold text-sm flex items-center gap-2"
@@ -833,6 +846,31 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
             <Lightbulb size={16} />
             {showHints ? 'Hide' : 'Show'} helpful questions
           </button>
+        </div>
+
+        <div className="bg-white rounded-lg border-2 border-gray-200 p-5 mb-6">
+          <div className="flex items-center gap-2 mb-3">
+            <CheckCircle className="text-green-600" size={18} />
+            <p className="font-semibold text-gray-900">Task block</p>
+          </div>
+          <div className="grid sm:grid-cols-2 gap-3 text-sm text-gray-800">
+            <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+              <p className="text-xs uppercase font-bold text-green-800 mb-1">Deliverable</p>
+              <p className="leading-snug">{scenario?.requirement || 'Spell out what you need written or outlined.'}</p>
+            </div>
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+              <p className="text-xs uppercase font-bold text-blue-800 mb-1">Timing</p>
+              <p className="leading-snug">{scenario?.urgency || 'Note when this is due and why the timing matters.'}</p>
+            </div>
+            <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
+              <p className="text-xs uppercase font-bold text-purple-800 mb-1">Audience</p>
+              <p className="leading-snug">{scenario?.sector ? `Write for folks in ${scenario.sector}.` : 'Call out who will read this.'}</p>
+            </div>
+            <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
+              <p className="text-xs uppercase font-bold text-orange-800 mb-1">Must include</p>
+              <p className="leading-snug">{scenario?.focus || 'Include the key facts from the scenario without adding extras.'}</p>
+            </div>
+          </div>
         </div>
 
         {/* Hints section */}
@@ -853,36 +891,6 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
             </div>
           </div>
         )}
-
-        <div className="bg-white rounded-lg border-2 border-gray-200 p-5 mb-6">
-          <div className="flex flex-col sm:flex-row gap-3">
-            {['easy', 'medium', 'hard'].map((level) => (
-              <button
-                key={level}
-                onClick={() => setSelectedDifficulty(level)}
-                className={`flex-1 rounded-lg border-2 p-4 text-left transition-all ${
-                  selectedDifficulty === level
-                    ? 'border-orange-400 bg-orange-50 shadow-sm'
-                    : 'border-gray-200 bg-gray-50 hover:border-gray-300'
-                }`}
-              >
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-sm font-bold text-gray-900">{difficultyCopy[level].title}</span>
-                  <span className={`text-xs font-semibold ${selectedDifficulty === level ? 'text-orange-700' : 'text-gray-500'}`}>
-                    {selectedDifficulty === level ? 'Selected' : 'Try it'}
-                  </span>
-                </div>
-                <p className="text-xs text-gray-700 leading-snug">{difficultyCopy[level].description}</p>
-              </button>
-            ))}
-          </div>
-
-          <p className="text-xs text-gray-600 mt-3">
-            {selectedDifficulty !== 'hard'
-              ? 'Tap chips under each ingredient to drop preset snippets into your text. Add, edit, or stack them however you like.'
-              : 'Hard mode leaves textareas blank so you write every ingredient from scratch.'}
-          </p>
-        </div>
 
         {/* Ingredient fields */}
         <div className="mb-6">
