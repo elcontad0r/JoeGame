@@ -30,18 +30,29 @@ const Round1GameV3 = ({ onComplete }) => {
 
     return (
       <div className="max-w-5xl mx-auto px-4 sm:px-6">
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
-          <div className="flex items-start gap-3 mb-3">
+        <div className="bg-white/90 backdrop-blur rounded-xl shadow-lg p-6 mb-6 border border-blue-100">
+          <div className="flex items-start gap-3 mb-4">
             <Lightbulb className="text-blue-600" size={22} />
-            <div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-1">Pick the ingredients</h3>
+            <div className="space-y-2">
+              <h3 className="text-2xl font-bold text-gray-900">Pick your ingredients fast</h3>
               <p className="text-gray-700 text-sm sm:text-base">
-                Choose one option per row. Don’t worry about guessing the “right” one—just follow what feels most useful for getting Saturday planned.
+                Tap one option in each row. Hover to peek at why it helps.
               </p>
             </div>
           </div>
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-900">
-            Hover over anything that feels harmless—some options sound fine but lead to vague outputs. You’ll see a quick nudge after you pick.
+          <div className="grid sm:grid-cols-3 gap-3 text-sm font-semibold">
+            <div className="flex items-center gap-2 bg-blue-50 text-blue-800 rounded-lg px-3 py-2 border border-blue-100">
+              <span className="w-2 h-2 rounded-full bg-blue-500" aria-hidden="true" />
+              Clear task first
+            </div>
+            <div className="flex items-center gap-2 bg-indigo-50 text-indigo-800 rounded-lg px-3 py-2 border border-indigo-100">
+              <span className="w-2 h-2 rounded-full bg-indigo-500" aria-hidden="true" />
+              Real context only
+            </div>
+            <div className="flex items-center gap-2 bg-purple-50 text-purple-800 rounded-lg px-3 py-2 border border-purple-100">
+              <span className="w-2 h-2 rounded-full bg-purple-500" aria-hidden="true" />
+              Keep it doable
+            </div>
           </div>
         </div>
 
@@ -56,10 +67,10 @@ const Round1GameV3 = ({ onComplete }) => {
           ))}
         </div>
 
-        <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-xl p-6 mt-6 text-center">
+        <div className="bg-gradient-to-r from-green-500/10 via-blue-500/10 to-purple-500/10 border border-green-200 rounded-xl p-6 mt-6 text-center shadow-inner">
           <h4 className="text-xl font-bold text-gray-900 mb-2">Ready to write?</h4>
-          <p className="text-gray-700 text-sm mb-4">
-            {allChosen ? 'Nice picks. Keep them in mind for the next round.' : 'Select one option in each row to lock in what matters.'}
+          <p className="text-gray-700 text-sm mb-5">
+            {allChosen ? 'Solid picks. Remember them as you build.' : 'Lock in one per row to unlock the next step.'}
           </p>
           <button
             onClick={() => setStage('complete')}
@@ -105,7 +116,7 @@ const Round1GameV3 = ({ onComplete }) => {
       <div className="bg-white rounded-lg shadow-lg p-8 text-center">
         <h2 className="text-2xl font-bold mb-2">Round 1 Complete</h2>
         <p className="text-gray-600 mb-6">
-          You locked in the essentials without sitting through a lecture. Now try building one yourself.
+          You locked in the essentials and kept momentum. Now try building one yourself.
         </p>
         <button
           onClick={onComplete}
@@ -124,7 +135,7 @@ const Round1GameV3 = ({ onComplete }) => {
           {round1Config.stageLabel}
         </div>
         <h1 className="text-4xl font-bold mb-2">{round1Config.headline}</h1>
-        <p className="text-gray-600">{round1Config.subheadline}</p>
+        <p className="text-gray-600 max-w-3xl mx-auto">{round1Config.subheadline}</p>
       </div>
 
       {stage === 'scenario' && renderScenario()}

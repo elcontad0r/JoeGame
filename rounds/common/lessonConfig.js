@@ -1,11 +1,11 @@
 export const round1Config = {
   stageLabel: 'Round 1 of 3',
-  headline: 'Choose better prompts fast',
-  subheadline: 'One screen to pick the moves that make AI responses actually useful',
+  headline: 'Learn the ropes fast',
+  subheadline: 'Pick the moves that make AI replies clear and useful.',
   hero: {
-    actionTitle: 'Skip the painful tutorial',
-    actionCopy: 'Pick the right ingredients in one screen. We’ll flag the sneaky traps so you can move on fast.',
-    actionLabel: 'Start picking',
+    actionTitle: 'Start with the essentials',
+    actionCopy: 'Grab the best ingredients in one screen. We’ll highlight what matters most so you can keep moving.',
+    actionLabel: 'Begin the run',
     gradientFrom: 'from-blue-500',
     gradientTo: 'to-purple-600',
     accentColorClass: 'text-red-500'
@@ -14,7 +14,7 @@ export const round1Config = {
     title: 'Plan a Saturday Skillshare Day',
     urgency: 'Draft the plan tonight',
     situation:
-      'Your community center is hosting a relaxed weekend event with DIY classes (budgeting basics, meal prep, bike repair). Four volunteer instructors, 60 RSVPs so far, and you need to publish a plan with roles, timing, and what to bring before people head to bed.'
+      'Weekend DIY classes with four volunteers and 60 RSVPs. Publish a simple plan with rooms, timing, and supplies before everyone goes to bed.'
   },
   sections: [
     {
