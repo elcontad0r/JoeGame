@@ -48,14 +48,19 @@ A 3-round interactive training game teaching execs how to write better AI prompt
 ```
 /
 ├── api/                    # Vercel serverless functions
-│   ├── generate-scenario.js   # Creates random scenarios
+│   ├── evaluate-prompt.js     # Evaluates prompt quality
 │   ├── generate-content.js    # Generates content from user prompts
-│   └── evaluate-prompt.js     # Evaluates prompt quality
-├── App.jsx                 # Main router
-├── round1-improved.jsx     # Round 1: Comparison
-├── round2-improved.jsx     # Round 2: Guided building
-├── round3-updated.jsx      # Round 3: Freestyle (updated for API)
+│   ├── generate-scenario.js   # Creates random scenarios
+│   └── simulate-results.js    # Returns canned scores for local testing
+├── App.jsx                  # Main router
+├── components/              # Shared navigation and menu components
+├── round1-improved.jsx      # Round 1: Comparison
+├── round2-improved.jsx      # Round 2: Guided building
+├── round3-complete.jsx      # Round 3: Freestyle (API-enabled)
+├── round3/                  # Round 3 supporting hooks, utils, and UI
+├── rounds/common/           # Shared lesson components and config
 ├── index.html
+├── index.css
 ├── main.jsx
 ├── package.json
 └── vercel.json
