@@ -54,7 +54,6 @@ const difficultyConfig = {
   }
 };
 
-const IngredientField = ({ field, number, title, placeholder, value, onChange, hint, collapsed, onToggleCollapse }) => {
 const IngredientField = ({ field, number, title, placeholder, value, onChange, hint, collapsed, onToggleCollapse, presets = [], onPresetSelect, selectedPreset, difficulty }) => {
   const isCollapsed = collapsed[field];
   const colors = ingredientColors[field];
@@ -237,7 +236,8 @@ const highlightQuotes = (text) => {
 };
 
 const Round3Game = ({ onBack, difficulty = 'easy' }) => {
-  const config = difficultyConfig[difficulty] || difficultyConfig.easy;
+  const [selectedDifficulty, setSelectedDifficulty] = useState(difficulty);
+  const config = difficultyConfig[selectedDifficulty] || difficultyConfig.easy;
   const [stage, setStage] = useState('topic-input');
   const [userTopic, setUserTopic] = useState('');
   const [scenario, setScenario] = useState(null);
@@ -246,7 +246,6 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
   const [promptAudience, setPromptAudience] = useState('');
   const [promptConstraints, setPromptConstraints] = useState('');
   const [promptGoal, setPromptGoal] = useState('');
-  const [difficulty, setDifficulty] = useState('easy');
   const [selectedPresets, setSelectedPresets] = useState({
     context: null,
     format: null,
@@ -468,7 +467,7 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
   };
 
   useEffect(() => {
-    if (difficulty === 'hard') {
+    if (selectedDifficulty === 'hard') {
       setSelectedPresets({
         context: null,
         format: null,
@@ -477,7 +476,7 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
         goal: null
       });
     }
-  }, [difficulty]);
+  }, [selectedDifficulty]);
 
   useEffect(() => {
     setSelectedPresets({
@@ -526,7 +525,7 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
       const response = await fetch('/api/generate-scenario', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userTopic: topic, difficulty })
+        body: JSON.stringify({ userTopic: topic, difficulty: selectedDifficulty })
       });
 
       if (!response.ok) {
@@ -534,7 +533,7 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
       }
 
       const data = await response.json();
-      setScenario({ ...data.scenario, difficulty });
+      setScenario({ ...data.scenario, difficulty: selectedDifficulty });
       setStage('scenario');
     } catch (error) {
       console.error('Error generating scenario:', error);
@@ -648,7 +647,7 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
             goal: promptGoal
           },
           scenario: scenario,
-          difficulty
+          difficulty: selectedDifficulty
         })
       });
 
@@ -784,7 +783,7 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
   };
 
   const renderWritePrompt = () => {
-    const activePresets = ingredientPresets[difficulty] || ingredientPresets.easy;
+    const activePresets = ingredientPresets[selectedDifficulty] || ingredientPresets.easy;
     const difficultyCopy = {
       easy: {
         title: 'Easy',
@@ -860,17 +859,17 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
             {['easy', 'medium', 'hard'].map((level) => (
               <button
                 key={level}
-                onClick={() => setDifficulty(level)}
+                onClick={() => setSelectedDifficulty(level)}
                 className={`flex-1 rounded-lg border-2 p-4 text-left transition-all ${
-                  difficulty === level
+                  selectedDifficulty === level
                     ? 'border-orange-400 bg-orange-50 shadow-sm'
                     : 'border-gray-200 bg-gray-50 hover:border-gray-300'
                 }`}
               >
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-sm font-bold text-gray-900">{difficultyCopy[level].title}</span>
-                  <span className={`text-xs font-semibold ${difficulty === level ? 'text-orange-700' : 'text-gray-500'}`}>
-                    {difficulty === level ? 'Selected' : 'Try it'}
+                  <span className={`text-xs font-semibold ${selectedDifficulty === level ? 'text-orange-700' : 'text-gray-500'}`}>
+                    {selectedDifficulty === level ? 'Selected' : 'Try it'}
                   </span>
                 </div>
                 <p className="text-xs text-gray-700 leading-snug">{difficultyCopy[level].description}</p>
@@ -879,7 +878,7 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
           </div>
 
           <p className="text-xs text-gray-600 mt-3">
-            {difficulty !== 'hard'
+            {selectedDifficulty !== 'hard'
               ? 'Tap chips under each ingredient to drop preset snippets into your text. Add, edit, or stack them however you like.'
               : 'Hard mode leaves textareas blank so you write every ingredient from scratch.'}
           </p>
@@ -898,7 +897,7 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
             presets={activePresets?.context || []}
             onPresetSelect={applyPresetToField}
             selectedPreset={selectedPresets.context}
-            difficulty={difficulty}
+            difficulty={selectedDifficulty}
             collapsed={collapsed}
             onToggleCollapse={toggleCollapse}
           />
@@ -914,7 +913,7 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
             presets={activePresets?.format || []}
             onPresetSelect={applyPresetToField}
             selectedPreset={selectedPresets.format}
-            difficulty={difficulty}
+            difficulty={selectedDifficulty}
             collapsed={collapsed}
             onToggleCollapse={toggleCollapse}
           />
@@ -930,7 +929,7 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
             presets={activePresets?.audience || []}
             onPresetSelect={applyPresetToField}
             selectedPreset={selectedPresets.audience}
-            difficulty={difficulty}
+            difficulty={selectedDifficulty}
             collapsed={collapsed}
             onToggleCollapse={toggleCollapse}
           />
@@ -946,7 +945,7 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
             presets={activePresets?.constraints || []}
             onPresetSelect={applyPresetToField}
             selectedPreset={selectedPresets.constraints}
-            difficulty={difficulty}
+            difficulty={selectedDifficulty}
             collapsed={collapsed}
             onToggleCollapse={toggleCollapse}
           />
@@ -962,7 +961,7 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
             presets={activePresets?.goal || []}
             onPresetSelect={applyPresetToField}
             selectedPreset={selectedPresets.goal}
-            difficulty={difficulty}
+            difficulty={selectedDifficulty}
             collapsed={collapsed}
             onToggleCollapse={toggleCollapse}
           />
