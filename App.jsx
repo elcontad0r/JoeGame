@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Trophy, Sparkles, Target, Zap, Award, Clock, Flame } from 'lucide-react';
+import { Trophy, Sparkles, Target, Zap, Award, Clock, Flame, ArrowRight } from 'lucide-react';
 import Round1Game from './round1-improved';
 import Round2Game from './round2-improved';
 import Round3Game from './round3-complete';
@@ -216,13 +216,5 @@ const App = () => {
     </div>
   );
 };
-
-// Missing import
-const ArrowRight = ({ size }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <line x1="5" y1="12" x2="19" y2="12"></line>
-    <polyline points="12 5 19 12 12 19"></polyline>
-  </svg>
-);
 
 export default App;

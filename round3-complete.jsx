@@ -988,7 +988,7 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
                 ))}
               </ul>
             </div>
-          </>
+          </div>
         )}
 
         {shouldShowChipSections && (
@@ -1013,38 +1013,6 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
               </p>
             )}
           </div>
-        )}
-
-        <div className="bg-white rounded-lg border-2 border-gray-200 p-5 mb-6">
-          <div className="flex flex-col sm:flex-row gap-3">
-            {['easy', 'medium', 'hard'].map((level) => (
-              <button
-                onClick={() => setShowHints(!showHints)}
-                className="text-purple-600 hover:text-purple-700 font-semibold text-sm flex items-center gap-2"
-              >
-                <Lightbulb size={16} />
-                {showHints ? 'Hide' : 'Show'} helpful questions
-              </button>
-            </div>
-
-            {showHints && (
-              <div className="bg-white rounded-lg border-2 border-gray-200 p-6 mb-6">
-                <h3 className="font-bold text-gray-900 mb-4">Questions to guide you:</h3>
-                <div className="grid gap-4">
-                  {allHints.map((hint, idx) => (
-                    <div key={idx} className="border-l-4 border-purple-300 pl-4">
-                      <p className="font-semibold text-purple-900 mb-2">{hint.category}</p>
-                      <ul className="space-y-1">
-                        {hint.questions.map((q, qIdx) => (
-                          <li key={qIdx} className="text-sm text-gray-600">• {q}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </>
         )}
 
         {/* Ingredient fields */}
