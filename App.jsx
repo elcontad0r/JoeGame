@@ -40,26 +40,28 @@ const App = () => {
                   Start now
                   <ArrowRight size={18} />
                 </button>
-                <div className="flex items-center gap-2 text-sm text-gray-600 bg-gray-50 px-4 py-3 rounded-lg border border-gray-200 w-full sm:w-auto">
+                <div className="flex flex-col sm:flex-row items-center gap-3 text-sm text-gray-600 bg-gray-50 px-4 py-3 rounded-lg border border-gray-200 w-full sm:w-auto">
                   <span className="font-semibold text-gray-700">Jump to level:</span>
-                  <select
-                    className="bg-white border border-gray-200 rounded-md px-3 py-2 text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    defaultValue=""
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      if (value) {
-                        setCurrentRound(value);
-                        e.target.value = '';
-                      }
-                    }}
-                  >
-                    <option value="" disabled>
-                      Choose level
-                    </option>
-                    <option value="easy">Level 1 (Easy)</option>
-                    <option value="medium">Level 2 (Medium)</option>
-                    <option value="hard">Level 3 (Hard)</option>
-                  </select>
+                  <div className="flex flex-wrap justify-center sm:justify-start gap-2 w-full sm:w-auto">
+                    <button
+                      onClick={() => setCurrentRound('easy')}
+                      className="px-4 py-2 bg-white text-gray-800 rounded-md border border-gray-200 hover:border-purple-300 hover:text-purple-700 font-semibold transition-colors"
+                    >
+                      Easy
+                    </button>
+                    <button
+                      onClick={() => setCurrentRound('medium')}
+                      className="px-4 py-2 bg-white text-gray-800 rounded-md border border-gray-200 hover:border-purple-300 hover:text-purple-700 font-semibold transition-colors"
+                    >
+                      Medium
+                    </button>
+                    <button
+                      onClick={() => setCurrentRound('hard')}
+                      className="px-4 py-2 bg-white text-gray-800 rounded-md border border-gray-200 hover:border-purple-300 hover:text-purple-700 font-semibold transition-colors"
+                    >
+                      Hard
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -76,7 +78,7 @@ const App = () => {
               <div>
                 <h3 className="font-bold text-gray-900 mb-1">How the Challenge Works</h3>
                 <p className="text-sm text-gray-600">
-                  Take two short tutorials, then try three scored levels. Each run gives you feedback so you can see how better prompts change the results.
+                  Start with two quick walkthroughs, then pick easy, medium, or hard. Each level scores your prompt, shows what improved, and lets you jump right back in.
                 </p>
               </div>
             </div>
@@ -90,7 +92,7 @@ const App = () => {
               <div>
                 <h3 className="font-bold text-gray-900 mb-1">What to Expect</h3>
                 <p className="text-sm text-gray-600">
-                  Scenarios stay approachable—think planning events, writing updates, helping friends. Do your best, compare scores, and a mystery prize awaits the top spot.
+                  You’ll see everyday scenarios like writing updates, planning events, and helping friends. Pick your level, try again with the feedback, and climb the leaderboard toward the mystery prize.
                 </p>
               </div>
             </div>
@@ -99,15 +101,14 @@ const App = () => {
 
         {/* Quick Start */}
         <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl p-6 sm:p-8 text-center">
-          <p className="text-gray-300 text-sm mb-4">
-            15 minutes total • All rounds build on each other • Rankings update live
-          </p>
-          <button
-            onClick={() => setCurrentRound('round1')}
-            className="bg-white text-gray-900 px-8 py-3 rounded-lg font-bold hover:bg-gray-100 transition-colors inline-flex items-center gap-2 shadow-lg"
+          <a
+            href="https://www.nationalcrabrobotinitiative.com/"
+            target="_blank"
+            rel="noreferrer"
+            className="bg-orange-500 text-white px-8 py-3 rounded-lg font-bold hover:bg-orange-600 transition-colors inline-flex items-center justify-center shadow-lg"
           >
-            Start Step 1 <ArrowRight size={18} />
-          </button>
+            A project of the National Crab Robot Initiative
+          </a>
         </div>
       </div>
     </div>
