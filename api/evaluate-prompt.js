@@ -4,11 +4,21 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { userPrompt, scenario, promptComponents } = req.body;
+  const { userPrompt, scenario, promptComponents, difficulty = 'easy' } = req.body;
 
   if (!userPrompt || !scenario || !promptComponents) {
     return res.status(400).json({ error: 'Missing required fields' });
   }
+
+  const difficultyLevel = ['easy', 'medium', 'hard'].includes((difficulty || '').toLowerCase())
+    ? difficulty.toLowerCase()
+    : 'easy';
+
+  const difficultyGuidance = {
+    easy: `EASY expectations: reward clear basics. One audience, one goal, straightforward constraints. Prioritize clarity over length and avoid punishing brevity if essentials are covered.`,
+    medium: `MEDIUM expectations: look for balance between two audiences or constraints. The prompt should name the tradeoff, structure the output into 2 parts, and still include concrete facts.`,
+    hard: `HARD expectations: expect sequencing, tradeoffs, and safeguards. Look for explicit priorities, risks to avoid, evidence/sources to include or avoid, and how to reconcile constraints in the output.`
+  };
 
   try {
     const response = await fetch("https://api.anthropic.com/v1/messages", {
@@ -27,6 +37,8 @@ export default async function handler(req, res) {
 
 SCENARIO: ${scenario.situation}
 TASK: ${scenario.requirement}
+LEVEL: ${difficultyLevel.toUpperCase()}
+${difficultyGuidance[difficultyLevel]}
 
 THE PROMPT COMPONENTS:
 Context: "${promptComponents.context}"
@@ -35,7 +47,7 @@ Audience: "${promptComponents.audience}"
 Constraints: "${promptComponents.constraints}"
 Goal: "${promptComponents.goal}"
 
-For each component, score 0-20 based on: Did this give Claude enough to work with?
+For each component, score 0-20 based on: Did this give Claude enough to work with for this ${difficultyLevel} scenario?
 
 CONTEXT (0-20):
 - Can Claude write something specific, or only generic statements?
