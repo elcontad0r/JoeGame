@@ -12,20 +12,7 @@ const PromptBuilder = ({
   showHints,
   onToggleHints,
   allHints,
-  promptContext,
-  promptFormat,
-  promptAudience,
-  promptConstraints,
-  promptGoal,
-  setPromptContext,
-  setPromptFormat,
-  setPromptAudience,
-  setPromptConstraints,
-  setPromptGoal,
-  selectedPresets,
-  collapsed,
-  onToggleCollapse,
-  onPresetSelect,
+  promptIngredients,
   baseFieldsFilled,
   buildFullPrompt,
   readyToGenerate,
@@ -33,6 +20,15 @@ const PromptBuilder = ({
   onBackToScenario,
   difficultyFieldOrder
 }) => {
+  const {
+    promptValues,
+    promptSetters,
+    selectedPresets,
+    collapsed,
+    applyPresetToField,
+    toggleCollapse
+  } = promptIngredients;
+
   const activePresets = ingredientPresets[selectedDifficulty] || ingredientPresets.easy;
   const totalChipSelections = Object.values(selectedPresets).filter(Boolean).length;
   const shouldShowChipSections = selectedDifficulty !== 'hard' && (chipRule?.minTotalSelections ?? 0) > 0;
@@ -57,40 +53,40 @@ const PromptBuilder = ({
       title: 'Context',
       placeholder: 'What does Claude need to know about the background and situation?',
       hint: 'Share the project, key facts, and any background. Copy/paste relevant lines from your doc if helpful.',
-      value: promptContext,
-      onChange: setPromptContext
+      value: promptValues.context,
+      onChange: promptSetters.context
     },
     format: {
       number: 2,
       title: 'Format',
       placeholder: 'What shape should the response take?',
       hint: 'Do you want bullets, an outline, a draft email, a table? Call it out clearly.',
-      value: promptFormat,
-      onChange: setPromptFormat
+      value: promptValues.format,
+      onChange: promptSetters.format
     },
     audience: {
       number: 3,
       title: 'Audience',
       placeholder: 'Who is reading this? What perspective do they have?',
       hint: 'Name the audience, their concerns, and what will resonate.',
-      value: promptAudience,
-      onChange: setPromptAudience
+      value: promptValues.audience,
+      onChange: promptSetters.audience
     },
     constraints: {
       number: 4,
       title: 'Constraints',
       placeholder: 'What must be avoided or prioritized?',
       hint: 'List guardrails, tone requirements, and any must-include details.',
-      value: promptConstraints,
-      onChange: setPromptConstraints
+      value: promptValues.constraints,
+      onChange: promptSetters.constraints
     },
     goal: {
       number: 5,
       title: 'Goal',
       placeholder: 'What should this accomplish?',
       hint: "What's the desired outcome? What action should readers take? How do you measure success?",
-      value: promptGoal,
-      onChange: setPromptGoal
+      value: promptValues.goal,
+      onChange: promptSetters.goal
     }
   };
 
@@ -224,11 +220,11 @@ const PromptBuilder = ({
             value={fields[fieldKey].value}
             onChange={fields[fieldKey].onChange}
             presets={activePresets?.[fieldKey] || []}
-            onPresetSelect={onPresetSelect}
+            onPresetSelect={applyPresetToField}
             selectedPresets={selectedPresets}
             difficulty={selectedDifficulty}
             collapsed={collapsed}
-            onToggleCollapse={onToggleCollapse}
+            onToggleCollapse={toggleCollapse}
             perFieldLimit={chipRule.perFieldLimit}
           />
         ))}
@@ -239,14 +235,14 @@ const PromptBuilder = ({
           title="Goal"
           placeholder="What should this accomplish?"
           hint="What's the desired outcome? What action should readers take? How do you measure success?"
-          value={promptGoal}
-          onChange={setPromptGoal}
+          value={promptValues.goal}
+          onChange={promptSetters.goal}
           presets={activePresets?.goal || []}
-          onPresetSelect={onPresetSelect}
+          onPresetSelect={applyPresetToField}
           selectedPresets={selectedPresets}
           difficulty={selectedDifficulty}
           collapsed={collapsed}
-          onToggleCollapse={onToggleCollapse}
+          onToggleCollapse={toggleCollapse}
           perFieldLimit={chipRule.perFieldLimit}
         />
       </div>

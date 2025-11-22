@@ -7,6 +7,7 @@ import ResultsView from './round3/components/ResultsView';
 import LeaderboardView from './round3/components/LeaderboardView';
 import ScenarioLoading from './round3/components/ScenarioLoading';
 import { difficultyConfig, chipRules, difficultyFieldOrder } from './round3/constants';
+import usePromptIngredients from './round3/hooks/usePromptIngredients';
 
 const Round3Game = ({ onBack, difficulty = 'easy' }) => {
   const selectedDifficulty = difficulty;
@@ -15,25 +16,6 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
   const [stage, setStage] = useState('topic-input');
   const [userTopic, setUserTopic] = useState('');
   const [scenario, setScenario] = useState(null);
-  const [promptContext, setPromptContext] = useState('');
-  const [promptFormat, setPromptFormat] = useState('');
-  const [promptAudience, setPromptAudience] = useState('');
-  const [promptConstraints, setPromptConstraints] = useState('');
-  const [promptGoal, setPromptGoal] = useState('');
-  const [selectedPresets, setSelectedPresets] = useState({
-    context: [],
-    format: [],
-    audience: [],
-    constraints: [],
-    goal: []
-  });
-  const [collapsed, setCollapsed] = useState({
-    context: false,
-    format: false,
-    audience: false,
-    constraints: false,
-    goal: false
-  });
   const [showHints, setShowHints] = useState(false);
   const [generatedOutput, setGeneratedOutput] = useState(null);
   const [simulation, setSimulation] = useState(null);
@@ -42,21 +24,21 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
   const [generationStep, setGenerationStep] = useState('');
   const [leaderboard, setLeaderboard] = useState([]);
 
-  const ingredientValues = {
-    context: promptContext,
-    format: promptFormat,
-    audience: promptAudience,
-    constraints: promptConstraints,
-    goal: promptGoal
-  };
+  const activeChipRule = scenario?.chipRule || difficultyChipRule;
 
-  const ingredientSetters = {
-    context: setPromptContext,
-    format: setPromptFormat,
-    audience: setPromptAudience,
-    constraints: setPromptConstraints,
-    goal: setPromptGoal
-  };
+  const promptIngredients = usePromptIngredients({ chipRule: activeChipRule });
+  const {
+    promptValues,
+    promptSetters,
+    selectedPresets,
+    collapsed,
+    chipsPlayed,
+    baseFieldsFilled,
+    buildFullPrompt,
+    applyPresetToField,
+    toggleCollapse,
+    resetPromptState: resetIngredients
+  } = promptIngredients;
 
   const ingredientPresets = useMemo(() => {
     const scenarioContext = scenario?.situation || 'Use concrete scenario facts (names, timing, numbers).';
@@ -225,50 +207,6 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
     };
   }, [scenario]);
 
-  const buildFullPrompt = () => {
-    const parts = [];
-
-    if (promptContext) parts.push(`CONTEXT: ${promptContext}`);
-    if (promptFormat) parts.push(`FORMAT: ${promptFormat}`);
-    if (promptAudience) parts.push(`AUDIENCE: ${promptAudience}`);
-    if (promptConstraints) parts.push(`CONSTRAINTS: ${promptConstraints}`);
-    if (promptGoal) parts.push(`GOAL: ${promptGoal}`);
-
-    if (parts.length === 0) return '';
-
-    return parts.join('\n\n');
-  };
-
-  const applyPresetToField = (field, preset) => {
-    const setter = ingredientSetters[field];
-    const currentValue = ingredientValues[field] || '';
-    if (!setter || !preset?.snippet) return;
-
-    const currentSelections = selectedPresets[field] || [];
-    const limit = difficultyChipRule.perFieldLimit || 0;
-    if (limit > 0 && !currentSelections.includes(preset.id) && currentSelections.length >= limit) {
-      alert(`You already locked ${limit} chip${limit === 1 ? '' : 's'} for ${field}. Clear a slot by editing the text, or switch fields.`);
-      return;
-    }
-
-    if (currentSelections.includes(preset.id)) {
-      const updatedSelections = currentSelections.filter(id => id !== preset.id);
-      setSelectedPresets(prev => ({ ...prev, [field]: updatedSelections }));
-      setter(currentValue.replace(preset.snippet, '').trim());
-      return;
-    }
-
-    setSelectedPresets(prev => ({
-      ...prev,
-      [field]: [...(prev[field] || []), preset.id]
-    }));
-
-    if (!currentValue.includes(preset.snippet)) {
-      const separator = currentValue.trim().length > 0 ? '\n' : '';
-      setter(`${currentValue}${separator}${preset.snippet}`);
-    }
-  };
-
   const loadLeaderboard = () => {
     const stored = localStorage.getItem('ai-game-leaderboard');
     if (stored) {
@@ -355,31 +293,10 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
       ]
     : hints;
 
-  const chipsPlayed = Object.values(selectedPresets).reduce((sum, list) => sum + (list?.length || 0), 0);
-  const baseFieldsFilled = promptContext && promptFormat && promptAudience && promptConstraints && promptGoal;
-  const readyToGenerate = baseFieldsFilled && chipsPlayed >= (difficultyChipRule.minTotalSelections || 0);
-  const activeChipRule = scenario?.chipRule || difficultyChipRule;
+  const readyToGenerate = baseFieldsFilled && chipsPlayed >= (activeChipRule.minTotalSelections || 0);
 
   const resetPromptState = () => {
-    setPromptContext('');
-    setPromptFormat('');
-    setPromptAudience('');
-    setPromptConstraints('');
-    setPromptGoal('');
-    setSelectedPresets({
-      context: [],
-      format: [],
-      audience: [],
-      constraints: [],
-      goal: []
-    });
-    setCollapsed({
-      context: false,
-      format: false,
-      audience: false,
-      constraints: false,
-      goal: false
-    });
+    resetIngredients();
     setGeneratedOutput(null);
     setSimulation(null);
     setEvaluation(null);
@@ -445,11 +362,11 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
         body: JSON.stringify({
           userPrompt: fullPrompt,
           promptComponents: {
-            context: promptContext,
-            format: promptFormat,
-            audience: promptAudience,
-            constraints: promptConstraints,
-            goal: promptGoal
+            context: promptValues.context,
+            format: promptValues.format,
+            audience: promptValues.audience,
+            constraints: promptValues.constraints,
+            goal: promptValues.goal
           },
           scenario: scenario,
           difficulty: selectedDifficulty
@@ -474,13 +391,6 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
       setIsGenerating(false);
       setStage('write-prompt');
     }
-  };
-
-  const toggleCollapse = (field) => {
-    setCollapsed(prev => ({
-      ...prev,
-      [field]: !prev[field]
-    }));
   };
 
   const handleRestart = () => {
@@ -547,20 +457,7 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
           showHints={showHints}
           onToggleHints={() => setShowHints(!showHints)}
           allHints={allHints}
-          promptContext={promptContext}
-          promptFormat={promptFormat}
-          promptAudience={promptAudience}
-          promptConstraints={promptConstraints}
-          promptGoal={promptGoal}
-          setPromptContext={setPromptContext}
-          setPromptFormat={setPromptFormat}
-          setPromptAudience={setPromptAudience}
-          setPromptConstraints={setPromptConstraints}
-          setPromptGoal={setPromptGoal}
-          selectedPresets={selectedPresets}
-          collapsed={collapsed}
-          onToggleCollapse={toggleCollapse}
-          onPresetSelect={applyPresetToField}
+          promptIngredients={promptIngredients}
           baseFieldsFilled={baseFieldsFilled}
           buildFullPrompt={buildFullPrompt}
           readyToGenerate={readyToGenerate}
