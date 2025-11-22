@@ -9,6 +9,52 @@ const ingredientColors = {
   goal: { bg: 'bg-purple-50', border: 'border-purple-300', text: 'text-purple-900', label: 'bg-purple-200 text-purple-900' }
 };
 
+const difficultyConfig = {
+  easy: {
+    label: 'Easy',
+    ribbon: 'Level 1 • Guided remix',
+    hero: 'Remix the guided ingredients with a simple brief',
+    gradient: 'from-green-50 to-blue-50',
+    badgeColor: 'bg-green-100 text-green-800',
+    leaderboardTag: 'Easy',
+    instructions: 'We keep the ask simple and give you plenty of hints. Show you can turn starter details into a clean prompt.',
+    playstyle: 'Use the guided ingredients from the tutorials as your building blocks. The scenario is chill and the main job is stitching the pieces together with your words.',
+    hintExtras: [
+      'Pull 2-3 concrete facts from the scenario into your context.',
+      'Say exactly what format you want back. Keep it short.'
+    ]
+  },
+  medium: {
+    label: 'Medium',
+    ribbon: 'Level 2 • Guided + custom',
+    hero: 'Blend options with your own spin',
+    gradient: 'from-orange-50 to-amber-50',
+    badgeColor: 'bg-orange-100 text-orange-800',
+    leaderboardTag: 'Medium',
+    instructions: 'You still get prompts to click through, but you’ll need to add your own flavor and a couple of specific guardrails.',
+    playstyle: 'Think of this as Round 2 plus your own tweaks. Add a second constraint or tone choice and call out what matters most.',
+    hintExtras: [
+      'Name one thing you’re adding beyond the provided details.',
+      'Point to what should be prioritized if tradeoffs appear.'
+    ]
+  },
+  hard: {
+    label: 'Hard',
+    ribbon: 'Level 3 • Freeform flow',
+    hero: 'You set the guardrails and the tone',
+    gradient: 'from-purple-50 to-pink-50',
+    badgeColor: 'bg-purple-100 text-purple-800',
+    leaderboardTag: 'Hard',
+    instructions: 'Minimal scaffolding. You own the structure, tone, and constraints. Keep it human, specific, and purposeful.',
+    playstyle: 'Start from a blank slate: design the sections you want, define success, and call out any sensitivities. This is the closest to real-world prompting.',
+    hintExtras: [
+      'Lay out 2-3 sections in the order you want them.',
+      'Call out one risk/sensitivity and how to handle it.'
+    ]
+  }
+};
+
+const IngredientField = ({ field, number, title, placeholder, value, onChange, hint, collapsed, onToggleCollapse }) => {
 const IngredientField = ({ field, number, title, placeholder, value, onChange, hint, collapsed, onToggleCollapse, presets = [], onPresetSelect, selectedPreset, difficulty }) => {
   const isCollapsed = collapsed[field];
   const colors = ingredientColors[field];
@@ -190,7 +236,8 @@ const highlightQuotes = (text) => {
   return parts;
 };
 
-const Round3Game = ({ onBack }) => {
+const Round3Game = ({ onBack, difficulty = 'easy' }) => {
+  const config = difficultyConfig[difficulty] || difficultyConfig.easy;
   const [stage, setStage] = useState('topic-input');
   const [userTopic, setUserTopic] = useState('');
   const [scenario, setScenario] = useState(null);
@@ -459,6 +506,7 @@ const Round3Game = ({ onBack }) => {
     const entry = {
       score,
       scenarioType,
+      difficulty: config.leaderboardTag,
       timestamp: new Date().toISOString(),
       id: Date.now()
     };
@@ -478,7 +526,7 @@ const Round3Game = ({ onBack }) => {
       const response = await fetch('/api/generate-scenario', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userTopic: topic })
+        body: JSON.stringify({ userTopic: topic, difficulty })
       });
 
       if (!response.ok) {
@@ -486,7 +534,7 @@ const Round3Game = ({ onBack }) => {
       }
 
       const data = await response.json();
-      setScenario(data.scenario);
+      setScenario({ ...data.scenario, difficulty });
       setStage('scenario');
     } catch (error) {
       console.error('Error generating scenario:', error);
@@ -517,6 +565,16 @@ const Round3Game = ({ onBack }) => {
       questions: ["What's the desired outcome?", "What action should they take?", "How will success be measured?"]
     }
   ];
+
+  const allHints = config.hintExtras
+    ? [
+        ...hints,
+        {
+          category: `${config.label} focus`,
+          questions: config.hintExtras
+        }
+      ]
+    : hints;
 
   const getScoreColor = (score) => {
     if (score >= 18) return 'text-green-600';
@@ -589,7 +647,8 @@ const Round3Game = ({ onBack }) => {
             constraints: promptConstraints,
             goal: promptGoal
           },
-          scenario: scenario
+          scenario: scenario,
+          difficulty
         })
       });
 
@@ -600,7 +659,8 @@ const Round3Game = ({ onBack }) => {
       const evaluateData = await evaluateResponse.json();
       setEvaluation(evaluateData.evaluation);
       
-      saveToLeaderboard(evaluateData.evaluation.score, scenario.type);
+      const scenarioLabel = scenario?.title || scenario?.requirement || 'Scenario';
+      saveToLeaderboard(evaluateData.evaluation.score, `${config.leaderboardTag} • ${scenarioLabel}`);
       
       setIsGenerating(false);
       setStage('results');
@@ -627,7 +687,8 @@ const Round3Game = ({ onBack }) => {
           <div className="text-center mb-6">
             <Lightbulb className="mx-auto mb-4 text-purple-600" size={48} />
             <h2 className="text-2xl font-bold text-gray-900 mb-2">Make it relevant</h2>
-            <p className="text-gray-600">What project or topic are you working on right now?</p>
+            <p className="text-gray-600">What project or topic are you working on right now? We'll tailor an {config.label.toLowerCase()} scenario to match.</p>
+            <p className="text-xs text-gray-500 mt-2">{config.instructions}</p>
           </div>
 
           <textarea
@@ -671,16 +732,32 @@ const Round3Game = ({ onBack }) => {
               <Zap className="text-orange-600" size={32} />
             </div>
             <div className="flex-1">
-              <h2 className="text-2xl font-bold text-gray-900 mb-3">Your Scenario</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">{scenario.title || 'Your Scenario'}</h2>
+              <div className="flex flex-wrap gap-2 mb-3">
+                <span className={`text-xs font-bold px-3 py-1 rounded-full ${config.badgeColor}`}>{config.label} level</span>
+                {scenario.sector && (
+                  <span className="text-xs font-semibold px-3 py-1 rounded-full bg-gray-100 text-gray-700">{scenario.sector}</span>
+                )}
+                {scenario.urgency && (
+                  <span className="text-xs font-semibold px-3 py-1 rounded-full bg-orange-50 text-orange-700">{scenario.urgency}</span>
+                )}
+              </div>
               <div className="bg-orange-50 border-l-4 border-orange-400 p-4 rounded mb-4">
                 <p className="text-gray-800 leading-relaxed">{scenario.situation}</p>
               </div>
-              <div className="bg-purple-50 border-l-4 border-purple-400 p-4 rounded">
-                <p className="text-sm font-semibold text-purple-900 mb-1">Your challenge:</p>
-                <p className="text-gray-800 leading-relaxed">{scenario.requirement}</p>
-              </div>
+            <div className="bg-purple-50 border-l-4 border-purple-400 p-4 rounded">
+              <p className="text-sm font-semibold text-purple-900 mb-1">Your challenge:</p>
+              <p className="text-gray-800 leading-relaxed">{scenario.requirement}</p>
+              {scenario.focus && (
+                <p className="text-xs text-purple-800 mt-2">What matters most: {scenario.focus}</p>
+              )}
+            </div>
+            <div className="mt-4 bg-white border-2 border-dashed border-gray-200 rounded-lg p-4">
+              <p className="text-xs uppercase tracking-wide text-gray-500 font-semibold mb-1">How this level works</p>
+              <p className="text-sm text-gray-800 leading-relaxed">{config.playstyle}</p>
             </div>
           </div>
+        </div>
 
           <div className="flex flex-col sm:flex-row gap-3">
             <button
@@ -748,7 +825,7 @@ const Round3Game = ({ onBack }) => {
         <div className="bg-gradient-to-r from-purple-50 to-orange-50 rounded-lg p-6 mb-6 border border-purple-200">
           <h2 className="text-xl font-bold text-gray-900 mb-3">Build Your Prompt</h2>
           <p className="text-gray-700 mb-4">
-            Fill in each ingredient to create a prompt that will generate great output. The better your prompt, the better your score.
+            This is the {config.label.toLowerCase()} level. {config.instructions}
           </p>
           <button
             onClick={() => setShowHints(!showHints)}
@@ -764,7 +841,7 @@ const Round3Game = ({ onBack }) => {
           <div className="bg-white rounded-lg border-2 border-gray-200 p-6 mb-6">
             <h3 className="font-bold text-gray-900 mb-4">Questions to guide you:</h3>
             <div className="grid gap-4">
-              {hints.map((hint, idx) => (
+              {allHints.map((hint, idx) => (
                 <div key={idx} className="border-l-4 border-purple-300 pl-4">
                   <p className="font-semibold text-purple-900 mb-2">{hint.category}</p>
                   <ul className="space-y-1">
@@ -1284,7 +1361,7 @@ const Round3Game = ({ onBack }) => {
                           <span>{animal}</span>
                           <span>Player {(entry.id % 1000).toString().padStart(3, '0')}</span>
                         </div>
-                        <div className="text-xs text-gray-600">{entry.scenarioType} • {new Date(entry.timestamp).toLocaleDateString()}</div>
+                        <div className="text-xs text-gray-600">{entry.scenarioType}{entry.difficulty ? ` • ${entry.difficulty}` : ''} • {new Date(entry.timestamp).toLocaleDateString()}</div>
                       </div>
                     </div>
                     <div className={`text-3xl font-bold ${
@@ -1338,11 +1415,11 @@ const Round3Game = ({ onBack }) => {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-4 sm:py-8">
       <div className="max-w-6xl mx-auto mb-6 px-4">
         <div className="text-center">
-          <div className="inline-block bg-orange-100 text-orange-800 px-4 py-1 rounded-full text-sm font-semibold mb-4">
-            Round 3 of 3
+          <div className={`inline-block px-4 py-1 rounded-full text-sm font-semibold mb-4 ${config.badgeColor}`}>
+            {config.ribbon}
           </div>
-          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">Freestyle Challenge</h1>
-          <p className="text-gray-600">Write your own prompt & see how it plays out</p>
+          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">{config.label} Freestyle Challenge</h1>
+          <p className="text-gray-600">{config.hero}</p>
         </div>
       </div>
 
