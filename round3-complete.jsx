@@ -850,9 +850,24 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
 
   const renderWritePrompt = () => {
     const activePresets = ingredientPresets[selectedDifficulty] || ingredientPresets.easy;
-
-    const fieldsToRender = difficultyFieldOrder[selectedDifficulty] || difficultyFieldOrder.easy;
-    const mediumHintList = (config.hintExtras || []).slice(0, 2);
+    const chipRule = scenario?.chipRule || { minTotalSelections: 0 };
+    const totalChipSelections = Object.values(selectedPresets).filter(Boolean).length;
+    const shouldShowChipSections =
+      selectedDifficulty !== 'hard' && (chipRule?.minTotalSelections ?? 0) > 0;
+    const difficultyCopy = {
+      easy: {
+        title: 'Easy',
+        description: 'Use suggested ingredient chips to remix Round 2 and get unstuck fast.'
+      },
+      medium: {
+        title: 'Medium',
+        description: 'Still get scaffolding, but add your own spin by combining chips.'
+      },
+      hard: {
+        title: 'Hard',
+        description: 'No chips, no hints—freeform drafting for leaderboard glory.'
+      }
+    };
 
     return (
       <div className="max-w-4xl mx-auto p-6">
@@ -976,13 +991,33 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
           </>
         )}
 
-        {selectedDifficulty === 'hard' && (
-          <>
-            <div className="bg-gradient-to-r from-purple-50 to-orange-50 rounded-lg p-6 mb-6 border border-purple-200">
-              <h2 className="text-xl font-bold text-gray-900 mb-3">Build Your Prompt</h2>
-              <p className="text-gray-700 mb-4">
-                This is the {config.label.toLowerCase()} level. {config.instructions}
+        {shouldShowChipSections && (
+          <div className="bg-white rounded-lg border-2 border-orange-200 p-5 mb-6">
+            <div className="flex items-center gap-3 mb-2">
+              <Sparkles className="text-orange-500" size={18} />
+              <div>
+                <p className="text-sm font-semibold text-gray-900">Chip draft progress</p>
+                <p className="text-xs text-gray-600">
+                  {totalChipSelections} / {chipRule.minTotalSelections} chips played
+                </p>
+              </div>
+            </div>
+
+            {totalChipSelections < chipRule.minTotalSelections ? (
+              <p className="text-xs text-orange-700 bg-orange-50 border border-orange-200 rounded-md p-3">
+                Play at least {chipRule.minTotalSelections} preset chips to level up this draft.
               </p>
+            ) : (
+              <p className="text-xs text-green-700 bg-green-50 border border-green-200 rounded-md p-3">
+                Nice! You’ve explored enough chips—keep refining the text before generating.
+              </p>
+            )}
+          </div>
+        )}
+
+        <div className="bg-white rounded-lg border-2 border-gray-200 p-5 mb-6">
+          <div className="flex flex-col sm:flex-row gap-3">
+            {['easy', 'medium', 'hard'].map((level) => (
               <button
                 onClick={() => setShowHints(!showHints)}
                 className="text-purple-600 hover:text-purple-700 font-semibold text-sm flex items-center gap-2"
@@ -1137,6 +1172,13 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
             Generate & See Results
           </button>
         </div>
+
+        {shouldShowChipSections && totalChipSelections < chipRule.minTotalSelections && (
+          <div className="mt-3 text-xs text-orange-700 bg-orange-50 border border-orange-200 rounded-md p-3 flex items-start gap-2">
+            <AlertCircle size={14} className="mt-0.5" />
+            <p className="leading-snug">Play chips before generating to meet the level requirements.</p>
+          </div>
+        )}
       </div>
     );
   };
