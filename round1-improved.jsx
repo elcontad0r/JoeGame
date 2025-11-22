@@ -35,7 +35,8 @@ const Round1GameV3 = ({ onComplete }) => {
         return {
           sectionTitle: section.title,
           label: option.label,
-          learning: option.learning
+          learning: option.learning,
+          impact: option.impact
         };
       })
       .filter(Boolean);
@@ -86,7 +87,7 @@ const Round1GameV3 = ({ onComplete }) => {
               <div>
                 <h4 className="text-lg font-bold text-gray-900">What you just noticed</h4>
                 <p className="text-sm text-gray-700">
-                  Each selection surfaced a different reaction. Use these quick notes to explain what changed.
+                  Each selection shifted the reply in its own way. Use these notes to explain what changed and why.
                 </p>
               </div>
             </div>
@@ -98,6 +99,29 @@ const Round1GameV3 = ({ onComplete }) => {
                   </div>
                   <div className="font-semibold text-gray-900">{item.label}</div>
                   <div className="text-sm text-gray-700 mt-1">{item.learning}</div>
+                  {item.impact && <div className="text-xs text-green-800 mt-2">Result: {item.impact}</div>}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {allChosen && (
+          <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 rounded-xl p-6 mt-6">
+            <div className="flex items-start gap-2 mb-3">
+              <Lightbulb className="text-blue-600 mt-0.5" size={20} />
+              <div>
+                <h4 className="text-lg font-bold text-gray-900">How the switches behaved</h4>
+                <p className="text-sm text-gray-700">
+                  Here are the patterns that surfaced when you tapped through the options.
+                </p>
+              </div>
+            </div>
+            <div className="grid sm:grid-cols-2 gap-4">
+              {round1Config.sections.map((section) => (
+                <div key={section.id} className="bg-white/80 rounded-lg border border-blue-100 p-3 shadow-sm">
+                  <div className="text-xs font-semibold text-blue-700 uppercase tracking-wide mb-1">{section.title}</div>
+                  <div className="text-sm text-gray-800 leading-relaxed">{section.pattern}</div>
                 </div>
               ))}
             </div>
