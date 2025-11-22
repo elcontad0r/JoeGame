@@ -319,6 +319,12 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
     goal: setPromptGoal
   };
 
+  const difficultyFieldOrder = {
+    easy: ['context', 'audience', 'goal'],
+    medium: ['context', 'format', 'audience', 'goal'],
+    hard: ['context', 'format', 'audience', 'constraints', 'goal']
+  };
+
   const ingredientPresets = useMemo(() => {
     const scenarioContext = scenario?.situation || 'Use concrete scenario facts (names, timing, numbers).';
     const deliverable = scenario?.requirement || 'Spell out the deliverable and success criteria.';
@@ -845,6 +851,9 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
   const renderWritePrompt = () => {
     const activePresets = ingredientPresets[selectedDifficulty] || ingredientPresets.easy;
 
+    const fieldsToRender = difficultyFieldOrder[selectedDifficulty] || difficultyFieldOrder.easy;
+    const mediumHintList = (config.hintExtras || []).slice(0, 2);
+
     return (
       <div className="max-w-4xl mx-auto p-6">
         {/* Scenario reminder */}
@@ -954,7 +963,53 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
                 </div>
               ))}
             </div>
-          </div>
+            <div className="bg-white rounded-lg border border-amber-200 p-4 mb-6">
+              <div className="flex items-center gap-2 mb-2 text-amber-700 font-semibold text-sm">
+                <Lightbulb size={16} /> Quick nudges
+              </div>
+              <ul className="list-disc pl-5 space-y-1 text-sm text-gray-700">
+                {(mediumHintList.length > 0 ? mediumHintList : ['Call out one priority to balance tradeoffs.', 'Add a format or tone detail that matters for the audience.']).map((hint, idx) => (
+                  <li key={idx}>{hint}</li>
+                ))}
+              </ul>
+            </div>
+          </>
+        )}
+
+        {selectedDifficulty === 'hard' && (
+          <>
+            <div className="bg-gradient-to-r from-purple-50 to-orange-50 rounded-lg p-6 mb-6 border border-purple-200">
+              <h2 className="text-xl font-bold text-gray-900 mb-3">Build Your Prompt</h2>
+              <p className="text-gray-700 mb-4">
+                This is the {config.label.toLowerCase()} level. {config.instructions}
+              </p>
+              <button
+                onClick={() => setShowHints(!showHints)}
+                className="text-purple-600 hover:text-purple-700 font-semibold text-sm flex items-center gap-2"
+              >
+                <Lightbulb size={16} />
+                {showHints ? 'Hide' : 'Show'} helpful questions
+              </button>
+            </div>
+
+            {showHints && (
+              <div className="bg-white rounded-lg border-2 border-gray-200 p-6 mb-6">
+                <h3 className="font-bold text-gray-900 mb-4">Questions to guide you:</h3>
+                <div className="grid gap-4">
+                  {allHints.map((hint, idx) => (
+                    <div key={idx} className="border-l-4 border-purple-300 pl-4">
+                      <p className="font-semibold text-purple-900 mb-2">{hint.category}</p>
+                      <ul className="space-y-1">
+                        {hint.questions.map((q, qIdx) => (
+                          <li key={qIdx} className="text-sm text-gray-600">• {q}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
         )}
 
         {/* Ingredient fields */}
