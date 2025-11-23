@@ -83,11 +83,23 @@ const Round1GameV3 = ({ onComplete }) => {
                       <div className="text-xs font-semibold text-rose-700 uppercase tracking-wide mb-1">If you ask it this way</div>
                       <div className="font-semibold text-gray-900">{section.misstep.prompt}</div>
                       <p className="text-sm text-gray-700 mt-1">{section.misstep.effect}</p>
+                      {section.misstep.example && (
+                        <div className="mt-3 bg-white/70 border border-rose-100 rounded-md p-3 shadow-inner">
+                          <div className="text-xs font-semibold text-rose-700 uppercase tracking-wide mb-1">Sample output</div>
+                          <p className="text-sm text-gray-700 leading-relaxed">{section.misstep.example}</p>
+                        </div>
+                      )}
                     </div>
                     <div className="rounded-lg border border-green-100 bg-green-50/70 p-4">
                       <div className="text-xs font-semibold text-green-700 uppercase tracking-wide mb-1">Do this instead</div>
                       <div className="font-semibold text-gray-900">{section.fix.prompt}</div>
                       <p className="text-sm text-gray-700 mt-1">{section.fix.effect}</p>
+                      {section.fix.example && (
+                        <div className="mt-3 bg-white/70 border border-green-100 rounded-md p-3 shadow-inner">
+                          <div className="text-xs font-semibold text-green-700 uppercase tracking-wide mb-1">Sample output</div>
+                          <p className="text-sm text-gray-700 leading-relaxed">{section.fix.example}</p>
+                        </div>
+                      )}
                     </div>
                     <div className="rounded-lg border border-blue-100 bg-blue-50/70 p-4">
                       <div className="text-xs font-semibold text-blue-700 uppercase tracking-wide mb-1">Takeaway</div>

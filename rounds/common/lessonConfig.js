@@ -47,11 +47,15 @@ export const round1Config = {
       helper: 'Open once to compare a fuzzy ask with a clear one.',
       misstep: {
         prompt: '“Share some ideas for this event.”',
-        effect: 'The reply fills space with vibes and optional extras instead of drafting a plan you can use tonight.'
+        effect: 'The reply fills space with vibes and optional extras instead of drafting a plan you can use tonight.',
+        example:
+          '“Maybe a craft corner, maybe a stage performance, could be fun! Invite folks to bring snacks; could run 5–8 p.m. if you want.”'
       },
       fix: {
         prompt: '“Draft the full Skillshare Day plan with rooms, timing, and supplies.”',
-        effect: 'The model jumps straight into a schedule with setup lists because you asked for a concrete deliverable.'
+        effect: 'The model jumps straight into a schedule with setup lists because you asked for a concrete deliverable.',
+        example:
+          '“6:00–6:20 check-in at Room A; 6:20–7:05 Screenprinting in Room B with volunteer Maya; supplies: ink, squeegees, 40 tees…”'
       },
       takeaway: 'Name the deliverable in the first sentence so the model lands on the right format.'
     },
@@ -62,11 +66,15 @@ export const round1Config = {
       helper: 'Open to see how thin context keeps the response generic.',
       misstep: {
         prompt: '“It’s a community event for everyone.”',
-        effect: 'The reply stays reusable for any event—no rooms, timing, or headcounts show up because none were shared.'
+        effect: 'The reply stays reusable for any event—no rooms, timing, or headcounts show up because none were shared.',
+        example:
+          '“Kick things off with a welcome circle, then offer a few craft stations. Encourage everyone to mingle and share creations.”'
       },
       fix: {
         prompt: '“Classes: Screenprinting, Laser Cutting, Woodshop. 60 RSVPs, four volunteers, rooms A/B/C, 6–10 p.m.”',
-        effect: 'The plan automatically places people, rooms, and supplies because it has specifics to work with.'
+        effect: 'The plan automatically places people, rooms, and supplies because it has specifics to work with.',
+        example:
+          '“Room A (6–7): Screenprinting led by Maya with 20 RSVPs; Room B (7–8): Laser Cutting with Owen, cap 15; add staggered cleanup 9:30–9:50.”'
       },
       takeaway: 'Name real numbers, spaces, and people so the AI can place them without more prodding.'
     },
@@ -77,11 +85,15 @@ export const round1Config = {
       helper: 'Open to see how “no limits” invites make-believe.',
       misstep: {
         prompt: '“Be creative, no limits.”',
-        effect: 'The response invents extra staff, gear, and time you do not have, making the plan unusable.'
+        effect: 'The response invents extra staff, gear, and time you do not have, making the plan unusable.',
+        example:
+          '“Have three instructors per room, rent laser cutters, add a catered dinner, and extend the event to a full weekend.”'
       },
       fix: {
         prompt: '“Budget $350, 45-minute setup, supplies already listed. No new rentals.”',
-        effect: 'The plan stays realistic, trims extras, and sequences prep to fit the window you gave.'
+        effect: 'The plan stays realistic, trims extras, and sequences prep to fit the window you gave.',
+        example:
+          '“Use donated brushes/filament; volunteers arrive 5:15 to set tables; skip new rentals; keep sessions 35 minutes to finish by 10.”'
       },
       takeaway: 'Set money, time, and material guardrails so the model optimizes within them.'
     },
@@ -92,11 +104,15 @@ export const round1Config = {
       helper: 'Open to see how “everyone” muddies the response.',
       misstep: {
         prompt: '“Write one message for everyone involved.”',
-        effect: 'Tone blurs and action items get buried because the model tries to speak to guests and volunteers at once.'
+        effect: 'Tone blurs and action items get buried because the model tries to speak to guests and volunteers at once.',
+        example:
+          '“Hey all! Come have fun tonight, bring energy, and remember to help out. Everyone should set up, enjoy, and tidy together!”'
       },
       fix: {
         prompt: '“Two notes: one warm welcome for guests, one checklist for volunteers.”',
-        effect: 'The response splits into a welcoming note plus a clear checklist, so each group knows exactly what to do.'
+        effect: 'The response splits into a welcoming note plus a clear checklist, so each group knows exactly what to do.',
+        example:
+          '“Guests: Doors open at 6, all supplies provided, pick any table. Volunteers: greet 5:45, assign to Rooms A/B/C, check supplies against list, start cleanup 9:30.”'
       },
       takeaway: 'Name who is reading so instructions and tone land with the right people.'
     }
