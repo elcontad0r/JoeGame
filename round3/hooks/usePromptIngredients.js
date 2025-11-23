@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 
 const createEmptyPresetState = () => ({
+  task: [],
   context: [],
   format: [],
   audience: [],
@@ -9,6 +10,7 @@ const createEmptyPresetState = () => ({
 });
 
 const createCollapsedState = () => ({
+  task: false,
   context: false,
   format: false,
   audience: false,
@@ -17,6 +19,7 @@ const createCollapsedState = () => ({
 });
 
 const usePromptIngredients = ({ chipRule }) => {
+  const [promptTask, setPromptTask] = useState('');
   const [promptContext, setPromptContext] = useState('');
   const [promptFormat, setPromptFormat] = useState('');
   const [promptAudience, setPromptAudience] = useState('');
@@ -27,17 +30,19 @@ const usePromptIngredients = ({ chipRule }) => {
 
   const promptValues = useMemo(
     () => ({
+      task: promptTask,
       context: promptContext,
       format: promptFormat,
       audience: promptAudience,
       constraints: promptConstraints,
       goal: promptGoal
     }),
-    [promptAudience, promptConstraints, promptContext, promptFormat, promptGoal]
+    [promptAudience, promptConstraints, promptContext, promptFormat, promptGoal, promptTask]
   );
 
   const promptSetters = useMemo(
     () => ({
+      task: setPromptTask,
       context: setPromptContext,
       format: setPromptFormat,
       audience: setPromptAudience,
@@ -53,8 +58,8 @@ const usePromptIngredients = ({ chipRule }) => {
   );
 
   const baseFieldsFilled = useMemo(
-    () => promptContext && promptFormat && promptAudience && promptConstraints && promptGoal,
-    [promptAudience, promptConstraints, promptContext, promptFormat, promptGoal]
+    () => promptTask && promptContext && promptFormat && promptAudience && promptConstraints && promptGoal,
+    [promptAudience, promptConstraints, promptContext, promptFormat, promptGoal, promptTask]
   );
 
   const toggleCollapse = useCallback((field) => {
@@ -65,6 +70,7 @@ const usePromptIngredients = ({ chipRule }) => {
   }, []);
 
   const resetPromptState = useCallback(() => {
+    setPromptTask('');
     setPromptContext('');
     setPromptFormat('');
     setPromptAudience('');
@@ -77,6 +83,7 @@ const usePromptIngredients = ({ chipRule }) => {
   const buildFullPrompt = useCallback(() => {
     const parts = [];
 
+    if (promptValues.task) parts.push(`TASK: ${promptValues.task}`);
     if (promptValues.context) parts.push(`CONTEXT: ${promptValues.context}`);
     if (promptValues.format) parts.push(`FORMAT: ${promptValues.format}`);
     if (promptValues.audience) parts.push(`AUDIENCE: ${promptValues.audience}`);

@@ -1,4 +1,5 @@
 export const ingredientColors = {
+  task: { bg: 'bg-amber-50', border: 'border-amber-300', text: 'text-amber-900', label: 'bg-amber-200 text-amber-900' },
   context: { bg: 'bg-orange-50', border: 'border-orange-300', text: 'text-orange-900', label: 'bg-orange-200 text-orange-900' },
   format: { bg: 'bg-yellow-50', border: 'border-yellow-300', text: 'text-yellow-900', label: 'bg-yellow-200 text-yellow-900' },
   audience: { bg: 'bg-green-50', border: 'border-green-300', text: 'text-green-900', label: 'bg-green-200 text-green-900' },
@@ -70,7 +71,7 @@ export const chipRules = {
 };
 
 export const difficultyFieldOrder = {
-  easy: ['context', 'audience', 'goal'],
-  medium: ['context', 'format', 'audience', 'goal'],
-  hard: ['context', 'format', 'audience', 'constraints', 'goal']
+  easy: ['task', 'context', 'format', 'audience', 'constraints', 'goal'],
+  medium: ['task', 'context', 'format', 'audience', 'constraints', 'goal'],
+  hard: ['task', 'context', 'format', 'audience', 'constraints', 'goal']
 };

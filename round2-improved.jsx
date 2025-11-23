@@ -134,17 +134,28 @@ Return as JSON:
 
     return (
       <div className="bg-white rounded-lg border-2 border-gray-200 p-4">
-        <h4 className="font-bold text-gray-900 mb-3">{data.title}</h4>
+        <div className="flex items-start justify-between gap-2 mb-2">
+          <h4 className="font-bold text-gray-900">{data.title}</h4>
+          {selected && (
+            <span className="text-xs font-semibold text-purple-700 bg-purple-50 px-2 py-1 rounded-full border border-purple-100">
+              Selected
+            </span>
+          )}
+        </div>
+        <p className="text-xs text-gray-600 mb-3">Peek at the note to see how each choice changes the draft.</p>
         <div className="space-y-2">
           {data.options.map((option) => (
             <OptionCard
               key={option.id}
               label={option.label}
+              description={option.description}
               selected={selected === option.id}
               onSelect={() => setSelections({ ...selections, [ingredientKey]: option.id })}
               selectedClasses="border-purple-500 bg-purple-50"
               badgeClassName="bg-purple-100 text-purple-700"
-              selectedHintClassName="hidden"
+              selectedHint={option.learning}
+              selectedBadgeText="Picked"
+              selectedHintClassName="text-xs bg-purple-50 border border-purple-100 text-purple-900"
               unselectedClasses="border-gray-200 hover:border-gray-300"
             />
           ))}
@@ -214,6 +225,7 @@ Return as JSON:
             <div>
               <h2 className="font-bold">Prompt Builder</h2>
               <p className="text-xs text-gray-600">{selectedCount}/{Object.keys(selections).length} selected</p>
+              <p className="text-xs text-gray-500">Pick different combos to see how the sample shifts.</p>
             </div>
           </div>
           <button

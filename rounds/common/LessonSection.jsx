@@ -6,10 +6,10 @@ const LessonSection = ({ section, selectedOptionId, onSelectOption }) => {
     <div className="bg-white rounded-xl shadow border border-gray-100 p-5">
       <div className="flex items-start justify-between gap-3 mb-4 flex-col sm:flex-row sm:items-center">
         <div>
-          <div className="text-xs font-semibold text-purple-700 uppercase tracking-wide mb-1">{section.title}</div>
-          <h4 className="text-lg font-bold text-gray-900 mb-1">{section.summary}</h4>
-          <p className="text-sm text-gray-600">{section.helper}</p>
-        </div>
+      <div className="text-xs font-semibold text-purple-700 uppercase tracking-wide mb-1">{section.title}</div>
+      <h4 className="text-lg font-bold text-gray-900 mb-1">{section.summary}</h4>
+      <p className="text-sm text-gray-600">{section.helper}</p>
+    </div>
         {selectedOptionId && (
           <span className="inline-flex items-center px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-semibold">
             Locked in
@@ -21,9 +21,8 @@ const LessonSection = ({ section, selectedOptionId, onSelectOption }) => {
         {section.options.map((option) => {
           const isSelected = selectedOptionId === option.id;
           const hint =
-            option.stance === 'best'
-              ? 'This keeps the AI focused on the job instead of wandering into fluff.'
-              : 'This can feel safe, but it usually produces vague responses. Try to ground it in the work you need.';
+            option.learning ||
+            'Notice how this choice shapes what the AI pays attention to.';
 
           return (
             <OptionCard
@@ -33,6 +32,8 @@ const LessonSection = ({ section, selectedOptionId, onSelectOption }) => {
               selected={isSelected}
               onSelect={() => onSelectOption(option.id)}
               selectedHint={isSelected ? hint : undefined}
+              selectedBadgeText="Chosen"
+              selectedHintClassName="text-sm bg-blue-50 border border-blue-100 text-blue-900"
             />
           );
         })}

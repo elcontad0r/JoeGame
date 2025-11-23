@@ -27,21 +27,45 @@ const Round1GameV3 = ({ onComplete }) => {
 
   const renderLessons = () => {
     const allChosen = round1Config.sections.every((section) => selections[section.id]);
+    const chosenDetails = round1Config.sections
+      .map((section) => {
+        const selectedId = selections[section.id];
+        const option = section.options.find((o) => o.id === selectedId);
+        if (!option) return null;
+        return {
+          sectionTitle: section.title,
+          label: option.label,
+          learning: option.learning,
+          impact: option.impact
+        };
+      })
+      .filter(Boolean);
 
     return (
       <div className="max-w-5xl mx-auto px-4 sm:px-6">
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
-          <div className="flex items-start gap-3 mb-3">
+        <div className="bg-white/90 backdrop-blur rounded-xl shadow-lg p-6 mb-6 border border-blue-100">
+          <div className="flex items-start gap-3 mb-4">
             <Lightbulb className="text-blue-600" size={22} />
-            <div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-1">Pick the ingredients</h3>
+            <div className="space-y-2">
+              <h3 className="text-2xl font-bold text-gray-900">Test the building blocks</h3>
               <p className="text-gray-700 text-sm sm:text-base">
-                Choose one option per row. Don’t worry about guessing the “right” one—just follow what feels most useful for getting Saturday planned.
+                Tap one per row and read the short note that pops up. The learning comes from the reaction, not guessing the right pick.
               </p>
             </div>
           </div>
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-900">
-            Hover over anything that feels harmless—some options sound fine but lead to vague outputs. You’ll see a quick nudge after you pick.
+          <div className="grid sm:grid-cols-3 gap-3 text-sm font-semibold">
+            <div className="flex items-center gap-2 bg-blue-50 text-blue-800 rounded-lg px-3 py-2 border border-blue-100">
+              <span className="w-2 h-2 rounded-full bg-blue-500" aria-hidden="true" />
+              Clear task first
+            </div>
+            <div className="flex items-center gap-2 bg-indigo-50 text-indigo-800 rounded-lg px-3 py-2 border border-indigo-100">
+              <span className="w-2 h-2 rounded-full bg-indigo-500" aria-hidden="true" />
+              Real context only
+            </div>
+            <div className="flex items-center gap-2 bg-purple-50 text-purple-800 rounded-lg px-3 py-2 border border-purple-100">
+              <span className="w-2 h-2 rounded-full bg-purple-500" aria-hidden="true" />
+              Keep it doable
+            </div>
           </div>
         </div>
 
@@ -56,10 +80,60 @@ const Round1GameV3 = ({ onComplete }) => {
           ))}
         </div>
 
-        <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-xl p-6 mt-6 text-center">
+        {allChosen && (
+          <div className="bg-white rounded-xl shadow border border-green-200 p-6 mt-6">
+            <div className="flex items-start gap-2 mb-3">
+              <Lightbulb className="text-green-600 mt-0.5" size={20} />
+              <div>
+                <h4 className="text-lg font-bold text-gray-900">What you just noticed</h4>
+                <p className="text-sm text-gray-700">
+                  Each selection shifted the reply in its own way. Use these notes to explain what changed and why.
+                </p>
+              </div>
+            </div>
+            <div className="grid sm:grid-cols-2 gap-3">
+              {chosenDetails.map((item) => (
+                <div key={item.label} className="border border-green-100 rounded-lg p-3 bg-green-50/60">
+                  <div className="text-xs font-semibold text-green-700 uppercase tracking-wide mb-1">
+                    {item.sectionTitle}
+                  </div>
+                  <div className="font-semibold text-gray-900">{item.label}</div>
+                  <div className="text-sm text-gray-700 mt-1">{item.learning}</div>
+                  {item.impact && <div className="text-xs text-green-800 mt-2">Result: {item.impact}</div>}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {allChosen && (
+          <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 rounded-xl p-6 mt-6">
+            <div className="flex items-start gap-2 mb-3">
+              <Lightbulb className="text-blue-600 mt-0.5" size={20} />
+              <div>
+                <h4 className="text-lg font-bold text-gray-900">How the switches behaved</h4>
+                <p className="text-sm text-gray-700">
+                  Here are the patterns that surfaced when you tapped through the options.
+                </p>
+              </div>
+            </div>
+            <div className="grid sm:grid-cols-2 gap-4">
+              {round1Config.sections.map((section) => (
+                <div key={section.id} className="bg-white/80 rounded-lg border border-blue-100 p-3 shadow-sm">
+                  <div className="text-xs font-semibold text-blue-700 uppercase tracking-wide mb-1">{section.title}</div>
+                  <div className="text-sm text-gray-800 leading-relaxed">{section.pattern}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="bg-gradient-to-r from-green-500/10 via-blue-500/10 to-purple-500/10 border border-green-200 rounded-xl p-6 mt-6 text-center shadow-inner">
           <h4 className="text-xl font-bold text-gray-900 mb-2">Ready to write?</h4>
-          <p className="text-gray-700 text-sm mb-4">
-            {allChosen ? 'Nice picks. Keep them in mind for the next round.' : 'Select one option in each row to lock in what matters.'}
+          <p className="text-gray-700 text-sm mb-5">
+            {allChosen
+              ? 'Bring the takeaways above into your first draft and rerun the test if it feels off.'
+              : 'Lock in one per row to see what changes, then continue.'}
           </p>
           <button
             onClick={() => setStage('complete')}
@@ -105,7 +179,7 @@ const Round1GameV3 = ({ onComplete }) => {
       <div className="bg-white rounded-lg shadow-lg p-8 text-center">
         <h2 className="text-2xl font-bold mb-2">Round 1 Complete</h2>
         <p className="text-gray-600 mb-6">
-          You locked in the essentials without sitting through a lecture. Now try building one yourself.
+          You locked in the essentials and kept momentum. Now try building one yourself.
         </p>
         <button
           onClick={onComplete}
@@ -124,7 +198,7 @@ const Round1GameV3 = ({ onComplete }) => {
           {round1Config.stageLabel}
         </div>
         <h1 className="text-4xl font-bold mb-2">{round1Config.headline}</h1>
-        <p className="text-gray-600">{round1Config.subheadline}</p>
+        <p className="text-gray-600 max-w-3xl mx-auto">{round1Config.subheadline}</p>
       </div>
 
       {stage === 'scenario' && renderScenario()}

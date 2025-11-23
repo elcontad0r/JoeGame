@@ -363,6 +363,7 @@ const Round3Game = ({ onBack, difficulty = 'easy' }) => {
           userPrompt: fullPrompt,
           promptComponents: {
             context: promptValues.context,
+            task: promptValues.task,
             format: promptValues.format,
             audience: promptValues.audience,
             constraints: promptValues.constraints,
