@@ -1,11 +1,11 @@
 export const round1Config = {
   stageLabel: 'Round 1 of 3',
-  headline: 'Learn by trying, not reading',
-  subheadline: 'Tap different prompts and notice how each one nudges the reply.',
+  headline: 'See the wrong prompt, then the fix',
+  subheadline: 'Peek at each ingredient once. No guessing—just spot the miss and the better version.',
   hero: {
-    actionTitle: 'Experiment in a few clicks',
-    actionCopy: 'Pick a path, see the reaction, and keep moving. The notes teach you faster than any explainer.',
-    actionLabel: 'Start experimenting',
+    actionTitle: 'Preview common misses',
+    actionCopy: 'Open the prompt pieces, see how the bad version derails the output, and keep the better phrasing ready for your build.',
+    actionLabel: 'Start the preview',
     gradientFrom: 'from-blue-500',
     gradientTo: 'to-purple-600',
     accentColorClass: 'text-red-500'
@@ -16,138 +16,89 @@ export const round1Config = {
     situation:
       'Weekend DIY classes with four volunteers and 60 RSVPs. Share a one-screen plan with rooms, timing, and supplies before everyone heads to bed.'
   },
+  pillars: [
+    {
+      label: 'Name the job clearly',
+      bg: 'bg-blue-50',
+      text: 'text-blue-800',
+      border: 'border-blue-100',
+      dot: 'bg-blue-500'
+    },
+    {
+      label: 'Use only real context',
+      bg: 'bg-indigo-50',
+      text: 'text-indigo-800',
+      border: 'border-indigo-100',
+      dot: 'bg-indigo-500'
+    },
+    {
+      label: 'Give limits to aim it',
+      bg: 'bg-purple-50',
+      text: 'text-purple-800',
+      border: 'border-purple-100',
+      dot: 'bg-purple-500'
+    }
+  ],
   sections: [
     {
       id: 'task',
-      title: 'State the job plainly',
-      summary: 'How you name the task sets the whole response.',
-      helper: 'Tap one option and skim what shifted.',
-      pattern: 'Clear, specific asks pull the model straight into outlining the night. Vague or hype-y phrasing drifts into ideas and marketing instead of a usable plan.',
-      options: [
-        {
-          id: 'task-clear',
-          label: 'Draft the full Skillshare Day plan',
-          description: 'Plain ask that points straight at the deliverable.',
-          stance: 'best',
-          learning: 'Did it jump into outlining the night instead of talking about the club?',
-          impact: 'Usually drops straight into schedule, rooms, and supplies.'
-        },
-        {
-          id: 'task-vague',
-          label: 'Share some ideas for this event',
-          description: 'Loose ask that leaves room for interpretation.',
-          stance: 'avoid',
-          learning: 'Does it stay fuzzy on timing because you never asked for a plan?',
-          impact: 'Tends to list themes or vibes without dates or who does what.'
-        },
-        {
-          id: 'task-hype',
-          label: 'Write marketing copy to hype the club',
-          description: 'Hype-first angle that puts energy before logistics.',
-          stance: 'avoid',
-          learning: 'Does the tone shift to hype instead of setting a schedule?',
-          impact: 'Focuses on excitement and brand over schedule or setup.'
-        }
-      ]
+      title: 'Task',
+      summary: 'Your ask decides whether it plans or rambles.',
+      helper: 'Open once to compare a fuzzy ask with a clear one.',
+      misstep: {
+        prompt: '“Share some ideas for this event.”',
+        effect: 'The reply fills space with vibes and optional extras instead of drafting a plan you can use tonight.'
+      },
+      fix: {
+        prompt: '“Draft the full Skillshare Day plan with rooms, timing, and supplies.”',
+        effect: 'The model jumps straight into a schedule with setup lists because you asked for a concrete deliverable.'
+      },
+      takeaway: 'Name the deliverable in the first sentence so the model lands on the right format.'
     },
     {
       id: 'context',
-      title: 'Feed it the setting',
-      summary: 'Context is the backbone; see how much you need.',
-      helper: 'Switch options to see what details the AI decides to include.',
-      pattern: 'Specific numbers and spaces make the AI place people and supplies automatically. Thin or fluffy context keeps the response generic.',
-      options: [
-        {
-          id: 'context-specific',
-          label: 'Name the classes, rooms, RSVPs, and timing',
-          description: 'Grounded snapshot with numbers and locations.',
-          stance: 'best',
-          learning: 'Do the rooms, headcount, and timing now show up automatically?',
-          impact: 'Adds real room names, headcounts, and timelines without nudging.'
-        },
-        {
-          id: 'context-late',
-          label: 'Just say it is a “community event”',
-          description: 'Soft framing that leaves size and shape unclear.',
-          stance: 'avoid',
-          learning: 'Does it stay generic because it never learned who is coming?',
-          impact: 'Keeps the response vague and reusable for any event.'
-        },
-        {
-          id: 'context-random',
-          label: 'Talk about club values and mission',
-          description: 'Mission fluff without logistics.',
-          stance: 'avoid',
-          learning: 'Does it wander into values instead of giving room setups?',
-          impact: 'Wanders into purpose statements and skips layout details.'
-        }
-      ]
+      title: 'Context',
+      summary: 'Real details anchor the draft.',
+      helper: 'Open to see how thin context keeps the response generic.',
+      misstep: {
+        prompt: '“It’s a community event for everyone.”',
+        effect: 'The reply stays reusable for any event—no rooms, timing, or headcounts show up because none were shared.'
+      },
+      fix: {
+        prompt: '“Classes: Screenprinting, Laser Cutting, Woodshop. 60 RSVPs, four volunteers, rooms A/B/C, 6–10 p.m.”',
+        effect: 'The plan automatically places people, rooms, and supplies because it has specifics to work with.'
+      },
+      takeaway: 'Name real numbers, spaces, and people so the AI can place them without more prodding.'
     },
     {
       id: 'constraints',
-      title: 'Set the limits',
-      summary: 'Constraints steer what the AI prioritizes.',
-      helper: 'Toggle a limit and check how strict the response feels.',
-      pattern: 'When limits show up early, the AI narrows the plan around them. Without bounds, it invents extras or stretches timing.',
-      options: [
-        {
-          id: 'constraints-clear',
-          label: 'Share budget, setup time, supplies on hand',
-          description: 'Money, time, and materials up front.',
-          stance: 'best',
-          learning: 'Do budgets and prep windows show up as real tradeoffs?',
-          impact: 'Keeps lists realistic to the budget and the short prep window.'
-        },
-        {
-          id: 'constraints-none',
-          label: 'Tell it “be creative, no limits”',
-          description: 'Open brief with no boundaries.',
-          stance: 'avoid',
-          learning: 'Does it start inventing extras you cannot pull off tonight?',
-          impact: 'Invents add-ons like extra staff or gear you might not have.'
-        },
-        {
-          id: 'constraints-soft',
-          label: 'Only mention it’s happening “soon”',
-          description: 'Timing hint without hard numbers.',
-          stance: 'avoid',
-          learning: 'Does it fill space with filler because timing stayed vague?',
-          impact: 'Fills space with generic reassurance instead of concrete timing.'
-        }
-      ]
+      title: 'Constraints',
+      summary: 'Limits prevent imaginary plans.',
+      helper: 'Open to see how “no limits” invites make-believe.',
+      misstep: {
+        prompt: '“Be creative, no limits.”',
+        effect: 'The response invents extra staff, gear, and time you do not have, making the plan unusable.'
+      },
+      fix: {
+        prompt: '“Budget $350, 45-minute setup, supplies already listed. No new rentals.”',
+        effect: 'The plan stays realistic, trims extras, and sequences prep to fit the window you gave.'
+      },
+      takeaway: 'Set money, time, and material guardrails so the model optimizes within them.'
     },
     {
       id: 'audience',
-      title: 'Point it at the right reader',
-      summary: 'Tone and detail change with the audience.',
-      helper: 'Flip audiences to see tone and instructions move around.',
-      pattern: 'Naming a specific reader changes tone and instructions. Broad “everyone” requests flatten the message and bury action items.',
-      options: [
-        {
-          id: 'audience-split',
-          label: 'Separate notes for attendees and volunteers',
-          description: 'Two-reader approach: guests and helpers.',
-          stance: 'best',
-          learning: 'Do guests and volunteers now get distinct, clearer steps?',
-          impact: 'Produces two tracks: a welcoming note plus a checklist for helpers.'
-        },
-        {
-          id: 'audience-everyone',
-          label: 'One message for “everyone involved”',
-          description: 'Single message that tries to cover all.',
-          stance: 'avoid',
-          learning: 'Does it blur who does what because the audience was merged?',
-          impact: 'Blends tone and buries action items because it talks to everyone at once.'
-        },
-        {
-          id: 'audience-lead',
-          label: 'Write only for leadership',
-          description: 'Leadership-only view.',
-          stance: 'avoid',
-          learning: 'Does the plan ignore volunteers because it assumed only leads would read it?',
-          impact: 'Leans into strategy talk and leaves the on-site crew guessing.'
-        }
-      ]
+      title: 'Audience',
+      summary: 'The reader changes the tone and steps.',
+      helper: 'Open to see how “everyone” muddies the response.',
+      misstep: {
+        prompt: '“Write one message for everyone involved.”',
+        effect: 'Tone blurs and action items get buried because the model tries to speak to guests and volunteers at once.'
+      },
+      fix: {
+        prompt: '“Two notes: one warm welcome for guests, one checklist for volunteers.”',
+        effect: 'The response splits into a welcoming note plus a clear checklist, so each group knows exactly what to do.'
+      },
+      takeaway: 'Name who is reading so instructions and tone land with the right people.'
     }
   ],
   completion: {

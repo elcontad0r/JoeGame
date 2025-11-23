@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowRight, CheckCircle, Lightbulb } from 'lucide-react';
-import LessonSection from './rounds/common/LessonSection';
+import { ArrowRight, ChevronDown, Lightbulb } from 'lucide-react';
 import ScenarioHero from './rounds/common/ScenarioHero';
 import { round1Config } from './rounds/common/lessonConfig';
 
 const Round1GameV3 = ({ onComplete }) => {
   const [stage, setStage] = useState('scenario');
-  const [selections, setSelections] = useState({});
+  const [openSections, setOpenSections] = useState({});
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -26,20 +25,7 @@ const Round1GameV3 = ({ onComplete }) => {
   );
 
   const renderLessons = () => {
-    const allChosen = round1Config.sections.every((section) => selections[section.id]);
-    const chosenDetails = round1Config.sections
-      .map((section) => {
-        const selectedId = selections[section.id];
-        const option = section.options.find((o) => o.id === selectedId);
-        if (!option) return null;
-        return {
-          sectionTitle: section.title,
-          label: option.label,
-          learning: option.learning,
-          impact: option.impact
-        };
-      })
-      .filter(Boolean);
+    const allOpened = round1Config.sections.every((section) => openSections[section.id]);
 
     return (
       <div className="max-w-5xl mx-auto px-4 sm:px-6">
@@ -47,149 +33,115 @@ const Round1GameV3 = ({ onComplete }) => {
           <div className="flex items-start gap-3 mb-4">
             <Lightbulb className="text-blue-600" size={22} />
             <div className="space-y-2">
-              <h3 className="text-2xl font-bold text-gray-900">Test the building blocks</h3>
+              <h3 className="text-2xl font-bold text-gray-900">Spot why the first draft falls flat</h3>
               <p className="text-gray-700 text-sm sm:text-base">
-                Tap one per row and read the short note that pops up. The learning comes from the reaction, not guessing the right pick.
+                Open each section to compare a “miss” against a better prompt. You see the outcome and the fix at the same time.
               </p>
             </div>
           </div>
           <div className="grid sm:grid-cols-3 gap-3 text-sm font-semibold">
-            <div className="flex items-center gap-2 bg-blue-50 text-blue-800 rounded-lg px-3 py-2 border border-blue-100">
-              <span className="w-2 h-2 rounded-full bg-blue-500" aria-hidden="true" />
-              Clear task first
-            </div>
-            <div className="flex items-center gap-2 bg-indigo-50 text-indigo-800 rounded-lg px-3 py-2 border border-indigo-100">
-              <span className="w-2 h-2 rounded-full bg-indigo-500" aria-hidden="true" />
-              Real context only
-            </div>
-            <div className="flex items-center gap-2 bg-purple-50 text-purple-800 rounded-lg px-3 py-2 border border-purple-100">
-              <span className="w-2 h-2 rounded-full bg-purple-500" aria-hidden="true" />
-              Keep it doable
-            </div>
+            {round1Config.pillars.map((pillar) => (
+              <div
+                key={pillar.label}
+                className={`${pillar.bg} ${pillar.text} rounded-lg px-3 py-2 border ${pillar.border} flex items-center gap-2`}
+              >
+                <span className={`w-2 h-2 rounded-full ${pillar.dot}`} aria-hidden="true" />
+                {pillar.label}
+              </div>
+            ))}
           </div>
         </div>
 
         <div className="space-y-5">
-          {round1Config.sections.map((section) => (
-            <LessonSection
-              key={section.id}
-              section={section}
-              selectedOptionId={selections[section.id]}
-              onSelectOption={(optionId) => setSelections({ ...selections, [section.id]: optionId })}
-            />
-          ))}
+          {round1Config.sections.map((section) => {
+            const isOpen = Boolean(openSections[section.id]);
+
+            return (
+              <div key={section.id} className="bg-white rounded-xl shadow border border-gray-100 p-5">
+                <button
+                  type="button"
+                  onClick={() => setOpenSections({ ...openSections, [section.id]: !isOpen })}
+                  className="w-full flex items-start justify-between gap-3 text-left"
+                >
+                  <div>
+                    <div className="text-xs font-semibold text-purple-700 uppercase tracking-wide mb-1">{section.title}</div>
+                    <h4 className="text-lg font-bold text-gray-900 mb-1">{section.summary}</h4>
+                    <p className="text-sm text-gray-600">{section.helper}</p>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+                    {isOpen ? 'Hide comparison' : 'See miss vs. fix'}
+                    <ChevronDown
+                      size={18}
+                      className={`transition-transform ${isOpen ? 'rotate-180 text-purple-600' : 'text-gray-500'}`}
+                    />
+                  </div>
+                </button>
+
+                {isOpen && (
+                  <div className="mt-4 space-y-3">
+                    <div className="rounded-lg border border-rose-100 bg-rose-50/70 p-4">
+                      <div className="text-xs font-semibold text-rose-700 uppercase tracking-wide mb-1">If you ask it this way</div>
+                      <div className="font-semibold text-gray-900">{section.misstep.prompt}</div>
+                      <p className="text-sm text-gray-700 mt-1">{section.misstep.effect}</p>
+                    </div>
+                    <div className="rounded-lg border border-green-100 bg-green-50/70 p-4">
+                      <div className="text-xs font-semibold text-green-700 uppercase tracking-wide mb-1">Do this instead</div>
+                      <div className="font-semibold text-gray-900">{section.fix.prompt}</div>
+                      <p className="text-sm text-gray-700 mt-1">{section.fix.effect}</p>
+                    </div>
+                    <div className="rounded-lg border border-blue-100 bg-blue-50/70 p-4">
+                      <div className="text-xs font-semibold text-blue-700 uppercase tracking-wide mb-1">Takeaway</div>
+                      <p className="text-sm text-gray-800">{section.takeaway}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
 
-        {allChosen && (
-          <div className="bg-white rounded-xl shadow border border-green-200 p-6 mt-6">
-            <div className="flex items-start gap-2 mb-3">
-              <Lightbulb className="text-green-600 mt-0.5" size={20} />
-              <div>
-                <h4 className="text-lg font-bold text-gray-900">What you just noticed</h4>
-                <p className="text-sm text-gray-700">
-                  Each selection shifted the reply in its own way. Use these notes to explain what changed and why.
-                </p>
-              </div>
-            </div>
-            <div className="grid sm:grid-cols-2 gap-3">
-              {chosenDetails.map((item) => (
-                <div key={item.label} className="border border-green-100 rounded-lg p-3 bg-green-50/60">
-                  <div className="text-xs font-semibold text-green-700 uppercase tracking-wide mb-1">
-                    {item.sectionTitle}
-                  </div>
-                  <div className="font-semibold text-gray-900">{item.label}</div>
-                  <div className="text-sm text-gray-700 mt-1">{item.learning}</div>
-                  {item.impact && <div className="text-xs text-green-800 mt-2">Result: {item.impact}</div>}
-                </div>
-              ))}
+        <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 rounded-xl p-6 mt-6">
+          <div className="flex items-start gap-2 mb-3">
+            <Lightbulb className="text-blue-600 mt-0.5" size={20} />
+            <div>
+              <h4 className="text-lg font-bold text-gray-900">What you just learned</h4>
+              <p className="text-sm text-gray-700">
+                Keep these fixes in mind while you build your own prompt next.
+              </p>
             </div>
           </div>
-        )}
-
-        {allChosen && (
-          <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100 rounded-xl p-6 mt-6">
-            <div className="flex items-start gap-2 mb-3">
-              <Lightbulb className="text-blue-600 mt-0.5" size={20} />
-              <div>
-                <h4 className="text-lg font-bold text-gray-900">How the switches behaved</h4>
-                <p className="text-sm text-gray-700">
-                  Here are the patterns that surfaced when you tapped through the options.
-                </p>
+          <div className="grid sm:grid-cols-3 gap-3">
+            {round1Config.completion.takeaways.map((takeaway) => (
+              <div key={takeaway.title} className="bg-white/80 rounded-lg border border-blue-100 p-3 shadow-sm">
+                <div className="text-xs font-semibold text-blue-700 uppercase tracking-wide mb-1">{takeaway.title}</div>
+                <div className="text-sm text-gray-800 leading-relaxed">{takeaway.description}</div>
               </div>
-            </div>
-            <div className="grid sm:grid-cols-2 gap-4">
-              {round1Config.sections.map((section) => (
-                <div key={section.id} className="bg-white/80 rounded-lg border border-blue-100 p-3 shadow-sm">
-                  <div className="text-xs font-semibold text-blue-700 uppercase tracking-wide mb-1">{section.title}</div>
-                  <div className="text-sm text-gray-800 leading-relaxed">{section.pattern}</div>
-                </div>
-              ))}
-            </div>
+            ))}
           </div>
-        )}
+        </div>
 
         <div className="bg-gradient-to-r from-green-500/10 via-blue-500/10 to-purple-500/10 border border-green-200 rounded-xl p-6 mt-6 text-center shadow-inner">
-          <h4 className="text-xl font-bold text-gray-900 mb-2">Ready to write?</h4>
+          <h4 className="text-xl font-bold text-gray-900 mb-2">Jump into Round 2</h4>
           <p className="text-gray-700 text-sm mb-5">
-            {allChosen
-              ? 'Bring the takeaways above into your first draft and rerun the test if it feels off.'
-              : 'Lock in one per row to see what changes, then continue.'}
+            {allOpened
+              ? 'Apply the fixes above to your own prompt build.'
+              : 'Open each comparison to see the miss and the fix before continuing.'}
           </p>
           <button
-            onClick={() => setStage('complete')}
-            disabled={!allChosen}
+            onClick={onComplete}
+            disabled={!allOpened}
             className={`px-10 py-3 rounded-lg font-semibold inline-flex items-center justify-center gap-2 transition-colors ${
-              allChosen
+              allOpened
                 ? 'bg-green-600 text-white hover:bg-green-700'
                 : 'bg-gray-300 text-gray-600 cursor-not-allowed'
             }`}
           >
-            Continue <ArrowRight size={18} />
+            Start Round 2 <ArrowRight size={18} />
           </button>
         </div>
       </div>
     );
   };
-
-  const renderComplete = () => (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6">
-      <div className="bg-gradient-to-r from-green-500 to-blue-600 rounded-lg shadow-xl p-8 text-white mb-8">
-        <CheckCircle className="mx-auto mb-4" size={48} />
-        <h3 className="text-3xl font-bold mb-2 text-center">{round1Config.completion.title}</h3>
-        <p className="text-xl mb-6 text-center text-green-50">{round1Config.completion.summary}</p>
-
-        <div className="bg-white bg-opacity-20 rounded-lg p-6 backdrop-blur-sm">
-          <div className="text-lg font-bold mb-4">The three things that matter:</div>
-          <div className="space-y-4">
-            {round1Config.completion.takeaways.map((takeaway, index) => (
-              <div key={takeaway.title} className="flex items-start gap-3">
-                <div className="bg-white text-blue-600 rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0 font-bold">
-                  {index + 1}
-                </div>
-                <div>
-                  <div className="font-bold">{takeaway.title}</div>
-                  <div className="text-green-50 text-sm">{takeaway.description}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <div className="bg-white rounded-lg shadow-lg p-8 text-center">
-        <h2 className="text-2xl font-bold mb-2">Round 1 Complete</h2>
-        <p className="text-gray-600 mb-6">
-          You locked in the essentials and kept momentum. Now try building one yourself.
-        </p>
-        <button
-          onClick={onComplete}
-          className="bg-purple-600 text-white px-10 py-4 rounded-lg font-bold hover:bg-purple-700 transition-colors inline-flex items-center gap-2"
-        >
-          Start Round 2 <ArrowRight size={20} />
-        </button>
-      </div>
-    </div>
-  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8">
@@ -203,7 +155,6 @@ const Round1GameV3 = ({ onComplete }) => {
 
       {stage === 'scenario' && renderScenario()}
       {stage === 'lessons' && renderLessons()}
-      {stage === 'complete' && renderComplete()}
     </div>
   );
 };
