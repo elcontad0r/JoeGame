@@ -1,5 +1,5 @@
-import React from 'react';
-import { Lightbulb, CheckCircle, Sparkles, AlertCircle, Zap } from 'lucide-react';
+import React, { useEffect, useMemo } from 'react';
+import { Lightbulb, Sparkles, AlertCircle, Zap } from 'lucide-react';
 import IngredientField from './IngredientField';
 
 const PromptBuilder = ({
@@ -29,6 +29,25 @@ const PromptBuilder = ({
     toggleCollapse
   } = promptIngredients;
 
+  const taskStarter = useMemo(() => {
+    const details = [
+      scenario?.requirement && `Deliverable: ${scenario.requirement}`,
+      scenario?.urgency && `Timing: ${scenario.urgency}`,
+      scenario?.sector && `Audience: people in ${scenario.sector}`,
+      scenario?.focus && `Must include: ${scenario.focus}`
+    ].filter(Boolean);
+
+    return details.length > 0
+      ? details.join('\n')
+      : 'Describe the deliverable, timing, audience, and must-have details you want Claude to respect.';
+  }, [scenario]);
+
+  useEffect(() => {
+    if (taskStarter && !promptValues.task) {
+      promptSetters.task(taskStarter);
+    }
+  }, [promptSetters, promptValues.task, taskStarter]);
+
   const activePresets = ingredientPresets[selectedDifficulty] || ingredientPresets.easy;
   const totalChipSelections = Object.values(selectedPresets).filter(Boolean).length;
   const shouldShowChipSections = selectedDifficulty !== 'hard' && (chipRule?.minTotalSelections ?? 0) > 0;
@@ -48,8 +67,16 @@ const PromptBuilder = ({
   };
 
   const fields = {
-    context: {
+    task: {
       number: 1,
+      title: 'Task',
+      placeholder: taskStarter,
+      hint: 'Rewrite the assignment in your own words: the deliverable, timing, audience, and must-haves.',
+      value: promptValues.task,
+      onChange: promptSetters.task
+    },
+    context: {
+      number: 2,
       title: 'Context',
       placeholder: 'What does Claude need to know about the background and situation?',
       hint: 'Share the project, key facts, and any background. Copy/paste relevant lines from your doc if helpful.',
@@ -57,7 +84,7 @@ const PromptBuilder = ({
       onChange: promptSetters.context
     },
     format: {
-      number: 2,
+      number: 3,
       title: 'Format',
       placeholder: 'What shape should the response take?',
       hint: 'Do you want bullets, an outline, a draft email, a table? Call it out clearly.',
@@ -65,7 +92,7 @@ const PromptBuilder = ({
       onChange: promptSetters.format
     },
     audience: {
-      number: 3,
+      number: 4,
       title: 'Audience',
       placeholder: 'Who is reading this? What perspective do they have?',
       hint: 'Name the audience, their concerns, and what will resonate.',
@@ -73,7 +100,7 @@ const PromptBuilder = ({
       onChange: promptSetters.audience
     },
     constraints: {
-      number: 4,
+      number: 5,
       title: 'Constraints',
       placeholder: 'What must be avoided or prioritized?',
       hint: 'List guardrails, tone requirements, and any must-include details.',
@@ -81,7 +108,7 @@ const PromptBuilder = ({
       onChange: promptSetters.constraints
     },
     goal: {
-      number: 5,
+      number: 6,
       title: 'Goal',
       placeholder: 'What should this accomplish?',
       hint: "What's the desired outcome? What action should readers take? How do you measure success?",
@@ -154,31 +181,6 @@ const PromptBuilder = ({
         </button>
       </div>
 
-      <div className="bg-white rounded-lg border-2 border-gray-200 p-5 mb-6">
-        <div className="flex items-center gap-2 mb-3">
-          <CheckCircle className="text-green-600" size={18} />
-          <p className="font-semibold text-gray-900">Task block</p>
-        </div>
-        <div className="grid sm:grid-cols-2 gap-3 text-sm text-gray-800">
-          <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-            <p className="text-xs uppercase font-bold text-green-800 mb-1">Deliverable</p>
-            <p className="leading-snug">{scenario?.requirement || 'Spell out what you need written or outlined.'}</p>
-          </div>
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-            <p className="text-xs uppercase font-bold text-blue-800 mb-1">Timing</p>
-            <p className="leading-snug">{scenario?.urgency || 'Note when this is due and why the timing matters.'}</p>
-          </div>
-          <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
-            <p className="text-xs uppercase font-bold text-purple-800 mb-1">Audience</p>
-            <p className="leading-snug">{scenario?.sector ? `Write for folks in ${scenario.sector}.` : 'Call out who will read this.'}</p>
-          </div>
-          <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
-            <p className="text-xs uppercase font-bold text-orange-800 mb-1">Must include</p>
-            <p className="leading-snug">{scenario?.focus || 'Include the key facts from the scenario without adding extras.'}</p>
-          </div>
-        </div>
-      </div>
-
       {showHints && (
         <div className="bg-white rounded-lg border-2 border-gray-200 p-6 mb-6">
           <h3 className="font-bold text-gray-900 mb-4">Questions to guide you:</h3>
@@ -229,22 +231,6 @@ const PromptBuilder = ({
           />
         ))}
 
-        <IngredientField
-          field="goal"
-          number={5}
-          title="Goal"
-          placeholder="What should this accomplish?"
-          hint="What's the desired outcome? What action should readers take? How do you measure success?"
-          value={promptValues.goal}
-          onChange={promptSetters.goal}
-          presets={activePresets?.goal || []}
-          onPresetSelect={applyPresetToField}
-          selectedPresets={selectedPresets}
-          difficulty={selectedDifficulty}
-          collapsed={collapsed}
-          onToggleCollapse={toggleCollapse}
-          perFieldLimit={chipRule.perFieldLimit}
-        />
       </div>
 
       {baseFieldsFilled && (
