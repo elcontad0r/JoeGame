@@ -86,7 +86,7 @@ const Round1GameV3 = ({ onComplete }) => {
                       {section.misstep.example && (
                         <div className="mt-3 bg-white/70 border border-rose-100 rounded-md p-3 shadow-inner">
                           <div className="text-xs font-semibold text-rose-700 uppercase tracking-wide mb-1">Sample output</div>
-                          <p className="text-sm text-gray-700 leading-relaxed">{section.misstep.example}</p>
+                          <div className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">{section.misstep.example}</div>
                         </div>
                       )}
                     </div>
@@ -97,7 +97,7 @@ const Round1GameV3 = ({ onComplete }) => {
                       {section.fix.example && (
                         <div className="mt-3 bg-white/70 border border-green-100 rounded-md p-3 shadow-inner">
                           <div className="text-xs font-semibold text-green-700 uppercase tracking-wide mb-1">Sample output</div>
-                          <p className="text-sm text-gray-700 leading-relaxed">{section.fix.example}</p>
+                          <div className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">{section.fix.example}</div>
                         </div>
                       )}
                     </div>
